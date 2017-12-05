@@ -8,7 +8,7 @@
     "email": "Emiliano.Heyns@iris-advies.com"
   },
   "scripts": {
-    "postversion": "./script/annotated-tag.sh"
+    "postversion": "echo ./script/annotated-tag.sh"
   },
   "main": "index.js",
   "directories": {

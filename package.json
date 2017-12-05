@@ -1,0 +1,55 @@
+{
+  "name": "zotero-plugin",
+  "version": "0.0.1",
+  "description": "Zotero plugin builder",
+  "homepage": "https://github.com/retorquere/zotero-plugin/wiki",
+  "author": {
+    "name": "Emiliano Heyns",
+    "email": "Emiliano.Heyns@iris-advies.com"
+  },
+  "scripts": {
+    "postversion": "./script/annotated-tag.sh"
+  },
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {
+    "@rgrove/parse-xml": "^1.1.1",
+    "@types/node": "^8.0.54",
+    "@types/webpack": "^3.8.1",
+    "archiver": "^2.1.0",
+    "dotenv": "^4.0.0",
+    "ejs": "^2.5.7",
+    "find-up": "^2.1.0",
+    "fs-extra": "^4.0.2",
+    "glob": "^7.1.2",
+    "jsesc": "^2.5.1",
+    "loader-utils": "^1.1.0",
+    "lodash": "^4.17.4",
+    "node-archiver": "^0.3.0",
+    "properties-reader": "^0.0.16",
+    "pug": "^2.0.0-rc.4",
+    "replace": "^0.3.0",
+    "rimraf": "^2.6.2",
+    "shelljs": "^0.7.8",
+    "ts-loader": "^3.2.0",
+    "ts-node": "^3.3.0",
+    "tslint": "^5.8.0",
+    "typescript": "^2.6.2",
+    "uri-templates": "^0.2.0",
+    "webpack": "^3.9.1",
+    "wrapper-webpack-plugin": "^1.0.0",
+    "xml-parser": "^1.2.1",
+    "xmldom": "^0.1.27",
+    "xpath": "^0.0.27"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/retorquere/zotero-plugin.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/retorquere/zotero-plugin/issues"
+  }
+}

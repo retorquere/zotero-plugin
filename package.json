@@ -8,7 +8,9 @@
     "email": "Emiliano.Heyns@iris-advies.com"
   },
   "scripts": {
-    "postversion": "echo ./script/annotated-tag.sh"
+    "preversion": "npm test",
+    "postversion": "echo ./script/annotated-tag.sh",
+    "test": "tslint -t stylish --project ."
   },
   "main": "index.js",
   "directories": {

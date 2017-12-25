@@ -11,7 +11,7 @@ import uriTemplate = require('uri-templates')
 import root from './root'
 import version from './version'
 
-const pkg = { ...require('../package.json') }
+const pkg = { ...require(path.join(root, 'package.json')) }
 
 if (!pkg.id) pkg.id = `${pkg.name.replace(/^zotero-/, '')}@${pkg.author.email.replace(/.*@/, '')}`.toLowerCase()
 if (pkg.xpi) Object.assign(pkg, pkg.xpi)

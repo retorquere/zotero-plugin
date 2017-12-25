@@ -1,29 +1,41 @@
 // tslint:disable:no-console
 
-require('dotenv').config()
+import 'dotenv/config'
 import * as path from 'path'
+import * as moment from 'moment'
+import * as fs from 'fs'
+
+import * as GitHub from 'github'
+const github = new GitHub
+github.authenticate({ type: 'token', token: process.env.GITHUB_TOKEN })
 
 import '../circle'
-
 import root from '../root'
-import version from '../version'
-import * as github from './github'
 
-const pkg = require('../../package.json')
+const pkg = require(path.join(root, 'package.json'))
+const [ , owner, repo ] = pkg.repository.url.match(/:\/\/github.com\/([^\/]+)\/([^\.]+)\.git$/)
+
+import version from '../version'
+const xpi = `zotero-better-bibtex-${version}.xpi`
 
 const PRERELEASE = false
-const KEEP_BUILDS = 40
+// tslint:disable-next-line:no-magic-numbers
+const EXPIRE_BUILDS = moment().subtract(7, 'days').toDate().toISOString()
 
 function bail(msg, status = 1) {
   console.log(msg)
   process.exit(status)
 }
 
-function dedup(arr) {
-  return arr.sort().filter((item, pos, ary) => !pos || (item !== ary[pos - 1]))
+const dryRun = !process.env.CIRCLE_BRANCH
+if (dryRun) {
+  console.log('Not running on CircleCI, switching to dry-run mode')
+  process.env.CIRCLE_BRANCH = require('current-git-branch')
 }
 
-if (!process.env.CIRCLE_BRANCH) bail('Not running on CircleCI')
+function report(msg) {
+  console.log(`${dryRun ? 'dry-run: ' : ''}${msg}`)
+}
 
 if (process.env.CI_PULL_REQUEST) bail('Not releasing pull requests', 0)
 
@@ -33,20 +45,16 @@ if (process.env.CIRCLE_TAG) {
   if (process.env.CIRCLE_BRANCH !== 'master') bail(`Building tag ${process.env.CIRCLE_TAG}, but branch is ${process.env.CIRCLE_BRANCH}`)
 }
 
-if (process.env.CIRCLE_BRANCH.startsWith('@')) bail(`Not releasing ${process.env.CIRCLE_BRANCH}`, 0)
-
-let tags = []
+const tags = new Set
 for (let regex = /(?:^|\s)(?:#)([a-zA-Z\d]+)/gm, tag; tag = regex.exec(process.env.CIRCLE_COMMIT_MSG); ) {
-  tags.push(tag[1])
+  tags.add(tag[1])
 }
-tags = dedup(tags)
 
-if (tags.indexOf('norelease') >= 0) bail(`Not releasing ${process.env.CIRCLE_BRANCH} because of 'norelease' tag`, 0)
+if (tags.has('norelease')) bail(`Not releasing on ${process.env.CIRCLE_BRANCH} because of 'norelease' tag`, 0)
 
-let issues = tags.filter(tag => !isNaN(parseInt(tag)))
+const issues = new Set(Array.from(tags).map(parseInt).filter(tag => !isNaN(tag)))
 
-if (process.env.CIRCLE_BRANCH.match(/^[0-9]+$/)) issues.push(process.env.CIRCLE_BRANCH)
-issues = dedup(issues)
+if (process.env.CIRCLE_BRANCH.match(/^[0-9]+$/)) issues.add(parseInt(process.env.CIRCLE_BRANCH))
 
 async function announce(issue, release) {
   let build, reason
@@ -58,103 +66,101 @@ async function announce(issue, release) {
     reason = ` (${JSON.stringify(process.env.CIRCLE_COMMIT_MSG)})`
   }
 
-  const msg = `:robot: this is your friendly neighborhood build bot announcing [${build}](https://github.com/retorquere/zotero-better-bibtex/releases/download/${release}/zotero-better-bibtex-${version}.xpi)${reason}.`
+  const msg = `:robot: this is your friendly neighborhood build bot announcing [${build}](https://github.com/retorquere/zotero-better-bibtex/releases/download/${release.data.tag_name}/zotero-better-bibtex-${version}.xpi)${reason}.`
+
+  report(msg)
+  if (dryRun) return
 
   try {
-    await github.request({
-      uri: `/issues/${issue}/comments`,
-      method: 'POST',
-      body: { body: msg },
-    })
-  } catch (error) {}
+    await github.issues.createComment({ owner, repo, number: issue, body: msg })
+  } catch (error) {
+    console.log(`Failed to announce '${build}: ${reason}' on ${issue}`)
+  }
+}
+
+async function uploadAsset(release, asset, contentType) {
+  report(`uploading ${path.basename(asset)} to ${release.data.tag_name} using ${release.data.upload_url}`)
+  if (dryRun) return
+
+  await github.repos.uploadAsset({
+    url: release.data.upload_url,
+    file: fs.readFileSync(asset, null).buffer,
+    contentType,
+    contentLength: fs.statSync(asset).size,
+    name: path.basename(asset),
+  })
+  console.log('done')
+}
+
+async function getRelease(tag, failonerror = true) {
+  try {
+    return await github.repos.getReleaseByTag({ owner, repo, tag })
+  } catch (err) {
+    if (failonerror) bail(`Could not get release ${tag}: ${err}`)
+    return null
+  }
+}
+
+async function update_rdf(tag, failonerror) {
+  const release = await getRelease(tag, failonerror)
+
+  report(`uploading update.rdf to ${release.tag_name}`)
+  if (dryRun) return
+
+  for (const asset of release.data.assets || []) {
+    if (asset.name === 'update.rdf') await github.repos.deleteAsset({ owner, repo, id: asset.id })
+  }
+  await uploadAsset(release, path.join(root, 'gen/update.rdf'), 'application/rdf+xml')
+}
+
+async function _main() {
+  if (process.env.NIGHTLY === 'true') return
+
+  if (process.env.CIRCLE_BRANCH === 'l10n_master') {
+    for (const issue of await github.issues.getForRepo({ owner, repo, state: 'open', labels: 'translation' })) {
+      issues.add(parseInt(issue.number))
+    }
+  }
+
+  let release
+  if (process.env.CIRCLE_TAG) {
+    // upload XPI
+    release = await getRelease(process.env.CIRCLE_TAG, false)
+    if (release) bail(`release ${process.env.CIRCLE_TAG} exists, bailing`)
+
+    report(`uploading ${xpi} to new release ${process.env.CIRCLE_TAG}`)
+    if (!dryRun) {
+      release = github.repos.createRelease({ owner, repo, tag_name: process.env.CIRCLE_TAG, prerelease: !!PRERELEASE })
+      await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/x-xpinstall')
+    }
+
+    // RDF update pointer(s)
+    update_rdf(pkg.xpi.releaseURL.split('/').filter(name => name).reverse()[0], true)
+    // legacy RDF pointer
+    update_rdf('update.rdf', false)
+
+  } else {
+    release = await getRelease('builds')
+
+    for (const asset of release.data.assets || []) {
+      if (asset.created_at < EXPIRE_BUILDS) {
+        report(`deleting ${asset.name}`)
+        if (!dryRun) await github.repos.deleteAsset({ owner, repo, id: asset.id })
+      }
+    }
+    await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/x-xpinstall')
+  }
+
+  for (const issue of Array.from(issues)) {
+    await announce(issue, release)
+  }
 }
 
 async function main() {
-  const release: { [key: string]: { tag_name: string, assets?: any } } = {
-    static: { tag_name: pkg.xpi.releaseURL.split('/').filter(name => name).reverse()[0] },
-    current: { tag_name: `v${pkg.version}` },
-    builds: { tag_name: 'builds' },
-  }
-
-  for (const [id, rel] of Object.entries(release)) {
-    try {
-      release[id] = await github.request({ uri: `/releases/tags/${rel.tag_name}` })
-    } catch (error) {
-      release[id] = null
-    }
-  }
-
-  if (process.env.CIRCLE_BRANCH === 'l10n_master') {
-    const translations = await github.request({ uri: '/issues?state=open&labels=translation' })
-    issues = issues.concat(translations.map(issue => issue.number))
-  }
-  issues = dedup(issues)
-
-  const xpi = `zotero-better-bibtex-${version}.xpi`
-
-  if (process.env.CIRCLE_TAG) {
-    if (release.current) bail(`release ${process.env.CIRCLE_TAG} exists, bailing`)
-
-    if (!release.static) bail('No release found to hold release pointers, bailing')
-
-    const update_rdf = release.static.assets && release.static.assets.find(asset => asset.name === 'update.rdf')
-    if (update_rdf) await github.request({ method: 'DELETE', uri: `/releases/assets/${update_rdf.id}` })
-
-    // create release.current
-    release.current = await github.request({
-      uri: '/releases',
-      method: 'POST',
-      body: {
-        tag_name: process.env.CIRCLE_TAG,
-        prerelease: !!PRERELEASE,
-      },
-    })
-
-    console.log(`uploading ${xpi} to ${release.current.tag_name}`)
-    await github.upload({
-      release: release.current,
-      name: xpi,
-      path: path.resolve(__dirname, path.join(root, `xpi/${xpi}`)),
-      contentType: 'application/x-xpinstall',
-    })
-
-    await github.upload({
-      release: release.static,
-      name: 'update.rdf',
-      path: path.resolve(__dirname, '../../gen/update.rdf'),
-      contentType: 'application/rdf+xml',
-    })
-
-    for (const issue of issues) {
-      await announce(issue, release.current.tag_name)
-    }
-
-  } else {
-    if (!release.builds) bail('no release for builds')
-
-    if (!release.builds.assets) release.builds.assets = []
-    release.builds.assets.sort((a, b) => (new Date(b.created_at)).getTime() - (new Date(a.created_at)).getTime())
-    for (let i = 0; i < release.builds.assets.length; i++) {
-      const asset = release.builds.assets[i]
-      if ((i < KEEP_BUILDS) && (asset.name !== xpi)) continue
-      await github.request({ method: 'DELETE', uri: `/releases/assets/${asset.id}` })
-    }
-
-    console.log(`uploading ${xpi} to builds`)
-    await github.upload({
-      release: release.builds,
-      name: xpi,
-      path: path.resolve(__dirname, path.join(root, `xpi/${xpi}`)),
-      contentType: 'application/x-xpinstall',
-    })
-
-    if (process.env.NIGHTLY === 'true') {
-      issues = []
-    }
-
-    for (const issue of issues) {
-      await announce(issue, 'builds')
-    }
+  try {
+    await _main()
+  } catch (err) {
+    bail(`release failed: ${err}`)
   }
 }
 

@@ -19,7 +19,7 @@
   "include": [
     "content/**/*",
     "resource/**/*",
-    "webpack/**/*",
+    "zotero-webpack/**/*",
     "setup/**/*",
     "webpack.config.ts"
   ],

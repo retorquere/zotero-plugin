@@ -9,12 +9,19 @@
     "preserveConstEnums": false,
     "sourceMap": false,
     "downlevelIteration": true,
-    "lib": [ "es2017", "dom" ]
+    "lib": [ "es2017", "dom" ],
+    "typeRoots": [
+      "./typings",
+      "./gen/typings",
+      "./node_modules/@types"
+    ]
   },
   "include": [
-    "script/**/*",
+    "content/**/*",
+    "resource/**/*",
     "webpack/**/*",
-    "*.ts"
+    "setup/**/*",
+    "webpack.config.ts"
   ],
   "exclude": [
     "node_modules",

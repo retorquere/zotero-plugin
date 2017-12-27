@@ -4,12 +4,16 @@ import 'dotenv/config'
 
 import AWSS3Form = require('aws-s3-form')
 import moment = require('moment')
+import * as path from 'path'
 
 import * as GitHub from 'github'
 const github = new GitHub
 github.authenticate({ type: 'token', token: process.env.GITHUB_TOKEN })
 
-const pkg = require('../../package.json')
+import root from '../root'
+
+const pkg = require(path.join(root, 'package.json'))
+
 const [ , owner, repo ] = pkg.repository.url.match(/:\/\/github.com\/([^\/]+)\/([^\.]+)\.git$/)
 
 const expireAfterDay = 6

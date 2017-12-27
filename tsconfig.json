@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "declaration": true,
     "importHelpers": true,
     "target": "es2017",
     "disableSizeLimit": true,
@@ -17,11 +18,15 @@
     ]
   },
   "include": [
+    "loader",
+    "plugin",
+    "script",
+    "webpack",
     "content/**/*",
     "resource/**/*",
     "zotero-webpack/**/*",
     "setup/**/*",
-    "webpack.config.ts"
+    "*.ts"
   ],
   "exclude": [
     "node_modules",

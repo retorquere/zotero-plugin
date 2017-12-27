@@ -11,7 +11,8 @@
   "scripts": {
     "preversion": "npm test",
     "postversion": "echo ./script/annotated-tag.sh",
-    "test": "tslint -t stylish --project ."
+    "test": "tslint -t stylish --project .",
+    "prepublishOnly": "tsc"
   },
   "directories": {
     "test": "test"

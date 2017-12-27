@@ -3,7 +3,12 @@
   "version": "0.0.6",
   "description": "Zotero plugin builder",
   "homepage": "https://github.com/retorquere/zotero-plugin/wiki",
-  "bin": "./bin/annotated-tag.sh",
+  "bin": {
+    "npm-annotated-tag": "./bin/annotated-tag.sh",
+    "zotero-plugin-release": "./bin/release.js",
+    "zotero-plugin-s3form": "./bin/s3form.js",
+    "zotero-plugin-zipup": "./bin/zipup.js"
+  },
   "author": {
     "name": "Emiliano Heyns",
     "email": "Emiliano.Heyns@iris-advies.com"
@@ -12,7 +17,7 @@
     "preversion": "npm test",
     "postversion": "echo ./script/annotated-tag.sh",
     "test": "tslint -t stylish --project .",
-    "prepublishOnly": "tsc"
+    "prepublishOnly": "tsc && chmod +x bin/*.js"
   },
   "directories": {
     "test": "test"

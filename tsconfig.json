@@ -18,6 +18,7 @@
     ]
   },
   "include": [
+    "bin",
     "loader",
     "plugin",
     "script",

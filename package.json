@@ -43,6 +43,7 @@
     "properties-reader": "^0.0.16",
     "pug": "^2.0.0-rc.4",
     "replace": "^0.3.0",
+    "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "rimraf": "^2.6.2",
     "shelljs": "^0.7.8",

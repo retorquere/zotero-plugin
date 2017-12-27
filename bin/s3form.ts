@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-// tslint:disable:no-console
-
 import 'dotenv/config'
 
 import AWSS3Form = require('aws-s3-form')
@@ -18,7 +16,7 @@ const expireAfterDay = 6
 
 function verify(key) {
   if (process.env[key]) return
-  console.log(`${key} not set, cannot proceed`)
+  console.log(`${key} not set, cannot proceed`) // tslint:disable-line:no-console
   process.exit(1)
 }
 

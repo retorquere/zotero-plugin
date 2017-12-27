@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-// tslint:disable:no-console
-
 import 'dotenv/config'
 import * as path from 'path'
 import * as moment from 'moment'
@@ -25,18 +23,18 @@ const PRERELEASE = false
 const EXPIRE_BUILDS = moment().subtract(7, 'days').toDate().toISOString()
 
 function bail(msg, status = 1) {
-  console.log(msg)
+  console.log(msg) // tslint:disable-line:no-console
   process.exit(status)
 }
 
 const dryRun = !process.env.CIRCLE_BRANCH
 if (dryRun) {
-  console.log('Not running on CircleCI, switching to dry-run mode')
+  console.log('Not running on CircleCI, switching to dry-run mode') // tslint:disable-line:no-console
   process.env.CIRCLE_BRANCH = require('current-git-branch')
 }
 
 function report(msg) {
-  console.log(`${dryRun ? 'dry-run: ' : ''}${msg}`)
+  console.log(`${dryRun ? 'dry-run: ' : ''}${msg}`) // tslint:disable-line:no-console
 }
 
 if (process.env.CI_PULL_REQUEST) bail('Not releasing pull requests', 0)
@@ -76,7 +74,7 @@ async function announce(issue, release) {
   try {
     await github.issues.createComment({ owner, repo, number: issue, body: msg })
   } catch (error) {
-    console.log(`Failed to announce '${build}: ${reason}' on ${issue}`)
+    console.log(`Failed to announce '${build}: ${reason}' on ${issue}`) // tslint:disable-line:no-console
   }
 }
 
@@ -91,7 +89,6 @@ async function uploadAsset(release, asset, contentType) {
     contentLength: fs.statSync(asset).size,
     name: path.basename(asset),
   })
-  console.log('done')
 }
 
 async function getRelease(tag, failonerror = true) {

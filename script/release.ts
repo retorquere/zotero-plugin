@@ -131,6 +131,7 @@ async function _main() {
     report(`uploading ${xpi} to new release ${process.env.CIRCLE_TAG}`)
     if (!dryRun) {
       release = github.repos.createRelease({ owner, repo, tag_name: process.env.CIRCLE_TAG, prerelease: !!PRERELEASE })
+      console.log('new release:', release)
       await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/x-xpinstall')
     }
 

@@ -79,7 +79,7 @@ async function announce(issue, release) {
 }
 
 async function uploadAsset(release, asset, contentType) {
-  report(`uploading ${path.basename(asset)} to ${release.data.tag_name} using ${release.data.upload_url}`)
+  report(`uploading ${path.basename(asset)} to ${release.data.tag_name}`)
   if (dryRun) return
 
   await github.repos.uploadAsset({
@@ -104,11 +104,11 @@ async function getRelease(tag, failonerror = true) {
 async function update_rdf(tag, failonerror) {
   const release = await getRelease(tag, failonerror)
 
-  report(`uploading update.rdf to ${release.tag_name}`)
-  if (dryRun) return
-
   for (const asset of release.data.assets || []) {
-    if (asset.name === 'update.rdf') await github.repos.deleteAsset({ owner, repo, id: asset.id })
+    if (asset.name === 'update.rdf') {
+      report(`removing update.rdf from ${release.data.tag_name}`)
+      if (!dryRun) await github.repos.deleteAsset({ owner, repo, id: asset.id })
+    }
   }
   await uploadAsset(release, path.join(root, 'gen/update.rdf'), 'application/rdf+xml')
 }

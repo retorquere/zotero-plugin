@@ -16,7 +16,7 @@ const pkg = require(path.join(root, 'package.json'))
 const [ , owner, repo ] = pkg.repository.url.match(/:\/\/github.com\/([^\/]+)\/([^\.]+)\.git$/)
 
 import version from '../version'
-const xpi = `zotero-better-bibtex-${version}.xpi`
+const xpi = `${pkg.name}-${version}.xpi`
 
 const PRERELEASE = false
 // tslint:disable-next-line:no-magic-numbers
@@ -66,7 +66,7 @@ async function announce(issue, release) {
     reason = ` (${JSON.stringify(process.env.CIRCLE_COMMIT_MSG)})`
   }
 
-  const msg = `:robot: this is your friendly neighborhood build bot announcing [${build}](https://github.com/retorquere/zotero-better-bibtex/releases/download/${release.data.tag_name}/zotero-better-bibtex-${version}.xpi)${reason}.`
+  const msg = `:robot: this is your friendly neighborhood build bot announcing [${build}](https://github.com/${owner}/${repo}/releases/download/${release.data.tag_name}/zotero-better-bibtex-${version}.xpi)${reason}.`
 
   report(msg)
   if (dryRun) return

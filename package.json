@@ -18,7 +18,7 @@
     "postversion": "echo ./script/annotated-tag.sh",
     "test": "tslint -t stylish --project .",
     "prepublishOnly": "tsc && chmod +x bin/*.js",
-    "go": "npm version patch && npm version publish"
+    "go": "npm version patch && npm publish"
   },
   "directories": {
     "test": "test"

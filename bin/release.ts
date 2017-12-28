@@ -82,13 +82,17 @@ async function uploadAsset(release, asset, contentType) {
   report(`uploading ${path.basename(asset)} to ${release.data.tag_name}`)
   if (dryRun) return
 
-  await github.repos.uploadAsset({
-    url: release.data.upload_url,
-    file: fs.readFileSync(asset, null).buffer,
-    contentType,
-    contentLength: fs.statSync(asset).size,
-    name: path.basename(asset),
-  })
+  try {
+    await github.repos.uploadAsset({
+      url: release.data.upload_url,
+      file: fs.readFileSync(asset, null).buffer,
+      contentType,
+      contentLength: fs.statSync(asset).size,
+      name: path.basename(asset),
+    })
+  } catch (err) {
+    bail(`failed to upload ${path.basename(asset)} to ${JSON.stringify(release)}: ${err}`)
+  }
 }
 
 async function getRelease(tag, failonerror = true) {

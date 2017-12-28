@@ -142,7 +142,7 @@ async function _main() {
     // legacy RDF pointer
     update_rdf('update.rdf', false)
 
-  } else {
+  } else if (issues.size) { // only release builds tied to issues
     release = await getRelease('builds')
 
     for (const asset of release.data.assets || []) {

@@ -7,7 +7,8 @@
     "npm-annotated-tag": "./bin/annotated-tag.sh",
     "zotero-plugin-release": "./bin/release.js",
     "zotero-plugin-s3form": "./bin/s3form.js",
-    "zotero-plugin-zipup": "./bin/zipup.js"
+    "zotero-plugin-zipup": "./bin/zipup.js",
+    "issue-branches": "./bin/branches.js"
   },
   "author": {
     "name": "Emiliano Heyns",

@@ -1,4 +1,4 @@
-// tslint:disable:no-console
+#!/usr/bin/env node
 
 import 'dotenv/config'
 import * as path from 'path'
@@ -17,10 +17,10 @@ async function _main() {
   for (const branch of branches.data) {
     if (branch.name.match(/^[0-9]+$/)) {
       const issue = await github.issues.get({ owner, repo, number: parseInt(branch.name) })
-      if (issue.data.state !== 'open') console.log(branch.name, issue.data.state)
+      if (issue.data.state !== 'open') console.log(branch.name, issue.data.state) // tslint:disable-line:no-console
 
     } else if (branch.name !== 'master' && branch.name !== 'gh-pages') {
-      console.log(branch.name)
+      console.log(branch.name) // tslint:disable-line:no-console
 
     }
   }
@@ -30,7 +30,7 @@ async function main() {
   try {
     await _main()
   } catch (err) {
-    console.log(err)
+    console.log(err) // tslint:disable-line:no-console
   }
 }
 

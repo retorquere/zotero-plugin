@@ -52,7 +52,8 @@ async function main() {
 
   await octokit.repos.uploadAsset({
     url: release.data.upload_url,
-    file: new String(body),
+    // workaround for https://github.com/octokit/rest.js/issues/714
+    file: new String(body), // tslint:disable-line:no-construct
     contentType: 'application/json',
     contentLength: body.length,
     name,

@@ -6,9 +6,9 @@ import AWSS3Form = require('aws-s3-form')
 import moment = require('moment')
 import * as path from 'path'
 
-import * as GitHub from 'github'
-const github = new GitHub
-github.authenticate({ type: 'token', token: process.env.GITHUB_TOKEN })
+import * as OctoKit from '@octokit/rest'
+const octokit = new OctoKit
+octokit.authenticate({ type: 'token', token: process.env.GITHUB_TOKEN })
 
 import root from '../root'
 
@@ -42,17 +42,17 @@ async function main() {
 
   const name = 'error-report.json'
 
-  const release = await github.repos.getReleaseByTag({ owner, repo, tag: pkg.xpi.releaseURL.split('/').filter(part => part).reverse()[0] })
+  const release = await octokit.repos.getReleaseByTag({ owner, repo, tag: pkg.xpi.releaseURL.split('/').filter(part => part).reverse()[0] })
 
   for (const asset of release.data.assets || []) {
-    if (asset.name === name) await github.repos.deleteAsset({ owner, repo, id: asset.id })
+    if (asset.name === name) await octokit.repos.deleteAsset({ owner, repo, id: asset.id })
   }
 
   const body = JSON.stringify(form, null, 2)
 
-  await github.repos.uploadAsset({
+  await octokit.repos.uploadAsset({
     url: release.data.upload_url,
-    file: body,
+    file: new String(body),
     contentType: 'application/json',
     contentLength: body.length,
     name,

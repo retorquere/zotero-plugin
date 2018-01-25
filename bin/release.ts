@@ -5,9 +5,9 @@ import * as path from 'path'
 import * as moment from 'moment'
 import * as fs from 'fs'
 
-import * as GitHub from 'github'
-const github = new GitHub
-github.authenticate({ type: 'token', token: process.env.GITHUB_TOKEN })
+import * as OctoKit from '@octokit/rest'
+const octokit = new OctoKit
+octokit.authenticate({ type: 'token', token: process.env.GITHUB_TOKEN })
 
 import '../circle'
 import root from '../root'
@@ -72,7 +72,7 @@ async function announce(issue, release) {
   if (dryRun) return
 
   try {
-    await github.issues.createComment({ owner, repo, number: issue, body: msg })
+    await octokit.issues.createComment({ owner, repo, number: issue, body: msg })
   } catch (error) {
     console.log(`Failed to announce '${build}: ${reason}' on ${issue}`) // tslint:disable-line:no-console
   }
@@ -83,7 +83,7 @@ async function uploadAsset(release, asset, contentType) {
   if (dryRun) return
 
   try {
-    await github.repos.uploadAsset({
+    await octokit.repos.uploadAsset({
       url: release.data.upload_url,
       file: fs.readFileSync(asset, null).buffer,
       contentType,
@@ -97,7 +97,7 @@ async function uploadAsset(release, asset, contentType) {
 
 async function getRelease(tag, failonerror = true) {
   try {
-    return await github.repos.getReleaseByTag({ owner, repo, tag })
+    return await octokit.repos.getReleaseByTag({ owner, repo, tag })
   } catch (err) {
     if (failonerror) bail(`Could not get release ${tag}: ${err}`)
     return null
@@ -110,7 +110,7 @@ async function update_rdf(tag, failonerror) {
   for (const asset of release.data.assets || []) {
     if (asset.name === 'update.rdf') {
       report(`removing update.rdf from ${release.data.tag_name}`)
-      if (!dryRun) await github.repos.deleteAsset({ owner, repo, id: asset.id })
+      if (!dryRun) await octokit.repos.deleteAsset({ owner, repo, id: asset.id })
     }
   }
   await uploadAsset(release, path.join(root, 'gen/update.rdf'), 'application/rdf+xml')
@@ -120,7 +120,7 @@ async function _main() {
   if (process.env.NIGHTLY === 'true') return
 
   if (process.env.CIRCLE_BRANCH === 'l10n_master') {
-    for (const issue of await github.issues.getForRepo({ owner, repo, state: 'open', labels: 'translation' })) {
+    for (const issue of await octokit.issues.getForRepo({ owner, repo, state: 'open', labels: 'translation' })) {
       issues.add(parseInt(issue.number))
     }
   }
@@ -133,7 +133,7 @@ async function _main() {
 
     report(`uploading ${xpi} to new release ${process.env.CIRCLE_TAG}`)
     if (!dryRun) {
-      release = await github.repos.createRelease({ owner, repo, tag_name: process.env.CIRCLE_TAG, prerelease: !!PRERELEASE })
+      release = await octokit.repos.createRelease({ owner, repo, tag_name: process.env.CIRCLE_TAG, prerelease: !!PRERELEASE })
       await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/x-xpinstall')
     }
 
@@ -148,7 +148,7 @@ async function _main() {
     for (const asset of release.data.assets || []) {
       if (asset.created_at < EXPIRE_BUILDS) {
         report(`deleting ${asset.name}`)
-        if (!dryRun) await github.repos.deleteAsset({ owner, repo, id: asset.id })
+        if (!dryRun) await octokit.repos.deleteAsset({ owner, repo, id: asset.id })
       }
     }
     await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/x-xpinstall')

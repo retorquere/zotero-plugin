@@ -85,7 +85,7 @@ async function uploadAsset(release, asset, contentType) {
   try {
     await octokit.repos.uploadAsset({
       url: release.data.upload_url,
-      file: fs.readFileSync(asset, null).buffer,
+      file: fs.createReadStream(asset),
       contentType,
       contentLength: fs.statSync(asset).size,
       name: path.basename(asset),

@@ -66,7 +66,7 @@ async function announce(issue, release) {
     reason = ` (${JSON.stringify(process.env.CIRCLE_COMMIT_MSG)})`
   }
 
-  const msg = `:robot: this is your friendly neighborhood build bot announcing [${build}](https://github.com/${owner}/${repo}/releases/download/${release.data.tag_name}/zotero-better-bibtex-${version}.xpi)${reason}.`
+  const msg = `:robot: this is your friendly neighborhood build bot announcing [${build}](https://github.com/${owner}/${repo}/releases/download/${release.data.tag_name}/${pkg.name}-${version}.xpi)${reason}.`
 
   report(msg)
   if (dryRun) return

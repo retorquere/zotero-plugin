@@ -5,6 +5,7 @@ import 'dotenv/config'
 import AWSS3Form = require('aws-s3-form')
 import moment = require('moment')
 import * as path from 'path'
+import stringToArrayBuffer = require('string-to-arraybuffer')
 
 import * as OctoKit from '@octokit/rest'
 const octokit = new OctoKit
@@ -52,8 +53,7 @@ async function main() {
 
   await octokit.repos.uploadAsset({
     url: release.data.upload_url,
-    // workaround for https://github.com/octokit/rest.js/issues/714
-    file: new String(body), // tslint:disable-line:no-construct
+    file: stringToArrayBuffer(body), // workaround for https://github.com/octokit/rest.js/issues/714
     contentType: 'application/json',
     contentLength: body.length,
     name,

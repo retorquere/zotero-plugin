@@ -120,7 +120,7 @@ async function _main() {
   if (process.env.NIGHTLY === 'true') return
 
   if (process.env.CIRCLE_BRANCH === 'l10n_master') {
-    for (const issue of await octokit.issues.getForRepo({ owner, repo, state: 'open', labels: 'translation' })) {
+    for (const issue of (await octokit.issues.getForRepo({ owner, repo, state: 'open', labels: 'translation' })).data) {
       issues.add(parseInt(issue.number))
     }
   }

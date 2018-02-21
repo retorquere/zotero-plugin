@@ -25,7 +25,7 @@ console.log('copying assets')
 
 let files = []
 for (const dir of ['content', 'skin', 'locale', 'resource']) {
-  if (fs.existsSync(dir)) {
+  if (fs.existsSync(dir) && !fs.existsSync(`${dir}/.nomedia}`)) {
     files = files.concat(glob.sync(`${dir}/**/*.*`, { cwd: root, mark: true }).filter(file => include(file, dir !== 'resource')))
   }
 }

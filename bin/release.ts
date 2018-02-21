@@ -66,7 +66,7 @@ async function announce(issue, release) {
     reason = ` (${JSON.stringify(process.env.CIRCLE_COMMIT_MSG)})`
   }
 
-  const msg = `:robot: this is your friendly neighborhood build bot announcing [${build}](https://github.com/${owner}/${repo}/releases/download/${release.data.tag_name}/zotero-better-bibtex-${version}.xpi)${reason}.`
+  const msg = `:robot: this is your friendly neighborhood build bot announcing [${build}](https://github.com/${owner}/${repo}/releases/download/${release.data.tag_name}/${pkg.name}-${version}.xpi)${reason}.`
 
   report(msg)
   if (dryRun) return
@@ -120,7 +120,7 @@ async function _main() {
   if (process.env.NIGHTLY === 'true') return
 
   if (process.env.CIRCLE_BRANCH === 'l10n_master') {
-    for (const issue of await octokit.issues.getForRepo({ owner, repo, state: 'open', labels: 'translation' })) {
+    for (const issue of (await octokit.issues.getForRepo({ owner, repo, state: 'open', labels: 'translation' })).data) {
       issues.add(parseInt(issue.number))
     }
   }

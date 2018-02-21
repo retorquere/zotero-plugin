@@ -25,7 +25,9 @@ console.log('copying assets')
 
 let files = []
 for (const dir of ['content', 'skin', 'locale', 'resource']) {
-  files = files.concat(glob.sync(`${dir}/**/*.*`, { cwd: root, mark: true }).filter(file => include(file, dir !== 'resource')))
+  if (fs.existsSync(dir)) {
+    files = files.concat(glob.sync(`${dir}/**/*.*`, { cwd: root, mark: true }).filter(file => include(file, dir !== 'resource')))
+  }
 }
 files.push('chrome.manifest')
 

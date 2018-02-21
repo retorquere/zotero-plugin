@@ -6,8 +6,10 @@ import * as path from 'path'
 
 import root from './root'
 
-function include(file) {
+function include(file, sources) {
   if (fs.lstatSync(file).isDirectory()) return false
+
+  if (!sources) return true
 
   switch (path.extname(file).toLowerCase()) {
     case '.json':
@@ -22,8 +24,8 @@ function include(file) {
 console.log('copying assets')
 
 let files = []
-for (const dir of ['content', 'skin', 'locale']) {
-files = files.concat(glob.sync(`${dir}/**/*.*`, { cwd: root, mark: true }).filter(include))
+for (const dir of ['content', 'skin', 'locale', 'resource']) {
+  files = files.concat(glob.sync(`${dir}/**/*.*`, { cwd: root, mark: true }).filter(file => include(file, dir !== 'resource')))
 }
 files.push('chrome.manifest')
 

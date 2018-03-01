@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-// tslint:disable:no-console
 
 import * as fs from 'fs-extra'
 import * as path from 'path'
@@ -17,13 +16,13 @@ const build = path.join(root, 'build')
 const zotero = process.argv[2]
 
 if (!zotero) {
-  console.log('No directory specified')
+  console.log('No directory specified') // tslint:disable-line:no-console
   process.exit(1)
 }
 
 const extensions = path.join(zotero, 'extensions')
 if (!fs.existsSync(extensions)) {
-  console.log(`${extensions} does not exist`)
+  console.log(`${extensions} does not exist`) // tslint:disable-line:no-console
   process.exit(1)
 }
 

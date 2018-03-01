@@ -17,7 +17,7 @@
   },
   "scripts": {
     "preversion": "npm test",
-    "postversion": "echo ./script/annotated-tag.sh",
+    "postversion": "git push --follow-tags",
     "test": "tslint -t stylish --project .",
     "prepublishOnly": "tsc && chmod +x bin/*.js",
     "go": "npm version patch && npm publish"

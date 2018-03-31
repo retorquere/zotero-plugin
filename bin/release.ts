@@ -62,7 +62,7 @@ async function announce(issue, release) {
     build = `${PRERELEASE ? 'pre-' : ''}release ${process.env.CIRCLE_TAG}`
     reason = ''
   } else {
-    build = `test build ${process.env.CIRCLE_BUILD_NUM}`
+    build = `test build ${version}`
     reason = ` (${JSON.stringify(process.env.CIRCLE_COMMIT_MSG)})`
   }
 

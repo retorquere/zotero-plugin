@@ -133,7 +133,7 @@ async function _main() {
 
     report(`uploading ${xpi} to new release ${process.env.CIRCLE_TAG}`)
     if (!dryRun) {
-      release = await octokit.repos.createRelease({ owner, repo, tag_name: process.env.CIRCLE_TAG, prerelease: !!PRERELEASE })
+      release = await octokit.repos.createRelease({ owner, repo, tag_name: process.env.CIRCLE_TAG, prerelease: !!PRERELEASE, body: process.argv[2] || '' })
       await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/x-xpinstall')
     }
 

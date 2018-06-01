@@ -1,4 +1,5 @@
 import jsesc = require('jsesc')
+import JSON5 = require('json5')
 
 function normalize(obj) {
   if (Array.isArray(obj)) {
@@ -22,7 +23,7 @@ function normalize(obj) {
 export = function loader(source) {
   if (this.cacheable) this.cacheable()
 
-  const value = typeof source === 'string' ? JSON.parse(source) : source
+  const value = typeof source === 'string' ? JSON5.parse(source) : source
 
   return `module.exports = ${jsesc(normalize(value), { compact: false, indent: '  ' })};`
 }

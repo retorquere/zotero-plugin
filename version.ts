@@ -18,9 +18,7 @@ if (fs.existsSync(version_js)) {
   version = require(path.join(root, 'package.json')).version
 
   if (process.env.CIRCLE_BUILD_NUM && !process.env.CIRCLE_TAG) {
-    let branch = process.env.CIRCLE_BRANCH
-    if (branch.match(/^[0-9]+$/)) branch = 'issue-' + branch
-    version += [ '', process.env.CIRCLE_BUILD_NUM, branch].join('.')
+    version = `${version}.${process.env.CIRCLE_BUILD_NUM}`
   } else if (process.env.CIRCLECI !== 'true') {
     version += [ '', os.userInfo().username, os.hostname() ].join('.')
   }

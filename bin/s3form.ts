@@ -2,9 +2,6 @@
 
 import 'dotenv/config'
 
-import * as fs from 'fs'
-import * as pug from 'pug'
-
 import AWSS3Form = require('aws-s3-form')
 import moment = require('moment')
 import * as path from 'path'

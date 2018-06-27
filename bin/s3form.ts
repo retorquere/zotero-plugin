@@ -64,6 +64,7 @@ async function main() {
     name: 'error-report.json',
   })
 
+  /*
   const template = fs.readFileSync(path.join(__dirname, '..', 'error-report.pug'), 'utf8')
 
   await replaceAsset(release, {
@@ -72,6 +73,7 @@ async function main() {
     contentType: 'text/html',
     name: 'error-report.html',
   })
+  */
 }
 
 main()

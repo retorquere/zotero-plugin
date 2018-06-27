@@ -70,7 +70,7 @@ async function main() {
     url: release.data.upload_url,
     body: pug.render(template, { form }),
     contentType: 'text/html',
-    'error-report.html',
+    name: 'error-report.html',
   })
 }
 

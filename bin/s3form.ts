@@ -2,6 +2,9 @@
 
 import 'dotenv/config'
 
+import * as fs from 'fs'
+import * as pug from 'pug'
+
 import AWSS3Form = require('aws-s3-form')
 import moment = require('moment')
 import * as path from 'path'
@@ -25,6 +28,17 @@ function verify(key) {
   process.exit(1)
 }
 
+async function replaceAsset(release, request) {
+  for (const asset of release.data.assets || []) {
+    if (asset.name === request.name) await octokit.repos.deleteAsset({ owner, repo, id: asset.id })
+  }
+
+  request.contentLength = request.body.length
+  request.file = stringToArrayBuffer(request.body) // workaround for https://github.com/octokit/rest.js/issues/714
+  delete request.body
+  await octokit.repos.uploadAsset(request)
+}
+
 async function main() {
   verify('AWSAccessKeyId')
   verify('AWSSecretAccessKey')
@@ -39,24 +53,24 @@ async function main() {
     useUuid: false,
   })
 
-  const form = formGenerator.create('${filename}')
-
-  const name = 'error-report.json'
-
   const release = await octokit.repos.getReleaseByTag({ owner, repo, tag: pkg.xpi.releaseURL.split('/').filter(part => part).reverse()[0] })
 
-  for (const asset of release.data.assets || []) {
-    if (asset.name === name) await octokit.repos.deleteAsset({ owner, repo, id: asset.id })
-  }
+  const form = formGenerator.create('${filename}')
 
-  const body = JSON.stringify(form, null, 2)
-
-  await octokit.repos.uploadAsset({
+  await replaceAsset(release, {
     url: release.data.upload_url,
-    file: stringToArrayBuffer(body), // workaround for https://github.com/octokit/rest.js/issues/714
+    body: JSON.stringify(form, null, 2),
     contentType: 'application/json',
-    contentLength: body.length,
-    name,
+    name: 'error-report.json',
+  })
+
+  const template = fs.readFileSync(path.join(__dirname, '..' 'error-report.pug'), 'utf8')
+
+  await replaceAsset({
+    url: release.data.upload_url,
+    body: pug.render(template, { form }),
+    contentType: 'text/html',
+    'error-report.html',
   })
 }
 

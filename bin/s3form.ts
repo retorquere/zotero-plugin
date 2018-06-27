@@ -64,9 +64,9 @@ async function main() {
     name: 'error-report.json',
   })
 
-  const template = fs.readFileSync(path.join(__dirname, '..' 'error-report.pug'), 'utf8')
+  const template = fs.readFileSync(path.join(__dirname, '..', 'error-report.pug'), 'utf8')
 
-  await replaceAsset({
+  await replaceAsset(release, {
     url: release.data.upload_url,
     body: pug.render(template, { form }),
     contentType: 'text/html',

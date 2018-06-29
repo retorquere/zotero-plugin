@@ -43,8 +43,8 @@ async function main() {
   const formGenerator = new AWSS3Form({
     accessKeyId: process.env.AWSAccessKeyId,
     secretAccessKey: process.env.AWSSecretAccessKey,
-    region: 'eu-central-1',
-    bucket: 'better-bibtex-error-reports-62200312',
+    region: pkg.logs.region,
+    bucket: pkg.logs.bucket,
     policyExpiration: moment.duration(expireAfterDay, 'days').asSeconds(),
     acl: 'private',
     useUuid: false,

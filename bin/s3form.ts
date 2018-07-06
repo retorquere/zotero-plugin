@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+process.on('unhandledRejection', up => { throw up })
+
 import 'dotenv/config'
 
 import AWSS3Form = require('aws-s3-form')
@@ -73,13 +75,4 @@ async function main() {
   */
 }
 
-async function run() {
-  try {
-    main()
-  } catch (err) {
-    console.log(err) // tslint:disable-line:no-console
-    process.exit(1)
-  }
-}
-
-run()
+main()

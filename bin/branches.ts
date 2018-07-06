@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+process.on('unhandledRejection', up => { throw up })
+
 import 'dotenv/config'
 import * as path from 'path'
 
@@ -11,7 +13,7 @@ import root from '../root'
 const pkg = require(path.join(root, 'package.json'))
 const [ , owner, repo ] = pkg.repository.url.match(/:\/\/github.com\/([^\/]+)\/([^\.]+)\.git$/)
 
-async function _main() {
+async function main() {
   const branches = await octokit.repos.getBranches({ owner, repo })
 
   for (const branch of branches.data) {
@@ -23,14 +25,6 @@ async function _main() {
       console.log(branch.name) // tslint:disable-line:no-console
 
     }
-  }
-}
-
-async function main() {
-  try {
-    await _main()
-  } catch (err) {
-    console.log(err) // tslint:disable-line:no-console
   }
 }
 

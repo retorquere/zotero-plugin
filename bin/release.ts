@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+process.on('unhandledRejection', up => { throw up })
+
 import 'dotenv/config'
 import * as path from 'path'
 import * as moment from 'moment'
@@ -116,7 +118,7 @@ async function update_rdf(tag, failonerror) {
   await uploadAsset(release, path.join(root, 'gen/update.rdf'), 'application/rdf+xml')
 }
 
-async function _main() {
+async function main() {
   if (process.env.NIGHTLY === 'true') return
 
   if (process.env.CIRCLE_BRANCH === 'l10n_master') {
@@ -156,14 +158,6 @@ async function _main() {
 
   for (const issue of Array.from(issues)) {
     await announce(issue, release)
-  }
-}
-
-async function main() {
-  try {
-    await _main()
-  } catch (err) {
-    bail(`release failed: ${err}`)
   }
 }
 

@@ -77,7 +77,7 @@ async function run() {
   try {
     main()
   } catch (err) {
-    console.log(err) // tslint:disable-line:no-console 
+    console.log(err) // tslint:disable-line:no-console
     process.exit(1)
   }
 }

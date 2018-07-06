@@ -73,7 +73,7 @@ async function main() {
   */
 }
 
-asyn function run() {
+async function run() {
   try {
     main()
   } catch (err) {

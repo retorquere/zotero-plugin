@@ -73,4 +73,13 @@ async function main() {
   */
 }
 
-main()
+asyn function run() {
+  try {
+    main()
+  } catch (err) {
+    console.log(err)
+    process.exit(1)
+  }
+}
+
+run()

@@ -29,7 +29,8 @@ function verify(key) {
 
 async function replaceAsset(release, request) {
   for (const asset of release.data.assets || []) {
-    if (asset.name === request.name) await octokit.repos.deleteAsset({ owner, repo, id: asset.id })
+    // TODO: double asset.id until https://github.com/octokit/rest.js/issues/933 is fixed
+    if (asset.name === request.name) await octokit.repos.deleteAsset({ owner, repo, id: asset.id, asset_id: asset.id })
   }
 
   request.contentLength = request.body.length

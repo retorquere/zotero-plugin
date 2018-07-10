@@ -112,7 +112,8 @@ async function update_rdf(tag, failonerror) {
   for (const asset of release.data.assets || []) {
     if (asset.name === 'update.rdf') {
       report(`removing update.rdf from ${release.data.tag_name}`)
-      if (!dryRun) await octokit.repos.deleteAsset({ owner, repo, id: asset.id })
+      // TODO: double asset.id until https://github.com/octokit/rest.js/issues/933 is fixed
+      if (!dryRun) await octokit.repos.deleteAsset({ owner, repo, asset_id: asset.id, id: asset.id })
     }
   }
   await uploadAsset(release, path.join(root, 'gen/update.rdf'), 'application/rdf+xml')
@@ -150,7 +151,8 @@ async function main() {
     for (const asset of release.data.assets || []) {
       if (asset.created_at < EXPIRE_BUILDS) {
         report(`deleting ${asset.name}`)
-        if (!dryRun) await octokit.repos.deleteAsset({ owner, repo, id: asset.id })
+        // TODO: double asset.id until https://github.com/octokit/rest.js/issues/933 is fixed
+        if (!dryRun) await octokit.repos.deleteAsset({ owner, repo, asset_id: asset.id, id: asset.id })
       }
     }
     await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/x-xpinstall')

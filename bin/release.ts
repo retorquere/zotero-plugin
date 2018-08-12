@@ -85,7 +85,7 @@ async function uploadAsset(release, asset, contentType) {
   if (dryRun) return
 
   const name = path.basename(asset)
-  const assets: string[] = (await octokit.repos.getAssets({ owner, repo, release_id: release.data.id })).data.map(asset => asset.name)
+  const assets: string[] = (await octokit.repos.getAssets({ owner, repo, release_id: release.data.id })).data.map(a => a.name)
   if (assets.includes(name)) bail(`failed to upload ${path.basename(asset)} to ${release.data.html_url}: asset exists`)
 
   try {

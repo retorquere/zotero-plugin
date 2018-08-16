@@ -1,6 +1,6 @@
 import * as child_process from 'child_process'
 
-class _ContinuousIntegration {
+class ContinuousIntegrationSingleton {
   public service = ''
   public build_number: number
   public tag = ''
@@ -15,7 +15,7 @@ class _ContinuousIntegration {
       this.build_number = this.parseInt(process.env.CIRCLE_BUILD_NUM)
       try {
         this.tag = child_process.execSync(`git describe --exact-match ${process.env.CIRCLE_SHA1}`, {stdio: 'pipe' }).toString().trim()
-      } catch(err) {
+      } catch (err) {
         this.tag = null
       }
       this.commit_message = child_process.execSync(`git log --format=%B -n 1 ${process.env.CIRCLE_SHA1}`).toString().trim()
@@ -42,4 +42,4 @@ class _ContinuousIntegration {
   }
 }
 
-export let ContinuousIntegration = new _ContinuousIntegration
+export let ContinuousIntegration = new ContinuousIntegrationSingleton // tslint:disable-line:variable-name

@@ -5,7 +5,7 @@ import * as os from 'os'
 import * as fs from 'fs-extra'
 
 import root from './root'
-import './circle'
+import { ContinuousIntegration as CI } from './continuous-integration'
 
 let version = null
 
@@ -17,10 +17,10 @@ if (fs.existsSync(version_js)) {
 
   version = require(path.join(root, 'package.json')).version
 
-  if (process.env.CIRCLE_BUILD_NUM && !process.env.CIRCLE_TAG) {
-    version = `${version}.${process.env.CIRCLE_BUILD_NUM}`
-  } else if (process.env.CIRCLECI !== 'true') {
-    version += [ '', os.userInfo().username, os.hostname() ].join('.')
+  if (CI.service && !CI.tag) {
+    version = `${version}.${CI.build_number}`
+  } else if (!CI.service) {
+    version = `${version}.${os.userInfo().username}.${os.hostname()}`
   }
 
   fs.writeFileSync(version_js, `module.exports = ${JSON.stringify(version)};\n`, 'utf8')

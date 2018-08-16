@@ -11,7 +11,7 @@ import * as OctoKit from '@octokit/rest'
 const octokit = new OctoKit
 octokit.authenticate({ type: 'token', token: process.env.GITHUB_TOKEN })
 
-import '../circle'
+import { ContinuousIntegration as CI } from '../continuous-integration'
 import root from '../root'
 
 const pkg = require(path.join(root, 'package.json'))
@@ -29,43 +29,44 @@ function bail(msg, status = 1) {
   process.exit(status)
 }
 
-const dryRun = !process.env.CIRCLE_BRANCH
+const dryRun = !CI.service
 if (dryRun) {
   console.log('Not running on CircleCI, switching to dry-run mode') // tslint:disable-line:no-console
-  process.env.CIRCLE_BRANCH = require('current-git-branch')
+  CI.branch = require('current-git-branch')
 }
 
 function report(msg) {
   console.log(`${dryRun ? 'dry-run: ' : ''}${msg}`) // tslint:disable-line:no-console
 }
 
-if (process.env.CI_PULL_REQUEST) bail('Not releasing pull requests', 0)
+if (CI.pull_request) bail('Not releasing pull requests', 0)
 
-if (process.env.CIRCLE_TAG) {
-  if (`v${pkg.version}` !== process.env.CIRCLE_TAG) bail(`Building tag ${process.env.CIRCLE_TAG}, but package version is ${pkg.version}`)
+if (CI.tag) {
+  if (`v${pkg.version}` !== CI.tag) bail(`Building tag ${CI.tag}, but package version is ${pkg.version}`)
 
-  if (process.env.CIRCLE_BRANCH !== 'master') bail(`Building tag ${process.env.CIRCLE_TAG}, but branch is ${process.env.CIRCLE_BRANCH}`)
+  if (CI.branch !== 'master') bail(`Building tag ${CI.tag}, but branch is ${CI.branch}`)
 }
 
 const tags = new Set
-for (let regex = /(?:^|\s)(?:#)([a-zA-Z\d]+)/gm, tag; tag = regex.exec(process.env.CIRCLE_COMMIT_MSG); ) {
+for (let regex = /(?:^|\s)(?:#)([a-zA-Z\d]+)/gm, tag; tag = regex.exec(CI.commit_message); ) {
   tags.add(tag[1])
 }
 
-if (tags.has('norelease')) bail(`Not releasing on ${process.env.CIRCLE_BRANCH} because of 'norelease' tag`, 0)
+if (tags.has('norelease')) bail(`Not releasing on ${CI.branch} because of 'norelease' tag`, 0)
 
 const issues = new Set(Array.from(tags).map(parseInt).filter(tag => !isNaN(tag)))
 
-if (process.env.CIRCLE_BRANCH.match(/^[0-9]+$/)) issues.add(parseInt(process.env.CIRCLE_BRANCH))
+if (CI.branch.match(/^[0-9]+$/)) issues.add(parseInt(CI.branch))
 
 async function announce(issue, release) {
   let build, reason
-  if (process.env.CIRCLE_TAG) {
-    build = `${PRERELEASE ? 'pre-' : ''}release ${process.env.CIRCLE_TAG}`
+
+  if (CI.tag) {
+    build = `${PRERELEASE ? 'pre-' : ''}release ${CI.tag}`
     reason = ''
   } else {
     build = `test build ${version}`
-    reason = ` (${JSON.stringify(process.env.CIRCLE_COMMIT_MSG)})`
+    reason = ` (${JSON.stringify(CI.commit_message)})`
   }
 
   const msg = `:robot: this is your friendly neighborhood build bot announcing [${build}](https://github.com/${owner}/${repo}/releases/download/${release.data.tag_name}/${pkg.name}-${version}.xpi)${reason}.`
@@ -122,21 +123,21 @@ async function update_rdf(tag, failonerror) {
 async function main() {
   if (process.env.NIGHTLY === 'true') return
 
-  if (process.env.CIRCLE_BRANCH === 'l10n_master') {
+  if (CI.branch === 'l10n_master') {
     for (const issue of (await octokit.issues.getForRepo({ owner, repo, state: 'open', labels: 'translation' })).data) {
       issues.add(parseInt(issue.number))
     }
   }
 
   let release
-  if (process.env.CIRCLE_TAG) {
+  if (CI.tag) {
     // upload XPI
-    release = await getRelease(process.env.CIRCLE_TAG, false)
-    if (release) bail(`release ${process.env.CIRCLE_TAG} exists, bailing`)
+    release = await getRelease(CI.tag, false)
+    if (release) bail(`release ${CI.tag} exists, bailing`)
 
-    report(`uploading ${xpi} to new release ${process.env.CIRCLE_TAG}`)
+    report(`uploading ${xpi} to new release ${CI.tag}`)
     if (!dryRun) {
-      release = await octokit.repos.createRelease({ owner, repo, tag_name: process.env.CIRCLE_TAG, prerelease: !!PRERELEASE, body: process.argv[2] || '' })
+      release = await octokit.repos.createRelease({ owner, repo, tag_name: CI.tag, prerelease: !!PRERELEASE, body: process.argv[2] || '' })
       await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/x-xpinstall')
     }
 

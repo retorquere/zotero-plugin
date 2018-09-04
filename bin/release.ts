@@ -59,6 +59,8 @@ const issues = new Set(Array.from(tags).map(parseInt).filter(tag => !isNaN(tag))
 if (CI.branch.match(/^[0-9]+$/)) issues.add(parseInt(CI.branch))
 
 async function announce(issue, release) {
+  if (tags.has('noannounce')) return
+
   let build, reason
 
   if (CI.tag) {

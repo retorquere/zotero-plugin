@@ -69,7 +69,7 @@ async function announce(issue, release) {
   } else {
     build = `test build ${version}`
     reason = ` (${JSON.stringify(CI.commit_message)})`
-    reason += 'Install in Zotero by opening the "Tools" menu, selecting "Add-ons", open the gear menu in the top right, and select "Install Add-on From File...".'
+    reason += '\n\nInstall in Zotero by opening the "Tools" menu, selecting "Add-ons", open the gear menu in the top right, and select "Install Add-on From File...".'
   }
 
   const msg = `:robot: this is your friendly neighborhood build bot announcing [${build}](https://github.com/${owner}/${repo}/releases/download/${release.data.tag_name}/${pkg.name}-${version}.xpi)${reason}.`

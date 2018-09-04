@@ -61,18 +61,22 @@ if (CI.branch.match(/^[0-9]+$/)) issues.add(parseInt(CI.branch))
 async function announce(issue, release) {
   if (tags.has('noannounce')) return
 
-  let build, reason
+  let build
+  let reason = ''
 
   if (CI.tag) {
     build = `${PRERELEASE ? 'pre-' : ''}release ${CI.tag}`
-    reason = ''
   } else {
     build = `test build ${version}`
+  }
+  const link = `[${build}](https://github.com/${owner}/${repo}/releases/download/${release.data.tag_name}/${pkg.name}-${version}.xpi)`
+
+  if (!CI.tag) {
     reason = ` (${JSON.stringify(CI.commit_message)})`
-    reason += '\n\nInstall in Zotero by opening the "Tools" menu, selecting "Add-ons", open the gear menu in the top right, and select "Install Add-on From File...".'
+    reason += `\n\nInstall in Zotero by downloading ${link}, opening the Zotero "Tools" menu, selecting "Add-ons", open the gear menu in the top right, and select "Install Add-on From File...".`
   }
 
-  const msg = `:robot: this is your friendly neighborhood build bot announcing [${build}](https://github.com/${owner}/${repo}/releases/download/${release.data.tag_name}/${pkg.name}-${version}.xpi)${reason}`
+  const msg = `:robot: this is your friendly neighborhood build bot announcing ${link}${reason}`
 
   report(msg)
   if (dryRun) return

@@ -31,7 +31,7 @@ function bail(msg, status = 1) {
 
 const dryRun = !CI.service
 if (dryRun) {
-  console.log('Not running on CircleCI, switching to dry-run mode') // tslint:disable-line:no-console
+  console.log('Not running on CI service, switching to dry-run mode') // tslint:disable-line:no-console
   CI.branch = require('current-git-branch')
 }
 

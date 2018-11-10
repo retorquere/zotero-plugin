@@ -43,7 +43,7 @@ class ContinuousIntegrationSingleton {
         break
 
       default:
-        throw new Error(`Unexpected CI service ${this.service}`)
+        if (process.env.CI === 'true') throw new Error(`Unexpected CI service ${this.service}`)
 
     }
 

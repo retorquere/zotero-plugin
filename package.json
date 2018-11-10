@@ -1,6 +1,6 @@
 {
   "name": "zotero-plugin",
-  "version": "0.0.58",
+  "version": "0.0.59",
   "description": "Zotero plugin builder",
   "homepage": "https://github.com/retorquere/zotero-plugin/wiki",
   "bin": {

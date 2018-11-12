@@ -24,5 +24,7 @@ export = function loader(source) {
 
   const value = typeof source === 'string' ? JSON.parse(source) : source
 
-  return `module.exports = ${jsesc(normalize(value), { compact: false, indent: '  ' })};`
+  // const jsesc_options = { compact: false, indent: '  ' }
+  const jsesc_options = { compact: true }
+  return `module.exports = ${jsesc(normalize(value), jsesc_options)};`
 }

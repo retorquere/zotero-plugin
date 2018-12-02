@@ -30,13 +30,13 @@ function verify(key) {
 async function replaceAsset(release, request) {
   for (const asset of release.data.assets || []) {
     // TODO: double asset.id until https://github.com/octokit/rest.js/issues/933 is fixed
-    if (asset.name === request.name) await octokit.repos.deleteAsset({ owner, repo, id: asset.id, asset_id: asset.id })
+    if (asset.name === request.name) await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })
   }
 
   request.contentLength = request.body.length
   request.file = stringToArrayBuffer(request.body) // workaround for https://github.com/octokit/rest.js/issues/714
   delete request.body
-  await octokit.repos.uploadAsset(request)
+  await octokit.repos.uploadReleaseAsset(request)
 }
 
 async function main() {

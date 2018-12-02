@@ -14,7 +14,7 @@ const pkg = require(path.join(root, 'package.json'))
 const [ , owner, repo ] = pkg.repository.url.match(/:\/\/github.com\/([^\/]+)\/([^\.]+)\.git$/)
 
 async function main() {
-  const branches = await octokit.repos.getBranches({ owner, repo })
+  const branches = await octokit.repos.listBranches({ owner, repo })
 
   for (const branch of branches.data) {
     if (branch.name.match(/^[0-9]+$/)) {

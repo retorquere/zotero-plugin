@@ -54,7 +54,7 @@ for (let regex = /(?:^|\s)(?:#)([a-zA-Z\d]+)/gm, tag; tag = regex.exec(CI.commit
 
 if (tags.has('norelease')) bail(`Not releasing on ${CI.branch} because of 'norelease' tag`, 0)
 
-const issues = new Set(Array.from(tags).map(parseInt).filter(tag => !isNaN(tag)))
+const issues: Set<number> = new Set(Array.from(tags).map(parseInt).filter(tag => !isNaN(tag)))
 
 if (CI.branch.match(/^[0-9]+$/)) issues.add(parseInt(CI.branch))
 
@@ -93,15 +93,17 @@ async function uploadAsset(release, asset, contentType) {
   if (dryRun) return
 
   const name = path.basename(asset)
-  const assets: string[] = (await octokit.repos.getAssets({ owner, repo, release_id: release.data.id })).data.map(a => a.name)
+  const assets: string[] = (await octokit.repos.listAssetsForRelease({ owner, repo, release_id: release.data.id })).data.map(a => a.name)
   if (assets.includes(name)) bail(`failed to upload ${path.basename(asset)} to ${release.data.html_url}: asset exists`)
 
   try {
-    await octokit.repos.uploadAsset({
+    await octokit.repos.uploadReleaseAsset({
       url: release.data.upload_url,
       file: fs.createReadStream(asset),
-      contentType,
-      contentLength: fs.statSync(asset).size,
+      headers: {
+        'content-type': contentType,
+        'content-length': fs.statSync(asset).size,
+      },
       name,
     })
   } catch (err) {
@@ -125,7 +127,7 @@ async function update_rdf(tag, failonerror) {
     if (asset.name === 'update.rdf') {
       report(`removing update.rdf from ${release.data.tag_name}`)
       // TODO: double asset.id until https://github.com/octokit/rest.js/issues/933 is fixed
-      if (!dryRun) await octokit.repos.deleteAsset({ owner, repo, asset_id: asset.id, id: asset.id })
+      if (!dryRun) await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })
     }
   }
   await uploadAsset(release, path.join(root, 'gen/update.rdf'), 'application/rdf+xml')
@@ -135,8 +137,8 @@ async function main() {
   if (process.env.NIGHTLY === 'true') return
 
   if (CI.branch === 'l10n_master') {
-    for (const issue of (await octokit.issues.getForRepo({ owner, repo, state: 'open', labels: 'translation' })).data) {
-      issues.add(parseInt(issue.number))
+    for (const issue of (await octokit.issues.listForRepo({ owner, repo, state: 'open', labels: 'translation' })).data) {
+      issues.add(issue.number)
     }
   }
 
@@ -164,7 +166,7 @@ async function main() {
       if (asset.created_at < EXPIRE_BUILDS) {
         report(`deleting ${asset.name}`)
         // TODO: double asset.id until https://github.com/octokit/rest.js/issues/933 is fixed
-        if (!dryRun) await octokit.repos.deleteAsset({ owner, repo, asset_id: asset.id, id: asset.id })
+        if (!dryRun) await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })
       }
     }
     await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/x-xpinstall')

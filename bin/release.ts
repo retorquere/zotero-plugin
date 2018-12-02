@@ -32,7 +32,7 @@ function bail(msg, status = 1) {
 const dryRun = !CI.service
 if (dryRun) {
   console.log('Not running on CI service, switching to dry-run mode') // tslint:disable-line:no-console
-  CI.branch = require('current-git-branch')
+  CI.branch = require('current-git-branch')()
 }
 
 function report(msg) {
@@ -123,6 +123,8 @@ async function getRelease(tag, failonerror = true) {
 async function update_rdf(tag, failonerror) {
   const release = await getRelease(tag, failonerror)
 
+  console.log(release) // tslint:disable-line:no-console
+
   for (const asset of release.data.assets || []) {
     if (asset.name === 'update.rdf') {
       report(`removing update.rdf from ${release.data.tag_name}`)
@@ -156,8 +158,6 @@ async function main() {
 
     // RDF update pointer(s)
     update_rdf(pkg.xpi.releaseURL.split('/').filter(name => name).reverse()[0], true)
-    // legacy RDF pointer
-    update_rdf('update.rdf', false)
 
   } else if (issues.size) { // only release builds tied to issues
     release = await getRelease('builds')

@@ -123,9 +123,9 @@ async function getRelease(tag, failonerror = true) {
 async function update_rdf(tag, failonerror) {
   const release = await getRelease(tag, failonerror)
 
-  console.log(release) // tslint:disable-line:no-console
+  const assets = (await octokit.repos.listAssetsForRelease({ owner, repo, release_id: release.data.id })).data
 
-  for (const asset of release.data.assets || []) {
+  for (const asset of assets) {
     if (asset.name === 'update.rdf') {
       report(`removing update.rdf from ${release.data.tag_name}`)
       // TODO: double asset.id until https://github.com/octokit/rest.js/issues/933 is fixed

@@ -8,8 +8,7 @@ import * as moment from 'moment'
 import * as fs from 'fs'
 
 import * as OctoKit from '@octokit/rest'
-const octokit = new OctoKit
-octokit.authenticate({ type: 'token', token: process.env.GITHUB_TOKEN })
+const octokit = new OctoKit({ auth: `token ${process.env.GITHUB_TOKEN}` })
 
 import { ContinuousIntegration as CI } from '../continuous-integration'
 import root from '../root'

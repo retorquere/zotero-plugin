@@ -6,8 +6,7 @@ import 'dotenv/config'
 import * as path from 'path'
 
 import * as OctoKit from '@octokit/rest'
-const octokit = new OctoKit
-octokit.authenticate({ type: 'token', token: process.env.GITHUB_TOKEN })
+const octokit = new OctoKit({ auth: `token ${process.env.GITHUB_TOKEN}` })
 
 import root from '../root'
 const pkg = require(path.join(root, 'package.json'))

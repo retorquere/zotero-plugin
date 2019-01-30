@@ -27,9 +27,9 @@
     "test": "test"
   },
   "dependencies": {
-    "@octokit/rest": "^16.13.3",
+    "@octokit/rest": "^16.13.4",
     "@rgrove/parse-xml": "^2.0.0",
-    "@types/node": "^10.12.18",
+    "@types/node": "^10.12.19",
     "@types/webpack": "^4.4.24",
     "archiver": "^3.0.0",
     "aws-s3-form": "^0.3.5",

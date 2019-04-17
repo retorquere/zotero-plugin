@@ -27,7 +27,7 @@
     "test": "test"
   },
   "dependencies": {
-    "@octokit/rest": "^16.23.4",
+    "@octokit/rest": "^16.24.3",
     "@rgrove/parse-xml": "^2.0.1",
     "@types/node": "^11.13.4",
     "@types/webpack": "^4.4.27",
@@ -43,7 +43,7 @@
     "loader-utils": "^1.2.3",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
-    "node-archiver": "^0.3.0",
+    "npm-check-updates": "^3.1.8",
     "pegjs": "^0.10.0",
     "properties-reader": "^0.0.16",
     "pug": "^2.0.3",
@@ -53,8 +53,8 @@
     "shelljs": "^0.8.3",
     "string-to-arraybuffer": "^1.0.2",
     "ts-loader": "^5.3.3",
-    "ts-node": "^8.0.3",
-    "tslint": "^5.15.0",
+    "ts-node": "^8.1.0",
+    "tslint": "^5.16.0",
     "typescript": "^3.4.3",
     "uri-templates": "^0.2.0",
     "webpack": "^4.30.0",

@@ -27,9 +27,9 @@
     "test": "test"
   },
   "dependencies": {
-    "@octokit/rest": "^16.24.3",
+    "@octokit/rest": "^16.25.0",
     "@rgrove/parse-xml": "^2.0.1",
-    "@types/node": "^11.13.4",
+    "@types/node": "^11.13.5",
     "@types/webpack": "^4.4.27",
     "archiver": "^3.0.0",
     "aws-s3-form": "^0.3.5",
@@ -55,7 +55,7 @@
     "ts-loader": "^5.3.3",
     "ts-node": "^8.1.0",
     "tslint": "^5.16.0",
-    "typescript": "^3.4.3",
+    "typescript": "^3.4.4",
     "uri-templates": "^0.2.0",
     "webpack": "^4.30.0",
     "wrapper-webpack-plugin": "^2.1.0",

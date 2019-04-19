@@ -9,9 +9,9 @@ import { ContinuousIntegration as CI } from './continuous-integration'
 
 let version = null
 
-const version_json = path.join(root, 'gen/version.json')
-if (fs.existsSync(version_json)) {
-  version = require(version_json)
+const version_js = path.join(root, 'gen/version.js')
+if (fs.existsSync(version_js)) {
+  version = require(version_js)
 } else {
   console.log('writing version')
 
@@ -23,7 +23,7 @@ if (fs.existsSync(version_json)) {
     version = `${version}.${os.userInfo().username}.${os.hostname()}`
   }
 
-  fs.writeFileSync(version_json, JSON.stringify(version), 'utf8')
+  fs.writeFileSync(version_js, `module.exports = ${JSON.stringify(version)};\n`, 'utf8')
 }
 
 export default version

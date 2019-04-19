@@ -22,7 +22,7 @@ function normalize(obj) {
 export = function loader(source) {
   if (this.cacheable) this.cacheable()
 
-  const value = JSON.parse(source)
+  const value = typeof source === 'string' ? JSON.parse(source) : source
 
   // const jsesc_options = { compact: false, indent: '  ' }
   const jsesc_options = { compact: true }

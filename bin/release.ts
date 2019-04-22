@@ -81,7 +81,7 @@ async function announce(issue, release) {
   if (dryRun) return
 
   try {
-    await octokit.issues.createComment({ owner, repo, number: issue, body: msg })
+    await octokit.issues.createComment({ owner, repo, issue_number: issue, body: msg })
   } catch (error) {
     console.log(`Failed to announce '${build}: ${reason}' on ${issue}`) // tslint:disable-line:no-console
   }

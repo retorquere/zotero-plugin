@@ -55,7 +55,7 @@ if (tags.has('norelease')) bail(`Not releasing on ${CI.branch} because of 'norel
 
 const issues: Set<number> = new Set(Array.from(tags).map(parseInt).filter(tag => !isNaN(tag)))
 
-if (CI.branch.match(/^[0-9]+$/)) issues.add(parseInt(CI.branch))
+if (CI.branch.match(/^((issue|gh)-)?[0-9]+$/)) issues.add(parseInt(CI.branch.replace(/[^0-9]/g, '')))
 
 async function announce(issue, release) {
   if (tags.has('noannounce')) return

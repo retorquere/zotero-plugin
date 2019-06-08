@@ -27,9 +27,9 @@
     "test": "test"
   },
   "dependencies": {
-    "@octokit/rest": "^16.27.3",
+    "@octokit/rest": "^16.28.0",
     "@rgrove/parse-xml": "^2.0.1",
-    "@types/node": "^12.0.4",
+    "@types/node": "^12.0.7",
     "@types/webpack": "^4.4.32",
     "archiver": "^3.0.0",
     "aws-s3-form": "^0.3.5",
@@ -43,7 +43,6 @@
     "loader-utils": "^1.2.3",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
-    "npm-check-updates": "^3.1.10",
     "pegjs": "^0.10.0",
     "properties-reader": "^0.0.16",
     "pug": "^2.0.3",
@@ -57,7 +56,7 @@
     "tslint": "^5.17.0",
     "typescript": "^3.5.1",
     "uri-templates": "^0.2.0",
-    "webpack": "^4.32.2",
+    "webpack": "^4.33.0",
     "wrapper-webpack-plugin": "^2.1.0",
     "xml-parser": "^1.2.1",
     "xmldom": "^0.1.27",

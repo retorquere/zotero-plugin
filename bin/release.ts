@@ -152,7 +152,7 @@ async function main() {
     report(`uploading ${xpi} to new release ${CI.tag}`)
     if (!dryRun) {
       release = await octokit.repos.createRelease({ owner, repo, tag_name: CI.tag, prerelease: !!PRERELEASE, body: process.argv[2] || '' })
-      await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/x-xpinstall')
+      await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/vnd.zotero.plugin')
     }
 
     // RDF update pointer(s)
@@ -168,7 +168,7 @@ async function main() {
         if (!dryRun) await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })
       }
     }
-    await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/x-xpinstall')
+    await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/vnd.zotero.plugin')
   }
 
   for (const issue of Array.from(issues)) {

@@ -21,6 +21,7 @@
     "test": "tslint -t stylish --project .",
     "build": "tsc && chmod +x bin/*.js",
     "prepublishOnly": "npm run build",
+    "preci": "npm install",
     "go": "npm run build && npm version patch && npm publish"
   },
   "directories": {

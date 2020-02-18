@@ -5,7 +5,6 @@
   "homepage": "https://github.com/retorquere/zotero-plugin/wiki",
   "bin": {
     "zotero-plugin-release": "./bin/release.js",
-    "zotero-plugin-s3form": "./bin/s3form.js",
     "zotero-plugin-zipup": "./bin/zipup.js",
     "zotero-plugin-link": "./bin/link.js",
     "issue-branches": "./bin/branches.js"

@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+- '12.13'
+deploy:
+  provider: npm
+  email: emiliano.heyns@iris-advies.com
+  api_key:
+    secure: ZpN0t20VM26/UR05E2vLXaHZRZ+kSEFpn8l6ZdsNxCs80h4axZ1zCSRIJfjEm7DqY2rbYE0VJ7P9lF2z4n/kGlzm8AXx010rV2wMqFM7jMu2xO/u3Tbyx7Nf7w0FbCyE8AFS71coUBbEjNj8z8twBTajc84c7zN+zvNFve6krHbEAhYqH26nTDtSSuPN5NBqrlmj+hVXf73UB5xCWD0LYvG7/F0uE5BOUfQ64Eet/Mb9ncLoQyVC/uIy5WoFwx5o1cjrkpDyKwfvmjeVl8w5Or0ntVyw2I8VJCtAh7lFQC1kUIUk8PSUhnS6H9ZskmvC1wxjgWmD9JPpGBXqCpfpKfS/PZ47L+4yqh9Eof18FZBvNjP3w1xaXpHbQMTUDXHfvOt6ToS3hwQW2qhqAC4I6Xn1Yk3ufmALOq5EYd5OtLuMN6A554CmGtRaJ3ZM8FCM1a2o3yFnjwc9G/0o16HP58bOAKGIf5ohPop5dDrHPZrdaLSeTDWj8v22itSvGIovBCglsttlEHMgIXjxbGMaooTLhTu8mLzIKmaWs7DW0mhFX8zJBHerU6gXPlUNFGlG0PCuW4O9NxIG5cTXfLdxIf273IbvRuu4mnlGrI5SMNKDYTMEzcxe6er+76al0jxm4NB5kmUG7erPW6bE/eYYBwzobpg48O+puB8z83wucU0=
+  on:
+    tags: true
+    repo: retorquere/zotero-plugin-webpack

@@ -20,8 +20,7 @@
     "postversion": "git push --follow-tags",
     "test": "tslint -t stylish --project .",
     "build": "tsc && chmod +x bin/*.js",
-    "prepublishOnly": "npm run build",
-    "preci": "npm install",
+    "prepublishOnly": "npm install && npm run build",
     "go": "npm run build && npm version patch && npm publish"
   },
   "directories": {

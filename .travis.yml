@@ -8,6 +8,7 @@ script:
 
 deploy:
   provider: npm
+  edge: true
   email: emiliano.heyns@iris-advies.com
   on:
     tags: true

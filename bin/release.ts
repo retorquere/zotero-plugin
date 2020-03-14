@@ -99,8 +99,9 @@ async function uploadAsset(release, asset, contentType) {
     await octokit.repos.uploadReleaseAsset({
       owner,
       repo,
+      url: release.data.upload_url,
       release_id: release.data.id,
-      data: fs.readFileSync(asset).toString(),
+      data: (fs.readFileSync(asset) as string), // TODO: what is going on here octokit?!
       headers: {
         'content-type': contentType,
         'content-length': fs.statSync(asset).size,

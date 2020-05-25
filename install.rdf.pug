@@ -3,6 +3,8 @@ RDF(xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.moz
   Description(about="urn:mozilla:install-manifest")
     em:name= name
     em:description= description
+    if bootstrapped
+      em:bootstrap true
     if localizedDescriptions
       each localizedDescription, locale in localizedDescriptions
         Description

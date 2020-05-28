@@ -16,7 +16,7 @@
   "scripts": {
     "preversion": "npm test",
     "postversion": "git push --follow-tags",
-    "test": "tslint -t stylish --project .",
+    "test": "npm run build && tslint -t stylish --project .",
     "build": "tsc && chmod +x bin/*.js",
     "prepublishOnly": "npm install && npm run build",
     "go": "npm run build && npm version patch && npm publish",

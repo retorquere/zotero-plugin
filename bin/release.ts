@@ -129,7 +129,7 @@ async function getRelease(tag, prerelease) {
 }
 
 async function update_rdf(releases_tag, failonerror) {
-  const release = await getRelease(releases_tag, failonerror)
+  const release = await getRelease(releases_tag, false)
 
   const assets = (await octokit.repos.listAssetsForRelease({ owner, repo, release_id: release.data.id })).data
 
@@ -173,7 +173,7 @@ async function main() {
     update_rdf(pkg.xpi.releaseURL.split('/').filter(name => name).reverse()[0], true)
 
   } else if (issues.size) { // only release builds tied to issues
-    release = await getRelease('builds')
+    release = await getRelease('builds', true)
 
     for (const asset of release.data.assets || []) {
       if (asset.created_at < EXPIRE_BUILDS) {

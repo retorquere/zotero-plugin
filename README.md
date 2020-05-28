@@ -1,3 +1,3 @@
 # zotero-plugin
 
-Support module for building and distributing my typescript-based plugins. Nothing to see here.
+Utility scripts for releasing zotero plugins on github. See also https://github.com/retorquere/generator-zotero-plugin/

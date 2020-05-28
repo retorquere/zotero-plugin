@@ -113,17 +113,23 @@ async function uploadAsset(release, asset, contentType) {
   }
 }
 
-async function getRelease(tag, failonerror = true) {
+async function getRelease(tag, prerelease) {
   try {
     return await octokit.repos.getReleaseByTag({ owner, repo, tag })
+
   } catch (err) {
-    if (failonerror) bail(`Could not get release ${tag}: ${err}`)
-    return null
+    try {
+      return await octokit.repos.createRelease({ owner, repo, tag_name: tag, prerelease })
+
+    } catch (err) {
+      bail(`Could not get release ${tag}: ${err}`)
+      return null
+    }
   }
 }
 
-async function update_rdf(tag, failonerror) {
-  const release = await getRelease(tag, failonerror)
+async function update_rdf(releases_tag, failonerror) {
+  const release = await getRelease(releases_tag, failonerror)
 
   const assets = (await octokit.repos.listAssetsForRelease({ owner, repo, release_id: release.data.id })).data
 
@@ -149,8 +155,13 @@ async function main() {
   let release
   if (CI.tag) {
     // upload XPI
-    release = await getRelease(CI.tag, false)
-    if (release) bail(`release ${CI.tag} exists, bailing`)
+
+    try {
+      await octokit.repos.getReleaseByTag({ owner, repo, tag: CI.tag })
+      bail(`release ${CI.tag} exists, bailing`)
+    } catch (err) {
+      // actually OK
+    }
 
     report(`uploading ${xpi} to new release ${CI.tag}`)
     if (!dryRun) {

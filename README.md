@@ -25,3 +25,5 @@ not want the build to be announced, include `#norelease` in the
 commit message. If you want to announce on other issues in addition
 to the current branch (or maybe your branch isn't named `gh-<number>`,
 add `#<number>` to the commit message.
+
+Release new versions by issuing `npm version <major|minor|patch>`.

@@ -92,7 +92,7 @@ async function uploadAsset(release, asset, contentType) {
   if (dryRun) return
 
   const name = path.basename(asset)
-  const assets: string[] = (await octokit.repos.listAssetsForRelease({ owner, repo, release_id: release.data.id })).data.map(a => a.name)
+  const assets: string[] = (await octokit.repos.listReleaseAssets({ owner, repo, release_id: release.data.id })).data.map(a => a.name)
   if (assets.includes(name)) bail(`failed to upload ${path.basename(asset)} to ${release.data.html_url}: asset exists`)
 
   try {
@@ -131,7 +131,7 @@ async function getRelease(tag, prerelease) {
 async function update_rdf(releases_tag, failonerror) {
   const release = await getRelease(releases_tag, false)
 
-  const assets = (await octokit.repos.listAssetsForRelease({ owner, repo, release_id: release.data.id })).data
+  const assets = (await octokit.repos.listReleaseAssets({ owner, repo, release_id: release.data.id })).data
 
   for (const asset of assets) {
     if (asset.name === 'update.rdf') {

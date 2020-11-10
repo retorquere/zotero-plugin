@@ -9,7 +9,7 @@ class ContinuousIntegrationSingleton {
   public pull_request = false
 
   constructor() {
-    for (const [id, name] of Object.entries({CIRCLECI: 'Circle', TRAVIS: 'Travis' , SEMAPHORE: 'Semaphore'})) {
+    for (const [id, name] of Object.entries({CIRCLECI: 'Circle', TRAVIS: 'Travis' , SEMAPHORE: 'Semaphore', GITHUB_ACTIONS: 'GitHub'})) {
       if (process.env[id] === 'true') this.service = name
     }
 
@@ -32,6 +32,14 @@ class ContinuousIntegrationSingleton {
         this.commit_message = process.env.TRAVIS_COMMIT_MESSAGE
         this.branch = (this.tag ? 'master' : process.env.TRAVIS_BRANCH)
         this.pull_request = process.env.TRAVIS_PULL_REQUEST !== 'false'
+        break
+
+      case 'GitHub':
+        this.build_number = this.parseInt(process.env.GITHUB_RUN_NUMBER)
+        this.tag = process.env.GITHUB_REF.startsWith('refs/tags/') ? process.env.GITHUB_REF.split('/').pop() : null
+        this.commit_message = child_process.execSync(`git log --format=%B -n 1 ${process.env.GITHUB_SHA}`).toString().trim()
+        this.branch = process.env.GITHUB_REF.startsWith('refs/heads/') ? process.env.GITHUB_REF.split('/').pop() : null
+        this.pull_request = false // this needs looking into
         break
 
       case 'Semaphore':

@@ -134,9 +134,7 @@ async function getRelease(tag, prerelease) {
   }
 }
 
-async function update_rdf(releases_tag, failonerror) {
-  const release = await getRelease(releases_tag, false)
-
+async function update_rdf(release, failonerror) {
   const assets = (await octokit.repos.listReleaseAssets({ owner, repo, release_id: release.data.id })).data
 
   for (const asset of assets) {
@@ -173,10 +171,9 @@ async function main() {
     if (!dryRun) {
       release = await octokit.repos.createRelease({ owner, repo, tag_name: CI.tag, prerelease: !!PRERELEASE, body: process.argv[2] || '' })
       await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/vnd.zotero.plugin')
+      // RDF update pointer(s)
+      update_rdf(release, true)
     }
-
-    // RDF update pointer(s)
-    update_rdf(CI.tag, true)
 
   } else if (issues.size) { // only release builds tied to issues
     release = await getRelease('builds', true)

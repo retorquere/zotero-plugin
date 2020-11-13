@@ -176,7 +176,7 @@ async function main() {
     }
 
     // RDF update pointer(s)
-    update_rdf(pkg.xpi.releaseURL.split('/').filter(name => name).reverse()[0], true)
+    update_rdf(CI.tag, true)
 
   } else if (issues.size) { // only release builds tied to issues
     release = await getRelease('builds', true)

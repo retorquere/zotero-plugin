@@ -38,8 +38,15 @@ class ContinuousIntegrationSingleton {
         this.build_number = this.parseInt(process.env.GITHUB_RUN_NUMBER)
         this.tag = process.env.GITHUB_REF.startsWith('refs/tags/') ? process.env.GITHUB_REF.split('/').pop() : null
         this.commit_message = child_process.execSync(`git log --format=%B -n 1 ${process.env.GITHUB_SHA}`).toString().trim()
-        this.branch = process.env.GITHUB_REF.startsWith('refs/heads/') ? process.env.GITHUB_REF.split('/').pop() : null
-        this.pull_request = false // this needs looking into
+        if (process.env.GITHUB_REF.startsWith('refs/heads/')) {
+          this.branch = process.env.GITHUB_REF.split('/').pop()
+        } else if (process.env.GITHUB_REF.startsWith('refs/tags/')) {
+          // this is sketchy AF but there's no alternative: https://github.community/t/if-condition-grouping-with-tags-and-branches/16631/3
+          this.branch = 'master'
+        } else {
+          this.branch = null
+        }
+        this.pull_request = process.env.GITHUB_EVENT_NAME.startsWith('pull-request')
         break
 
       case 'Semaphore':

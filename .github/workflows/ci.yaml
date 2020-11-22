@@ -1,0 +1,45 @@
+name: test & publish
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: install python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: install node
+      uses: actions/setup-node@v1
+      with:
+        node-version: 14.x
+
+    - name: Cache python/node dependencies
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-dependencies
+      with:
+        path: |
+          ~/.npm
+          ~/.cache/pip
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+    - name: install node dependencies
+      run: npm ci --ignore-scripts
+    - run: npm test
+    - name: Publish
+      run: |
+        npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+        npm publish --ignore-scripts
+      env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -34,6 +34,6 @@ files.push('chrome.manifest')
 for (const source of (files as string[])) {
   console.log(`  ${source}`)
   const target = path.join(root, 'build', source)
-  if (!fs.existsSync(path.dirname(target))) fs.mkdirSync(path.dirname(target))
+  if (!fs.existsSync(path.dirname(target))) fs.mkdirSync(path.dirname(target), { recursive: true })
   fs.copyFileSync(source, target)
 }

@@ -15,13 +15,13 @@ const build = path.join(root, 'build')
 const zotero = process.argv[2]
 
 if (!zotero) {
-  console.log('No directory specified') // tslint:disable-line:no-console
+  console.log('No directory specified') // eslint-disable-line no-console
   process.exit(1)
 }
 
 const extensions = path.join(zotero, 'extensions')
 if (!fs.existsSync(extensions)) {
-  console.log(`${extensions} does not exist`) // tslint:disable-line:no-console
+  console.log(`${extensions} does not exist`) // eslint-disable-line no-console
   process.exit(1)
 }
 

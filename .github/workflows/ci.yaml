@@ -28,14 +28,18 @@ jobs:
       with:
         path: |
           ~/.npm
+          ~/.pnpm-store
           ~/.cache/pip
         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-build-${{ env.cache-name }}-
           ${{ runner.os }}-build-
           ${{ runner.os }}-
-    - name: install node dependencies
-      run: npm ci --ignore-scripts
+    - name: install node packages
+      uses: pnpm/action-setup@v1.2.1
+      with:
+        version: latest
+        run_install: true
     - run: npm test
     - name: Publish
       run: |

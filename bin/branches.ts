@@ -18,10 +18,10 @@ async function main() {
   for (const branch of branches.data) {
     if (branch.name.match(/^[0-9]+$/)) {
       const issue = await octokit.issues.get({ owner, repo, issue_number: parseInt(branch.name) })
-      if (issue.data.state !== 'open') console.log(branch.name, issue.data.state) // tslint:disable-line:no-console
+      if (issue.data.state !== 'open') console.log(branch.name, issue.data.state) // eslint-disable-line no-console
 
     } else if (branch.name !== 'master' && branch.name !== 'gh-pages') {
-      console.log(branch.name) // tslint:disable-line:no-console
+      console.log(branch.name) // eslint-disable-line no-console
 
     }
   }

@@ -71,4 +71,4 @@ class ContinuousIntegrationSingleton {
   }
 }
 
-export let ContinuousIntegration = new ContinuousIntegrationSingleton // tslint:disable-line:variable-name
+export let ContinuousIntegration = new ContinuousIntegrationSingleton // eslint-disable-line @typescript-eslint/naming-convention,no-underscore-dangle,id-blacklist,id-match

@@ -20,22 +20,22 @@ import version from '../version'
 const xpi = `${pkg.name}-${version}.xpi`
 
 const PRERELEASE = false
-// tslint:disable-next-line:no-magic-numbers
+// eslint-disable-next-line no-magic-numbers
 const EXPIRE_BUILDS = moment().subtract(7, 'days').toDate().toISOString()
 
 function bail(msg, status = 1) {
-  console.log(msg) // tslint:disable-line:no-console
+  console.log(msg) // eslint-disable-line no-console
   process.exit(status)
 }
 
 const dryRun = !CI.service
 if (dryRun) {
-  console.log('Not running on CI service, switching to dry-run mode') // tslint:disable-line:no-console
+  console.log('Not running on CI service, switching to dry-run mode') // eslint-disable-line no-console
   CI.branch = require('current-git-branch')()
 }
 
 function report(msg) {
-  console.log(`${dryRun ? 'dry-run: ' : ''}${msg}`) // tslint:disable-line:no-console
+  console.log(`${dryRun ? 'dry-run: ' : ''}${msg}`) // eslint-disable-line no-console
 }
 
 if (CI.pull_request) bail('Not releasing pull requests', 0)
@@ -83,7 +83,7 @@ async function announce(issue, release) {
   try {
     await octokit.issues.createComment({ owner, repo, issue_number: issue, body: msg })
   } catch (error) {
-    console.log(`Failed to announce '${build}: ${reason}' on ${issue}`) // tslint:disable-line:no-console
+    console.log(`Failed to announce '${build}: ${reason}' on ${issue}`) // eslint-disable-line no-console
   }
 }
 

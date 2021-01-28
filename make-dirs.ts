@@ -1,4 +1,4 @@
-// tslint:disable:no-console
+/* eslint-disable no-console */
 
 import * as rimraf from 'rimraf'
 import * as fs from 'fs-extra'

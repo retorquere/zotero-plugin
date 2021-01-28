@@ -10,7 +10,7 @@ import version from '../version'
 const [ , , source, target ] = process.argv
 
 const xpi = path.join(root, 'xpi', `${target}-${version}.xpi`)
-console.log(`creating ${xpi}`) // tslint:disable-line:no-console
+console.log(`creating ${xpi}`) // eslint-disable-line no-console
 if (fs.existsSync(xpi)) fs.unlinkSync(xpi)
 
 const archive = archiver.create('zip', {})

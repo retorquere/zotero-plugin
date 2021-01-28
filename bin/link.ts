@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-import * as fs from 'fs-extra'
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-call */
+
+import * as fs from 'fs'
 import * as path from 'path'
 
 import root from '../root'

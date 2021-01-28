@@ -1,6 +1,6 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
 
-import * as fs from 'fs-extra'
+import * as fs from 'fs'
 import * as glob from 'glob'
 import * as path from 'path'
 
@@ -31,9 +31,9 @@ for (const dir of ['defaults', 'content', 'skin', 'locale', 'resource']) {
 }
 files.push('chrome.manifest')
 
-for (const source of files) {
+for (const source of (files as string[])) {
   console.log(`  ${source}`)
   const target = path.join(root, 'build', source)
-  fs.ensureDirSync(path.dirname(target))
-  fs.copySync(source, target)
+  if (!fs.existsSync(path.dirname(target))) fs.mkdirSync(path.dirname(target))
+  fs.copyFileSync(source, target)
 }

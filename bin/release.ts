@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/* eslint-disable no-console, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/restrict-template-expressions */
+
 process.on('unhandledRejection', up => { throw up })
 
 import 'dotenv/config'
@@ -14,7 +16,7 @@ import { ContinuousIntegration as CI } from '../continuous-integration'
 import root from '../root'
 
 const pkg = require(path.join(root, 'package.json'))
-const [ , owner, repo ] = pkg.repository.url.match(/:\/\/github.com\/([^\/]+)\/([^\.]+)\.git$/)
+const [ , owner, repo ] = pkg.repository.url.match(/:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)
 
 import version from '../version'
 const xpi = `${pkg.name}-${version}.xpi`
@@ -54,8 +56,9 @@ for (let regex = /(?:^|\s)(?:#)([a-zA-Z\d]+)/gm, tag; tag = regex.exec(CI.commit
 if (tags.has('norelease')) bail(`Not releasing on ${CI.branch} because of 'norelease' tag`, 0)
 
 const issues: Set<number> = new Set(Array.from(tags).map(parseInt).filter(tag => !isNaN(tag)))
-
-if (CI.branch.match(/^((issue|gh)-)?[0-9]+(-[a-z]+)?$/i)) issues.add(parseInt(CI.branch.replace(/[^0-9]/g, '')))
+if ((/^((issue|gh)-)?[0-9]+(-[a-z]+)?$/i).exec(CI.branch)) {
+  issues.add(parseInt(CI.branch.replace(/[^0-9]/g, '')))
+}
 
 async function announce(issue, release) {
   if (tags.has('noannounce')) return
@@ -65,7 +68,8 @@ async function announce(issue, release) {
 
   if (CI.tag) {
     build = `${PRERELEASE ? 'pre-' : ''}release ${CI.tag}`
-  } else {
+  }
+  else {
     build = `test build ${version}`
   }
   const link = `[${build}](https://github.com/${owner}/${repo}/releases/download/${release.data.tag_name}/${pkg.name}-${version}.xpi)`
@@ -82,7 +86,8 @@ async function announce(issue, release) {
 
   try {
     await octokit.issues.createComment({ owner, repo, issue_number: issue, body: msg })
-  } catch (error) {
+  }
+  catch (error) {
     console.log(`Failed to announce '${build}: ${reason}' on ${issue}`) // eslint-disable-line no-console
   }
 }
@@ -96,7 +101,8 @@ async function uploadAsset(release, asset, contentType) {
   if (exists) {
     if (release.data.tag_name === 'builds') {
       await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: exists.id })
-    } else {
+    }
+    else {
       bail(`failed to upload ${path.basename(asset)} to ${release.data.html_url}: asset exists`)
     }
   }
@@ -114,7 +120,8 @@ async function uploadAsset(release, asset, contentType) {
       },
       name,
     })
-  } catch (err) {
+  }
+  catch (err) {
     bail(`failed to upload ${path.basename(asset)} to ${release.data.html_url}: ${err}`)
   }
 }
@@ -123,18 +130,20 @@ async function getRelease(tag, prerelease) {
   try {
     return await octokit.repos.getReleaseByTag({ owner, repo, tag })
 
-  } catch (err) {
+  }
+  catch {
     try {
       return await octokit.repos.createRelease({ owner, repo, tag_name: tag, prerelease })
 
-    } catch (err) {
+    }
+    catch (err) {
       bail(`Could not get release ${tag}: ${err}`)
       return null
     }
   }
 }
 
-async function update_rdf(releases_tag, failonerror) {
+async function update_rdf(releases_tag: string) {
   const release = await getRelease(releases_tag, false)
 
   const assets = (await octokit.repos.listReleaseAssets({ owner, repo, release_id: release.data.id })).data
@@ -149,7 +158,7 @@ async function update_rdf(releases_tag, failonerror) {
   await uploadAsset(release, path.join(root, 'gen/update.rdf'), 'application/rdf+xml')
 }
 
-async function main() {
+async function main(): Promise<void> {
   if (process.env.NIGHTLY === 'true') return
 
   if (CI.branch === 'l10n_master') {
@@ -165,7 +174,8 @@ async function main() {
     try {
       await octokit.repos.getReleaseByTag({ owner, repo, tag: CI.tag })
       bail(`release ${CI.tag} exists, bailing`)
-    } catch (err) {
+    }
+    catch (err) {
       // actually OK
     }
 
@@ -176,9 +186,9 @@ async function main() {
     }
 
     // RDF update pointer(s)
-    update_rdf(pkg.xpi.releaseURL.split('/').filter(name => name).reverse()[0], true)
-
-  } else if (issues.size) { // only release builds tied to issues
+    await update_rdf(pkg.xpi.releaseURL.split('/').filter((name: string) => name).reverse()[0])
+  }
+  else if (issues.size) { // only release builds tied to issues
     release = await getRelease('builds', true)
 
     for (const asset of release.data.assets || []) {
@@ -196,4 +206,4 @@ async function main() {
   }
 }
 
-main()
+main().catch(err => console.log(err))

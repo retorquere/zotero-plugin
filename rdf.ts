@@ -1,6 +1,6 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/restrict-template-expressions */
 
-import * as fs from 'fs-extra'
+import * as fs from 'fs'
 import * as path from 'path'
 import * as glob from 'glob'
 import * as pug from 'pug'
@@ -13,13 +13,13 @@ import version from './version'
 
 const pkg = { ...require(path.join(root, 'package.json')) }
 
-if (!pkg.id) pkg.id = `${pkg.name.replace(/^zotero-/, '')}@${pkg.author.email.replace(/.*@/, '')}`.toLowerCase()
+if (!pkg.id) (pkg.id as string) = `${pkg.name.replace(/^zotero-/, '')}@${pkg.author.email.replace(/.*@/, '')}`.toLowerCase()
 if (pkg.xpi) Object.assign(pkg, pkg.xpi)
 
 pkg.version = version
 
 if (pkg.updateLink) pkg.updateLink = uriTemplate(pkg.updateLink).fill({version: pkg.version})
-pkg.updateURL = pkg.xpi.releaseURL + 'update.rdf'
+pkg.updateURL = `${pkg.xpi.releaseURL}update.rdf`
 
 const translations = glob.sync(path.join(root, 'locale/*/*.properties'))
 for (const translation of translations) {
@@ -31,7 +31,8 @@ for (const translation of translations) {
 
   if (locale === 'en-US') {
     pkg.description = description
-  } else {
+  }
+  else {
     pkg.localizedDescriptions = pkg.localizedDescriptions || {}
     pkg.localizedDescriptions[locale] = description
   }

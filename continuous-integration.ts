@@ -2,7 +2,7 @@ import * as child_process from 'child_process'
 
 class ContinuousIntegrationSingleton {
   public service = ''
-  public build_number: string
+  public build_number: number
   public tag = ''
   public commit_message = ''
   public branch = ''
@@ -18,7 +18,8 @@ class ContinuousIntegrationSingleton {
         this.build_number = this.parseInt(process.env.CIRCLE_BUILD_NUM)
         try {
           this.tag = child_process.execSync(`git describe --exact-match ${process.env.CIRCLE_SHA1}`, {stdio: 'pipe' }).toString().trim()
-        } catch (err) {
+        }
+        catch (err) {
           this.tag = null
         }
         this.commit_message = child_process.execSync(`git log --format=%B -n 1 ${process.env.CIRCLE_SHA1}`).toString().trim()
@@ -40,21 +41,15 @@ class ContinuousIntegrationSingleton {
         this.commit_message = child_process.execSync(`git log --format=%B -n 1 ${process.env.GITHUB_SHA}`).toString().trim()
         if (process.env.GITHUB_REF.startsWith('refs/heads/')) {
           this.branch = process.env.GITHUB_REF.split('/').pop()
-        } else if (process.env.GITHUB_REF.startsWith('refs/tags/')) {
+        }
+        else if (process.env.GITHUB_REF.startsWith('refs/tags/')) {
           // this is sketchy AF but there's no alternative: https://github.community/t/if-condition-grouping-with-tags-and-branches/16631/3
           this.branch = 'master'
-        } else {
+        }
+        else {
           this.branch = null
         }
         this.pull_request = process.env.GITHUB_EVENT_NAME.startsWith('pull-request')
-        break
-
-      case 'Semaphore':
-        this.build_number = child_process.execSync('git log -1 --pretty=format:%h').toString().trim()
-        this.tag = child_process.execSync('git tag -l --points-at $SEMAPHORE_GIT_SHA').toString().trim()
-        this.commit_message = child_process.execSync('git log -1 --pretty=%B').toString().trim()
-        this.branch = process.env.SEMAPHORE_GIT_BRANCH
-        this.pull_request = false // until semaphore implements pull requests
         break
 
       default:
@@ -64,11 +59,12 @@ class ContinuousIntegrationSingleton {
 
   }
 
-  private parseInt(n) {
+  private parseInt(n: number | string): number {
+    if (typeof n === 'number') return n
     const int = parseInt(n)
     if (isNaN(int)) throw new Error(`${n} is not an integer`)
-    return n
+    return int
   }
 }
 
-export let ContinuousIntegration = new ContinuousIntegrationSingleton // eslint-disable-line @typescript-eslint/naming-convention,no-underscore-dangle,id-blacklist,id-match
+export const ContinuousIntegration = new ContinuousIntegrationSingleton // eslint-disable-line @typescript-eslint/naming-convention,no-underscore-dangle,id-blacklist,id-match

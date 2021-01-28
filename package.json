@@ -58,7 +58,13 @@
     "wrapper-webpack-plugin": "^2.1.0",
     "xml-parser": "^1.2.1",
     "xmldom": "^0.4.0",
-    "xpath": "^0.0.32"
+    "xpath": "^0.0.32",
+    "@typescript-eslint/eslint-plugin": "^4.14.1",
+    "@typescript-eslint/eslint-plugin-tslint": "^4.14.1",
+    "@typescript-eslint/parser": "^4.14.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsdoc": "^31.4.0",
+    "eslint-plugin-prefer-arrow": "^1.2.3"
   },
   "repository": {
     "type": "git",
@@ -101,13 +107,5 @@
   ],
   "bugs": {
     "url": "https://github.com/retorquere/zotero-plugin/issues"
-  },
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.14.1",
-    "@typescript-eslint/eslint-plugin-tslint": "^4.14.1",
-    "@typescript-eslint/parser": "^4.14.1",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jsdoc": "^31.4.0",
-    "eslint-plugin-prefer-arrow": "^1.2.3"
   }
 }

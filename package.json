@@ -1,13 +1,13 @@
 {
   "name": "zotero-plugin",
-  "version": "1.0.32",
+  "version": "1.0.33",
   "description": "Zotero plugin builder",
   "homepage": "https://github.com/retorquere/zotero-plugin/wiki",
   "bin": {
-    "zotero-plugin-release": "./bin/release.js",
-    "zotero-plugin-zipup": "./bin/zipup.js",
-    "zotero-plugin-link": "./bin/link.js",
-    "issue-branches": "./bin/branches.js"
+    "zotero-plugin-release": "bin/release.js",
+    "zotero-plugin-zipup": "bin/zipup.js",
+    "zotero-plugin-link": "bin/link.js",
+    "issue-branches": "bin/branches.js"
   },
   "author": {
     "name": "Emiliano Heyns",

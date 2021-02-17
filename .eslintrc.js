@@ -22,7 +22,6 @@ module.exports = {
         "eslint-plugin-jsdoc",
         "@typescript-eslint",
         "@typescript-eslint/eslint-plugin",
-        "@typescript-eslint/eslint-plugin-tslint",
     ],
     "rules": {
         "@typescript-eslint/adjacent-overload-signatures": "error",
@@ -138,14 +137,6 @@ module.exports = {
                 "path": "always",
                 "types": "prefer-import",
                 "lib": "always"
-            }
-        ],
-        "@typescript-eslint/tslint/config": [
-            "error",
-            {
-                "rules": {
-                    "no-unnecessary-callback-wrapper": true
-                }
             }
         ],
         "@typescript-eslint/unbound-method": "error",

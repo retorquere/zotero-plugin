@@ -23,10 +23,8 @@
     "loader",
     "plugin",
     "script",
-    "webpack",
     "content/**/*",
     "resource/**/*",
-    "zotero-webpack/**/*",
     "setup/**/*",
     "*.ts"
   ],

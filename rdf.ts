@@ -39,6 +39,12 @@ for (const translation of translations) {
 }
 
 const options_and_vars = { ...pkg, pretty: true }
+try {
+  Object.assign(options_and_vars, JSON.parse(fs.readFileSync(path.join(root, 'schema', 'supported.json'), 'utf8')))
+}
+catch (err) {
+  // ignore
+}
 
 let template
 console.log('generating install.rdf')

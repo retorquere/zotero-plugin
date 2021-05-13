@@ -26,6 +26,7 @@ else {
     version = `${version}.${os.userInfo().username}.${os.hostname()}`
   }
 
+  if (!fs.existsSync(path.dirname(version_js))) fs.mkdirSync(path.dirname(version_js))
   fs.writeFileSync(version_js, `module.exports = ${JSON.stringify(version)};\n`, 'utf8')
 }
 

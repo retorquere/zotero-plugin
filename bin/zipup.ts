@@ -14,6 +14,7 @@ const [ , , source, target ] = process.argv
 const xpi = path.join(root, 'xpi', `${target}-${version}.xpi`)
 console.log(`creating ${xpi}`) // eslint-disable-line no-console
 if (fs.existsSync(xpi)) fs.unlinkSync(xpi)
+if (!fs.existsSync(path.dirname(xpi))) fs.mkdirSync(path.dirname(xpi))
 
 const archive = archiver.create('zip', {})
 archive.pipe(fs.createWriteStream(xpi))

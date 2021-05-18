@@ -6,7 +6,7 @@ import { execSync as exec } from 'child_process'
 import { quote }  from 'shell-quote'
 import clp from 'clp'
 
-const argv = clp()
+const argv = clp() as Record<string, any>
 
 import root from '../root'
 

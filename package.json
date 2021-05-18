@@ -7,7 +7,8 @@
     "zotero-plugin-release": "bin/release.js",
     "zotero-plugin-zipup": "bin/zipup.js",
     "zotero-plugin-link": "bin/link.js",
-    "issue-branches": "bin/branches.js"
+    "issue-branches": "bin/branches.js",
+    "zotero-start": "bin/start.js"
   },
   "author": {
     "name": "Emiliano Heyns",
@@ -65,6 +66,8 @@
   },
   "license": "ISC",
   "files": [
+    "bin/start.d.ts",
+    "bin/start.js",
     "bin/branches.d.ts",
     "bin/branches.js",
     "bin/link.d.ts",
@@ -102,6 +105,7 @@
     "url": "https://github.com/retorquere/zotero-plugin/issues"
   },
   "devDependencies": {
-    "clp": "^4.0.12"
+    "clp": "^4.0.12",
+    "shell-quote": "^1.7.2"
   }
 }

@@ -30,6 +30,7 @@ specifiers:
   shelljs: ^0.8.4
   string-to-arraybuffer: ^1.0.2
   ts-node: ^9.1.1
+  tslib: ^2.2.0
   typescript: ^4.2.4
   uri-templates: ^0.2.0
   xml-parser: ^1.2.1
@@ -73,6 +74,7 @@ dependencies:
 devDependencies:
   clp: 4.0.12
   shell-quote: 1.7.2
+  tslib: 2.2.0
 
 packages:
 
@@ -2380,6 +2382,10 @@ packages:
   /tslib/1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
     dev: false
+
+  /tslib/2.2.0:
+    resolution: {integrity: sha512-gS9GVHRU+RGn5KQM2rllAlR3dU6m7AcpJKdtH8gFvQiC4Otgk98XnmMU+nZenHt/+VhnBPWwgrJsyrdcw6i23w==}
+    dev: true
 
   /tsutils/3.21.0_typescript@4.2.4:
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}

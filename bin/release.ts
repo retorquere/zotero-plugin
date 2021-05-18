@@ -6,7 +6,7 @@ process.on('unhandledRejection', up => { throw up })
 
 import 'dotenv/config'
 import * as path from 'path'
-import * as moment from 'moment'
+import moment from 'moment'
 import * as fs from 'fs'
 
 import { Octokit } from '@octokit/rest'

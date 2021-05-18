@@ -106,6 +106,7 @@
   },
   "devDependencies": {
     "clp": "^4.0.12",
-    "shell-quote": "^1.7.2"
+    "shell-quote": "^1.7.2",
+    "tslib": "^2.2.0"
   }
 }

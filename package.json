@@ -58,6 +58,9 @@
     "uri-templates": "^0.2.0",
     "xml-parser": "^1.2.1",
     "xmldom": "^0.6.0",
+    "clp": "^4.0.12",
+    "shell-quote": "^1.7.2",
+    "tslib": "^2.2.0",
     "xpath": "^0.0.32"
   },
   "repository": {
@@ -103,10 +106,5 @@
   ],
   "bugs": {
     "url": "https://github.com/retorquere/zotero-plugin/issues"
-  },
-  "devDependencies": {
-    "clp": "^4.0.12",
-    "shell-quote": "^1.7.2",
-    "tslib": "^2.2.0"
   }
 }

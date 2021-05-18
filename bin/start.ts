@@ -56,10 +56,10 @@ exec('npm run build')
 exec(quote(['rm', '-rf', path.join(profile.dir, 'extensions.json')]))
 exec(quote(['rm', '-rf', path.join(profile.dir, 'extensions')]) + path.sep + pkg.name + '*.xpi')
 
-let code = path.resolve(path.join(__dirname, 'build'))
+let code = path.resolve(path.join(root, 'build'))
 if (!code.endsWith(path.sep)) code += path.sep
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-fs.writeFileSync(path.join(profile.dir, 'extensions', pkg.name.replace('zotero-') + pkg.author.email.replace(/.*@/, '@')), code)
+fs.writeFileSync(path.join(profile.dir, 'extensions', pkg.name.replace('zotero-', '') + pkg.author.email.replace(/.*@/, '@')), code)
 
 let zotero = null
 switch (process.platform) {

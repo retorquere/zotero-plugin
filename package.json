@@ -28,14 +28,19 @@
   "dependencies": {
     "@octokit/rest": "^18.5.3",
     "@rgrove/parse-xml": "^3.0.0",
-    "@types/node": "^15.0.3",
-    "ajv": "^8.3.0",
+    "@types/node": "^15.3.0",
+    "@typescript-eslint/eslint-plugin": "^4.24.0",
+    "@typescript-eslint/parser": "^4.24.0",
+    "ajv": "^8.4.0",
     "ajv-keywords": "^5.0.0",
     "archiver": "^5.3.0",
     "current-git-branch": "^1.1.0",
     "dotenv": "^9.0.2",
     "ejs": "^3.1.6",
     "eslint": "^7.26.0",
+    "eslint-plugin-import": "^2.23.2",
+    "eslint-plugin-jsdoc": "^34.7.0",
+    "eslint-plugin-prefer-arrow": "^1.2.3",
     "find-up": "^5.0.0",
     "glob": "^7.1.7",
     "jsesc": "^3.0.2",
@@ -52,12 +57,7 @@
     "uri-templates": "^0.2.0",
     "xml-parser": "^1.2.1",
     "xmldom": "^0.6.0",
-    "xpath": "^0.0.32",
-    "@typescript-eslint/eslint-plugin": "^4.23.0",
-    "@typescript-eslint/parser": "^4.23.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jsdoc": "^34.0.2",
-    "eslint-plugin-prefer-arrow": "^1.2.3"
+    "xpath": "^0.0.32"
   },
   "repository": {
     "type": "git",
@@ -100,5 +100,8 @@
   ],
   "bugs": {
     "url": "https://github.com/retorquere/zotero-plugin/issues"
+  },
+  "devDependencies": {
+    "clp": "^4.0.12"
   }
 }

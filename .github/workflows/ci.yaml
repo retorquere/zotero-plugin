@@ -28,7 +28,6 @@ jobs:
       with:
         path: |
           ~/.npm
-          ~/.pnpm-store
           ~/.cache/pip
         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('requirements.txt') }}
         restore-keys: |
@@ -36,10 +35,10 @@ jobs:
           ${{ runner.os }}-build-
           ${{ runner.os }}-
     - name: install node packages
-      uses: pnpm/action-setup@v2
+      uses: actions/setup-node@v2
       with:
-        version: latest
-        run_install: true
+        node-version: '16'
+        cache: npm
     - run: npm test
     - name: Publish
       run: |

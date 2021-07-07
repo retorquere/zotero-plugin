@@ -11,34 +11,21 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: install python
-      uses: actions/setup-python@v2
+    - name: install node packages
+      uses: actions/setup-node@v2
       with:
-        python-version: 3.8
+        node-version: '16'
+        cache: npm
 
-    - name: install node
-      uses: actions/setup-node@v1
-      with:
-        node-version: 14.x
-
-    - name: Cache python/node dependencies
+    - name: Cache node dependencies
       uses: actions/cache@v2
       env:
         cache-name: cache-dependencies
       with:
         path: |
           ~/.npm
-          ~/.cache/pip
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
-    - name: install node packages
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16'
-        cache: npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('package-lock.json') }}
+    - run: npm install
     - run: npm test
     - name: Publish
       run: |

@@ -37,7 +37,7 @@ class ContinuousIntegrationSingleton {
 
       case 'GitHub':
         this.build_number = this.parseInt(process.env.GITHUB_RUN_NUMBER)
-        this.tag = process.env.GITHUB_REF.startsWith('refs/tags/') ? process.env.GITHUB_REF.split('/').pop() : null
+        this.tag = child_process.execSync(`git describe --exact-match ${process.env.GITHUB_SHA}`, {stdio: 'pipe' }).toString().trim()
         this.commit_message = child_process.execSync(`git log --format=%B -n 1 ${process.env.GITHUB_SHA}`).toString().trim()
         if (process.env.GITHUB_REF.startsWith('refs/heads/')) {
           this.branch = process.env.GITHUB_REF.split('/').pop()

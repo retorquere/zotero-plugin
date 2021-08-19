@@ -22,7 +22,7 @@ async function main() {
       const issue = await octokit.issues.get({ owner, repo, issue_number: parseInt(branch.name) })
       if (issue.data.state !== 'open') console.log(branch.name, issue.data.state) // eslint-disable-line no-console
     }
-    else if (branch.name !== 'master' && branch.name !== 'gh-pages') {
+    else if (!['master', 'main', 'gh-pages'].includes(branch.name)) {
       console.log(branch.name)
     }
   }

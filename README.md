@@ -3,7 +3,7 @@
 Utility scripts for releasing zotero plugins on github. See also https://github.com/retorquere/generator-zotero-plugin/
 
 zotero-plugin-release will release your plugin as a github release.
-When it is ran on master, and it detects a tagged build on travis,
+When it is ran on master/main, and it detects a tagged build on travis,
 it will issue a new release. When it is ran on a branch named
 `gh-<number>`, it will publish the plugin to a pre-release named
 `builds`, and will announce the new build on issue number `<number>`

@@ -27,28 +27,11 @@ class ContinuousIntegrationSingleton {
         this.pull_request = !!process.env.CIRCLE_PULL_REQUEST
         break
 
-      case 'Travis':
-        this.build_number = this.parseInt(process.env.TRAVIS_BUILD_NUMBER)
-        this.tag = process.env.TRAVIS_TAG
-        this.commit_message = process.env.TRAVIS_COMMIT_MESSAGE
-        this.branch = (this.tag ? 'master' : process.env.TRAVIS_BRANCH)
-        this.pull_request = process.env.TRAVIS_PULL_REQUEST !== 'false'
-        break
-
       case 'GitHub':
         this.build_number = this.parseInt(process.env.GITHUB_RUN_NUMBER)
         this.tag = process.env.GITHUB_REF.startsWith('refs/tags/') ? process.env.GITHUB_REF.split('/').pop() : null
         this.commit_message = child_process.execSync(`git log --format=%B -n 1 ${process.env.GITHUB_SHA}`).toString().trim()
-        if (process.env.GITHUB_REF.startsWith('refs/heads/')) {
-          this.branch = process.env.GITHUB_REF.split('/').pop()
-        }
-        else if (process.env.GITHUB_REF.startsWith('refs/tags/')) {
-          // this is sketchy AF but there's no alternative: https://github.community/t/if-condition-grouping-with-tags-and-branches/16631/3
-          this.branch = 'master'
-        }
-        else {
-          this.branch = null
-        }
+        this.branch = child_process.execSync('git branch --show-current', {stdio: 'pipe' }).toString().trim()
         this.pull_request = process.env.GITHUB_EVENT_NAME.startsWith('pull-request')
         break
 

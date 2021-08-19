@@ -45,7 +45,7 @@ if (CI.pull_request) bail('Not releasing pull requests', 0)
 if (CI.tag) {
   if (`v${pkg.version}` !== CI.tag) bail(`Building tag ${CI.tag}, but package version is ${pkg.version}`)
 
-  if (CI.branch !== 'master') bail(`Building tag ${CI.tag}, but branch is ${CI.branch}`)
+  if (CI.branch !== 'master' && CI.branch !== 'main') bail(`Building tag ${CI.tag}, but branch is ${CI.branch}`)
 }
 
 const tags = new Set

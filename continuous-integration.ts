@@ -29,10 +29,21 @@ class ContinuousIntegrationSingleton {
 
       case 'GitHub':
         this.build_number = this.parseInt(process.env.GITHUB_RUN_NUMBER)
-        this.tag = process.env.GITHUB_REF.startsWith('refs/tags/') ? process.env.GITHUB_REF.split('/').pop() : null
         this.commit_message = child_process.execSync(`git log --format=%B -n 1 ${process.env.GITHUB_SHA}`).toString().trim()
-        this.branch = child_process.execSync('git branch --show-current', {stdio: 'pipe' }).toString().trim()
         this.pull_request = process.env.GITHUB_EVENT_NAME.startsWith('pull-request')
+
+        if (process.env.GITHUB_HEAD_REF) {
+          this.branch = process.env.GITHUB_HEAD_REF.split('/').pop()
+        }
+        else if (process.env.GITHUB_REF.startsWith('refs/tags/')) {
+          // leave branch undefined when tagged... not great
+          this.tag = process.env.GITHUB_REF.split('/').pop()
+        }
+        else if (process.env.GITHUB_REF.startsWith('refs/heads/')) {
+          this.branch = process.env.GITHUB_REF.split('/').pop()
+        }
+        this.branch = this.branch || ''
+
         break
 
       default:

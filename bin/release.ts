@@ -45,7 +45,7 @@ if (CI.pull_request) bail('Not releasing pull requests', 0)
 if (CI.tag) {
   if (`v${pkg.version}` !== CI.tag) bail(`Building tag ${CI.tag}, but package version is ${pkg.version}`)
 
-  if (CI.branch !== 'master' && CI.branch !== 'main') bail(`Building tag ${CI.tag}, but branch is ${CI.branch}`)
+  if (CI.branch && CI.branch !== 'master' && CI.branch !== 'main') bail(`Building tag ${CI.tag}, but branch is ${CI.branch}`)
 }
 
 const tags = new Set
@@ -53,7 +53,7 @@ for (let regex = /(?:^|\s)(?:#)([a-zA-Z\d]+)/gm, tag; tag = regex.exec(CI.commit
   tags.add(tag[1])
 }
 
-if (tags.has('norelease')) bail(`Not releasing on ${CI.branch} because of 'norelease' tag`, 0)
+if (tags.has('norelease')) bail(`Not releasing on ${CI.branch || 'default branch'} because of 'norelease' tag`, 0)
 
 const issues: Set<number> = new Set(Array.from(tags).map(parseInt).filter(tag => !isNaN(tag)))
 if ((/^((issue|gh)-)?[0-9]+(-[a-z]+)?$/i).exec(CI.branch)) {

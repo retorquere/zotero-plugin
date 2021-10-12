@@ -14,7 +14,7 @@ function include(file, sources) {
   switch (path.extname(file).toLowerCase()) {
     case '.json':
     case '.ts':
-    case '.pegjs':
+    case '.peggy':
       return false
   }
 

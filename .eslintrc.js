@@ -19,7 +19,6 @@ module.exports = {
     "plugins": [
         "eslint-plugin-import",
         "eslint-plugin-prefer-arrow",
-        "eslint-plugin-jsdoc",
         "@typescript-eslint",
         "@typescript-eslint/eslint-plugin",
     ],
@@ -181,9 +180,6 @@ module.exports = {
         ],
         "id-match": "error",
         "import/order": "off",
-        "jsdoc/check-alignment": "error",
-        "jsdoc/check-indentation": "error",
-        "jsdoc/newline-after-description": "error",
         "linebreak-style": [
             "error",
             "unix"

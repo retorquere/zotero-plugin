@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable no-console, prefer-template, @typescript-eslint/restrict-plus-operands */
+/* eslint-disable no-console, prefer-template, @typescript-eslint/no-unsafe-argument, @typescript-eslint/restrict-plus-operands */
 
 import * as fs from 'fs'
 import * as path from 'path'

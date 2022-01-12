@@ -52,7 +52,7 @@
     "pug": "^3.0.2",
     "rimraf": "^3.0.2",
     "shell-quote": "^1.7.2",
-    "shelljs": "^0.8.4",
+    "shelljs": "^0.8.5",
     "string-to-arraybuffer": "^1.0.2",
     "ts-node": "^10.3.0",
     "tslib": "^2.3.1",

@@ -46,7 +46,7 @@ log = <file name to write log output to> # optional
 db = <path to zotero.sqlite you want to populate the profile with> # optional
 
 [preferences]
-extensions.zotero.<your extension>.<some setting> = true
+extensions.zotero.<your extension>.<some setting> = <value>
 ```
 
 and add this script to your package.json:

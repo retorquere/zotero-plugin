@@ -28,7 +28,7 @@ class Config:
     self.zotero = types.SimpleNamespace(
       path=config.get('zotero', 'path', fallback=None),
       log=config.get('zotero', 'log', fallback=None),
-      db=config.get('profile', 'db', fallback=None)
+      db=config.get('zotero', 'db', fallback=None)
     )
 
     if self.zotero.path:

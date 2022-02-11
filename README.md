@@ -10,7 +10,7 @@ it will issue a new release. When it is ran on a branch named
 in your repo.
 
 For this to work you must have a variable named `GITHUB_TOKEN` in
-your travis environment with a githun token with `repo` rights. You
+your travis environment with a github token with `repo` rights. You
 are allowed one bot account by github; I use this to do the
 announcements, but you can use one from your own account if you
 want.

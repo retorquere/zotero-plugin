@@ -8,7 +8,7 @@
     "zotero-plugin-zipup": "bin/zipup.js",
     "zotero-plugin-link": "bin/link.js",
     "issue-branches": "bin/branches.js",
-    "zotero-start": "bin/start.js"
+    "zotero-start": "bin/start.py"
   },
   "author": {
     "name": "Emiliano Heyns",
@@ -67,8 +67,6 @@
   },
   "license": "ISC",
   "files": [
-    "bin/start.d.ts",
-    "bin/start.js",
     "bin/branches.d.ts",
     "bin/branches.js",
     "bin/link.d.ts",
@@ -77,6 +75,7 @@
     "bin/release.js",
     "bin/zipup.d.ts",
     "bin/zipup.js",
+    "bin/start.py",
     "continuous-integration.d.ts",
     "continuous-integration.js",
     "copy-assets.d.ts",

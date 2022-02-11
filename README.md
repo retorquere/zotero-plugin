@@ -27,3 +27,32 @@ to the current branch (or maybe your branch isn't named `gh-<number>`,
 add `#<number>` to the commit message.
 
 Release new versions by issuing `npm version <major|minor|patch>`.
+
+# Starting Zotero with your plugin loaded
+
+Note is is *much* adviced to create a separate Zotero profile for testing!
+
+You will need to have python3 installed to use this.
+
+Create a file called `zotero-plugin.ini` with the following contents:
+
+```
+[profile]
+name = <your test profile name>
+path = <your test profile absolute path>
+
+[zotero]
+log = <file name to write log output to> # optional
+db = <path to zotero.sqlite you want to populate the profile with> # optional
+
+[preferences]
+extensions.zotero.<your extension>.<some setting> = true
+```
+
+and add this script to your package.json:
+
+```
+  "start": "zotero-start"
+```
+
+then when you execute `npm start`, zotero will start up with the latest build of your plugin installed.

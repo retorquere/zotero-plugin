@@ -56,3 +56,7 @@ and add this script to your package.json:
 ```
 
 then when you execute `npm start`, zotero will start up with the latest build of your plugin installed.
+
+**DO CREATE A BACKUP OF YOUR ZOTERO DATA *AND* YOUR ZOTERO PROFILE BEFORE USING THIS THE FIRST TIME**
+
+`zotero-start` will **blindly** trust you've set it up right and will **alter data** in the profile

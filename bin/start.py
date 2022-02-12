@@ -4,7 +4,7 @@ import os, sys
 import shutil
 import json
 import configparser
-import argparse
+import glob
 import shlex
 import xml.etree.ElementTree as ET
 import subprocess
@@ -44,7 +44,8 @@ class Config:
       self.zotero.log = os.path.expanduser(self.zotero.log)
 
     self.plugin = types.SimpleNamespace(
-      source=os.path.abspath(config.get('plugin', 'source', fallback='build'))
+      source=os.path.abspath(config.get('plugin', 'source', fallback=self.find_source())),
+      build=config.get('plugin', 'build', fallback='npm run build')
     )
 
     if 'preferences' in config:
@@ -60,6 +61,13 @@ class Config:
     # null deletes if present
     self.preference['extensions.lastAppBuildId'] = None
     self.preference['extensions.lastAppVersion'] = None
+
+  def find_source(self):
+    for rdf in glob.glob(os.path.join('*', 'install.rdf')):
+      return os.path.dirname(rdf)
+    if os.path.isdir('build'):
+      return 'build'
+    return False
 
   def pref_value(self, v):
     if v in ['true', 'false']: return v == 'true'
@@ -118,7 +126,8 @@ def system(cmd):
   print('$', cmd)
   subprocess.run(cmd, shell=True, check=True)
 
-system('npm run build')
+if config.plugin.build:
+  system(config.plugin.build)
 
 if config.zotero.db:
   shutil.copyfile(config.zotero.db, os.path.join(config.profile.path, 'zotero', 'zotero.sqlite'))

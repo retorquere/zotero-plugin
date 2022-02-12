@@ -42,11 +42,17 @@ name = <your test profile name>
 path = <your test profile absolute path>
 
 [zotero]
+path = <explicit path to zotero binary> # optional
 log = <file name to write log output to> # optional
 db = <path to zotero.sqlite you want to populate the profile with> # optional
 
+[plugin]
+source = <plugin source directory> # optional
+build = <command to build your plugin, or false if no build is needed> # optional
+
 [preferences]
 extensions.zotero.<your extension>.<some setting> = <value>
+extensions.zotero.<your extension>.<some other setting> = <value>
 ```
 
 and add this script to your package.json:

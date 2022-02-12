@@ -43,6 +43,10 @@ class Config:
     if self.zotero.log:
       self.zotero.log = os.path.expanduser(self.zotero.log)
 
+    self.plugin = types.SimpleNamespace(
+      source=os.path.abspath(config.get('plugin', 'source', fallback='build'))
+    )
+
     if 'preferences' in config:
       self.preference = { k: self.pref_value(v) for k, v in dict(config['preferences']).items() }
     else:
@@ -119,10 +123,10 @@ system('npm run build')
 if config.zotero.db:
   shutil.copyfile(config.zotero.db, os.path.join(config.profile.path, 'zotero', 'zotero.sqlite'))
 
-for plugin_id in ET.parse(os.path.join('build', 'install.rdf')).getroot().findall('{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Description/{http://www.mozilla.org/2004/em-rdf#}id'):
+for plugin_id in ET.parse(os.path.join(config.plugin.source, 'install.rdf')).getroot().findall('{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Description/{http://www.mozilla.org/2004/em-rdf#}id'):
   plugin_path = os.path.join(config.profile.path, 'extensions', plugin_id.text)
 with open(plugin_path, 'w') as f:
-  sources = os.path.join(os.getcwd(), 'build')
+  sources = config.plugin.source
   if sources[-1] != '/': sources += '/'
   print(sources, file=f)
 

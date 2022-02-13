@@ -28,6 +28,21 @@ add `#<number>` to the commit message.
 
 Release new versions by issuing `npm version <major|minor|patch>`.
 
+# Allowing your user to send debug information
+
+In your plugin, add `import { DebugLog } from 'zotero-plugin/debug-log'` to your startup file, then
+after `Zotero.Schema.updateSchemaPromise` clears, call
+
+```
+DebugLog.register('your plugin name', ['extensions.zotero.<your plugin extension root>.'])
+```
+
+the array is a list of either full names of preferences you want to know about, or a name ending in `.` which means "all keys directly under this".
+
+The Help menu will now have an entry "send debug log to file.io"; when your user selects that, the error log and the selected settings will be sent to file.io; if any items are selected, when that is clicked, a copy of those items will be included in RDF format.
+
+The user will get an ID that looks like `C3WvhYgA8RDM-2XZGASLV`; the first part is the file.io ID, so you would go to `https://file.io/C3WvhYgA8RDM` to retrieve the download; the zipfile you get there will be `2XZGASLV.zip`.
+
 # Starting Zotero with your plugin loaded
 
 Note is is *much* adviced to create a separate Zotero profile for testing!

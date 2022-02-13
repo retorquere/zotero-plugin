@@ -159,7 +159,13 @@ if is_windows:
 
 cmd = config.zotero.path + ' -purgecaches -P'
 if config.profile.name: cmd += ' ' + shlex.quote(config.profile.name)
-cmd += ' -jsconsole -ZoteroDebugText -datadir profile'
+
+# per https://www.zotero.org/support/debug_output, use ZoteroDebug instead of ZOteroDebugText for windows
+debug_flag = '-ZoteroDebugText'
+if is_windows:
+  debug_flag = '-ZoteroDebug'
+
+cmd += ' -jsconsole ' + debug_flag + ' -datadir profile'
 if config.zotero.log: cmd += ' > ' + shlex.quote(config.zotero.log)
 cmd += ' &'
 

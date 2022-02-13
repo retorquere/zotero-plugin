@@ -146,8 +146,8 @@ with open(plugin_path, 'w') as f:
     sources = sources.replace('\\', '\\\\').replace('/', '\\\\')
 
   print('Writing addon source path to proxy file')
-  print('Source path: ' + sources)
-  print('Proxy file path: ' + plugin_path)
+  print('Source path:', sources)
+  print('Proxy file path:', plugin_path)
 
   print(sources, file=f)
 

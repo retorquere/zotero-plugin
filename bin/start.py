@@ -158,8 +158,7 @@ cmd = filter(None, [
   '-ZoteroDebug' if config.windows else '-ZoteroDebugText',
   '-jsconsole',
   '-datadir', 'profile',
-  config.zotero.log and '>',
-  config.zotero.log,
+  config.zotero.log and '>', config.zotero.log,
   '&',
 ])
 system(subprocess.list2cmdline(cmd))

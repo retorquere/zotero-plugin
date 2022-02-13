@@ -140,7 +140,7 @@ for plugin_id in ET.parse(os.path.join(config.plugin.source, 'install.rdf')).get
   plugin_path = os.path.join(config.profile.path, 'extensions', plugin_id.text)
 with open(plugin_path, 'w') as f:
   sources = config.plugin.source
-  if sources[-1] not in '/\\': sources += ('\\' if config.windows else '/')
+  if sources[-1] not in '/\\': sources += os.sep
 
   if config.windows:
     sources = sources.replace('\\', '\\\\').replace('/', '\\\\')

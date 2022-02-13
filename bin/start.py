@@ -151,19 +151,15 @@ with open(plugin_path, 'w') as f:
 
   print(sources, file=f)
 
-cmd = [
-  p for p in
-    [
-      config.zotero.path,
-      '-purgecaches',
-      '-P', config.profile.name,
-      '-ZoteroDebug' if config.windows else '-ZoteroDebugText',
-      '-jsconsole',
-      '-datadir', 'profile',
-      config.zotero.log and '>',
-      config.zotero.log,
-      '&',
-    ]
-  if p is not None
-]
+cmd = filter(None, [
+  config.zotero.path,
+  '-purgecaches',
+  '-P', config.profile.name,
+  '-ZoteroDebug' if config.windows else '-ZoteroDebugText',
+  '-jsconsole',
+  '-datadir', 'profile',
+  config.zotero.log and '>',
+  config.zotero.log,
+  '&',
+])
 system(subprocess.list2cmdline(cmd))

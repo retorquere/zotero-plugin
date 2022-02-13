@@ -53,7 +53,7 @@ Create a file called `zotero-plugin.ini` with the following contents:
 
 ```
 [profile]
-name = <your test profile name>
+name = <your test profile name> # optional. when not present, the profile picker will popup, where you can select the test profile
 path = <your test profile absolute path>
 
 [zotero]
@@ -76,7 +76,7 @@ and add this script to your package.json:
   "start": "zotero-start"
 ```
 
-then when you execute `npm start`, zotero will start up with the latest build of your plugin installed.
+then when you execute `npm start`, zotero will start up with the latest build of your plugin installed, and the given preferences set.
 
 **DO CREATE A BACKUP OF YOUR ZOTERO DATA *AND* YOUR ZOTERO PROFILE BEFORE USING THIS THE FIRST TIME**
 

@@ -37,6 +37,8 @@ class Config:
       self.zotero.path = '/Applications/Zotero.app/Contents/MacOS/zotero'
     elif platform.system() == 'Linux':
       self.zotero.path = '/usr/lib/zotero/zotero'
+    elif platform.system() == 'Windows':
+      self.zotero.path = 'C:/Program Files (x86)/Zotero/Zotero.exe'
     else:
       assert False, f'{platform.system()} not supported'
       
@@ -132,12 +134,28 @@ if config.plugin.build:
 if config.zotero.db:
   shutil.copyfile(config.zotero.db, os.path.join(config.profile.path, 'zotero', 'zotero.sqlite'))
 
+# check if the system is windows
+is_windows = platform.system() == 'Windows'
+
 for plugin_id in ET.parse(os.path.join(config.plugin.source, 'install.rdf')).getroot().findall('{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Description/{http://www.mozilla.org/2004/em-rdf#}id'):
   plugin_path = os.path.join(config.profile.path, 'extensions', plugin_id.text)
 with open(plugin_path, 'w') as f:
   sources = config.plugin.source
   if sources[-1] != '/': sources += '/'
+
+  if is_windows:
+    sources = sources.replace('\\', '\\\\').replace('/', '\\\\')
+
+  print('Writing addon source path to proxy file')
+  print('Source path: ' + sources)
+  print('Proxy file path: ' + plugin_path)
+
   print(sources, file=f)
+
+
+# wrap zotero.exe with double quotes, otherwise cmd will fail to parse path with spaces.
+if is_windows:
+    config.zotero.path = "\"" + config.zotero.path + "\""
 
 cmd = config.zotero.path + ' -purgecaches -P'
 if config.profile.name: cmd += ' ' + shlex.quote(config.profile.name)

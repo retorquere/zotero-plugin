@@ -45,6 +45,7 @@
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "glob": "^7.2.0",
     "jsesc": "^3.0.2",
+    "jszip": "^3.7.1",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "peggy": "^1.2.0",

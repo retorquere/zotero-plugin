@@ -151,15 +151,19 @@ with open(plugin_path, 'w') as f:
 
   print(sources, file=f)
 
-cmd = shlex.quote(config.zotero.path) + ' -purgecaches -P'
-if config.profile.name: cmd += ' ' + shlex.quote(config.profile.name)
-# per https://www.zotero.org/support/debug_output, use ZoteroDebug instead of ZOteroDebugText for windows
-if config.windows:
-  cmd +=  ' -ZoteroDebug'
-else:
-  cmd +=  ' -ZoteroDebugText'
-cmd += ' -jsconsole -datadir profile'
-if config.zotero.log: cmd += ' > ' + shlex.quote(config.zotero.log)
-cmd += ' &'
-
-system(cmd)
+cmd = [
+  p for p in
+    [
+      config.zotero.path,
+      '-purgecaches',
+      '-P', config.profile.name,
+      '-ZoteroDebug' if config.windows else '-ZoteroDebugText',
+      '-jsconsole',
+      '-datadir', 'profile',
+      config.zotero.log and '>',
+      config.zotero.log,
+      '&',
+    ]
+  if p is not None
+]
+system(subprocess.list2cmdline(cmd))

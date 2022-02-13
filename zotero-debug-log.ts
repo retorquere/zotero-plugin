@@ -1,4 +1,34 @@
-declare const Zotero: any
+type ZoteroPane = {
+  getSelectedItems: () => any[]
+}
+declare const Zotero: {
+  DebugLogSender: DebugLogSender
+  Translate: any
+  Prefs: {
+    get: (name: string) => string | number | boolean
+  }
+  getInstalledExtensions: () => Promise<string[]>
+  platform: string
+  oscpu: string
+  locale: string
+  Utilities: {
+    generateObjectKey: () => string
+  }
+  Debug: {
+    getConsoleViewerOutput: () => string[]
+  }
+  getErrors: (something: boolean) => string[]
+  Schema: {
+    schemaUpdatePromise: Promise<void>
+  }
+  getActiveZoteroPane: () => ZoteroPane
+}
+type ExportTranslator = {
+  setHandler: (phase: string, handler: (obj: { string: string }, success: boolean) => void) => void // eslint-disable-line id-blacklist
+  setTranslator: (id: string) => void
+  setItems: (items: any[]) => void
+  translate: () => void
+}
 declare const Components: any
 declare const Services: any
 
@@ -19,9 +49,9 @@ class DebugLogSender { // tslint:disable-line:variable-name
     this.enabled = true
 
     let doc: Document = null
-    const enumerator = Services.wm.getEnumerator('navigator:browser')
-    while (enumerator.hasMoreElements()) {
-      const win = enumerator.getNext()
+    const enumerator = Services.wm.getEnumerator('navigator:browser') // eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+    while (enumerator.hasMoreElements()) { // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      const win: { ZoteroPane: boolean; document: Document } = enumerator.getNext() // eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
       if (!win.ZoteroPane) continue
       doc = win.document
     }
@@ -36,7 +66,9 @@ class DebugLogSender { // tslint:disable-line:variable-name
   }
 
   private alert(title, body) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     ps.alert(null, title, body)
   }
 
@@ -44,15 +76,17 @@ class DebugLogSender { // tslint:disable-line:variable-name
     const plugins = Object.keys(this.plugins)
     if (plugins.length === 1) return plugins[0]
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const prompts = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
     const selected = { value: -1 }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     if (!prompts.select(null, 'Plugin', 'Send debug log for', plugins.length, plugins, selected)) return null
     return plugins[selected.value]
   }
 
   public send() {
-    this.sendAsync().catch(err => {
-      this.alert('Debug log submission error', `${err}`)
+    this.sendAsync().catch((err: Error) => {
+      this.alert('Debug log submission error', `${err}`) // eslint-disable-line @typescript-eslint/restrict-template-expressions
     })
   }
   private async sendAsync() {
@@ -60,12 +94,12 @@ class DebugLogSender { // tslint:disable-line:variable-name
 
     const plugin = this.select()
     const zip = new Zip()
-    const key = Zotero.Utilities.generateObjectKey()
+    const key: string = Zotero.Utilities.generateObjectKey()
 
     const log = [
       await this.info(plugin),
       Zotero.getErrors(true).join('\n\n'),
-      Zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line @typescript-eslint/no-magic-numbers
+      Zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line no-magic-numbers
     ].filter((txt: string) => txt).join('\n\n').trim()
     zip.file(`${key}/${key}.txt`, log)
 
@@ -92,19 +126,17 @@ class DebugLogSender { // tslint:disable-line:variable-name
   }
 
   // general state of Zotero
-  private async info(plugin) {
+  private async info(plugin: string) {
     let info = ''
 
-    const appInfo = Components.classes['@mozilla.org/xre/app-info;1'].getService(Components.interfaces.nsIXULAppInfo)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+    const appInfo: { name: string; version: string } = Components.classes['@mozilla.org/xre/app-info;1'].getService(Components.interfaces.nsIXULAppInfo)
     info += `Application: ${appInfo.name} ${appInfo.version} ${Zotero.locale}\n`
     info += `Platform: ${Zotero.platform} ${Zotero.oscpu}\n`
 
-    const addons = await Zotero.getInstalledExtensions()
+    const addons: string[] = await Zotero.getInstalledExtensions()
     if (addons.length) {
-      info += 'Addons:\n'
-      for (const addon of addons) {
-        info += `  ${addon}\n`
-      }
+      info += 'Addons:\n' + addons.map((addon: string) => `  ${addon}\n`).join('') // eslint-disable-line prefer-template
     }
 
     for (const pref of (this.plugins[plugin] || [])) {
@@ -116,26 +148,26 @@ class DebugLogSender { // tslint:disable-line:variable-name
 
   private rdf(): Promise<string> {
     return new Promise((resolve, reject) => {
-      const items = Zotero.getActiveZoteroPane().getSelectedItems()
+      const items: any[] = Zotero.getActiveZoteroPane().getSelectedItems() // eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
       if (items.length === 0) return resolve('')
 
-      const translation = new Zotero.Translate.Export()
+      const translation: ExportTranslator = new Zotero.Translate.Export() as ExportTranslator // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
       translation.setItems(items)
       translation.setTranslator('14763d24-8ba0-45df-8f52-b8d1108e7ac9') // rdf
 
       translation.setHandler('done', (obj, success) => {
         if (success) {
-          resolve(obj ? obj.string as string : undefined)
+          resolve(obj ? obj.string : undefined)
         }
         else {
           reject('translation failed')
         }
       })
 
-      translation.translate()
+      translation.translate() // eslint-disable-line @typescript-eslint/no-unsafe-call
     })
   }
 }
 
 Zotero.DebugLogSender = Zotero.DebugLogSender || new DebugLogSender
-export const DebugLog = Zotero.DebugLogSender
+export const DebugLog: DebugLogSender = Zotero.DebugLogSender as unknown as DebugLogSender

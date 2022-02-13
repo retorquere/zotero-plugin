@@ -5,7 +5,7 @@ declare const Zotero: {
   DebugLogSender: DebugLogSender
   Translate: any
   Prefs: {
-    get: (name: string) => string | number | boolean
+    get: (name: string, global?: boolean) => string | number | boolean
   }
   getInstalledExtensions: () => Promise<string[]>
   platform: string
@@ -98,6 +98,7 @@ class DebugLogSender { // tslint:disable-line:variable-name
 
     const log = [
       await this.info(plugin),
+      this.preferences(plugin),
       Zotero.getErrors(true).join('\n\n'),
       Zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line no-magic-numbers
     ].filter((txt: string) => txt).join('\n\n').trim()
@@ -120,6 +121,23 @@ class DebugLogSender { // tslint:disable-line:variable-name
     this.alert(`Debug log ID for ${plugin}`, `${response.key}-${key}`)
   }
 
+  private preferences(plugin: string): Record<string, string | number | boolean> {
+    const prefs: Record<string, string | number | boolean> = {}
+    for (const pref of this.plugins[plugin] || []) {
+      if (pref.endsWith('.')) {
+        const branch = Services.prefs.getBranch(pref)
+        for (const key of branch.getChildList('', {})) {
+          prefs[pref + key] = Zotero.Prefs.get(pref + key, true)
+        }
+      }
+      else {
+        prefs[pref] = Zotero.Prefs.get(pref, true)
+      }
+    }
+
+    return prefs
+  }
+
   private async post(url: string, data: FormData): Promise<FileIO> {
     const response = await fetch(url, { method: 'POST', body: data })
     return (await response.json()) as FileIO
@@ -139,8 +157,8 @@ class DebugLogSender { // tslint:disable-line:variable-name
       info += 'Addons:\n' + addons.map((addon: string) => `  ${addon}\n`).join('') // eslint-disable-line prefer-template
     }
 
-    for (const pref of (this.plugins[plugin] || [])) {
-      info += `${pref} = ${JSON.stringify(Zotero.Prefs.get(pref))}\n`
+    for (const [pref, value] of Object.entries(this.preferences(plugin))) {
+      info += `${pref} = ${JSON.stringify(value)}\n`
     }
 
     return info

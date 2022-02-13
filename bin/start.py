@@ -41,7 +41,9 @@ class Config:
       self.zotero.path = 'C:/Program Files (x86)/Zotero/Zotero.exe'
     else:
       assert False, f'{platform.system()} not supported'
-      
+
+    self.windows = platform.system() == 'Windows'
+
     if self.zotero.log:
       self.zotero.log = os.path.expanduser(self.zotero.log)
 
@@ -134,16 +136,13 @@ if config.plugin.build:
 if config.zotero.db:
   shutil.copyfile(config.zotero.db, os.path.join(config.profile.path, 'zotero', 'zotero.sqlite'))
 
-# check if the system is windows
-is_windows = platform.system() == 'Windows'
-
 for plugin_id in ET.parse(os.path.join(config.plugin.source, 'install.rdf')).getroot().findall('{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Description/{http://www.mozilla.org/2004/em-rdf#}id'):
   plugin_path = os.path.join(config.profile.path, 'extensions', plugin_id.text)
 with open(plugin_path, 'w') as f:
   sources = config.plugin.source
   if sources[-1] != '/': sources += '/'
 
-  if is_windows:
+  if config.windows:
     sources = sources.replace('\\', '\\\\').replace('/', '\\\\')
 
   print('Writing addon source path to proxy file')
@@ -152,20 +151,14 @@ with open(plugin_path, 'w') as f:
 
   print(sources, file=f)
 
-
-# wrap zotero.exe with double quotes, otherwise cmd will fail to parse path with spaces.
-if is_windows:
-    config.zotero.path = "\"" + config.zotero.path + "\""
-
-cmd = config.zotero.path + ' -purgecaches -P'
+cmd = shlex.quote(config.zotero.path) + ' -purgecaches -P'
 if config.profile.name: cmd += ' ' + shlex.quote(config.profile.name)
-
 # per https://www.zotero.org/support/debug_output, use ZoteroDebug instead of ZOteroDebugText for windows
-debug_flag = '-ZoteroDebugText'
-if is_windows:
-  debug_flag = '-ZoteroDebug'
-
-cmd += ' -jsconsole ' + debug_flag + ' -datadir profile'
+if config.windows:
+  cmd +=  ' -ZoteroDebug'
+else:
+  cmd +=  ' -ZoteroDebugText'
+cmd += ' -jsconsole -datadir profile'
 if config.zotero.log: cmd += ' > ' + shlex.quote(config.zotero.log)
 cmd += ' &'
 

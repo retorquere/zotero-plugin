@@ -100,7 +100,9 @@
     ".eslintrc.js",
     "update.rdf.pug",
     "version.d.ts",
-    "version.js"
+    "version.js",
+    "zotero-debug-log.js",
+    "zotero-debug-log.d.ts"
   ],
   "bugs": {
     "url": "https://github.com/retorquere/zotero-plugin/issues"

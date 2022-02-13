@@ -125,8 +125,9 @@ class DebugLogSender { // tslint:disable-line:variable-name
     const prefs: Record<string, string | number | boolean> = {}
     for (const pref of this.plugins[plugin] || []) {
       if (pref.endsWith('.')) {
-        const branch = Services.prefs.getBranch(pref)
-        for (const key of branch.getChildList('', {})) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        const childkeys: string[] = Services.prefs.getBranch(pref).getChildList('', {})
+        for (const key of childkeys) {
           prefs[pref + key] = Zotero.Prefs.get(pref + key, true)
         }
       }

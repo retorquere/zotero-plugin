@@ -124,7 +124,7 @@ class DebugLogSender { // tslint:disable-line:variable-name
   private preferences(plugin: string): Record<string, string | number | boolean> {
     const prefs: Record<string, string | number | boolean> = {}
 
-    const names = []
+    const names: string[] = []
     for (const pref of this.plugins[plugin] || []) {
       if (pref.endsWith('.')) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access

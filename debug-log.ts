@@ -123,17 +123,23 @@ class DebugLogSender { // tslint:disable-line:variable-name
 
   private preferences(plugin: string): Record<string, string | number | boolean> {
     const prefs: Record<string, string | number | boolean> = {}
+
+    const names = []
     for (const pref of this.plugins[plugin] || []) {
       if (pref.endsWith('.')) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         const childkeys: string[] = Services.prefs.getBranch(pref).getChildList('', {})
         for (const key of childkeys) {
-          prefs[pref + key] = Zotero.Prefs.get(pref + key, true)
+          names.push(pref + key)
         }
       }
       else {
-        prefs[pref] = Zotero.Prefs.get(pref, true)
+        names.push(pref)
       }
+    }
+
+    for (const pref of names.sort()) {
+      prefs[pref] = Zotero.Prefs.get(pref, true)
     }
 
     return prefs

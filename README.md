@@ -26,7 +26,50 @@ commit message. If you want to announce on other issues in addition
 to the current branch (or maybe your branch isn't named `gh-<number>`,
 add `#<number>` to the commit message.
 
-Release new versions by issuing `npm version <major|minor|patch>`.
+## Releasing a new version
+
+Add the folowing to your `scripts` section in `package.json`:
+
+```
+"postversion": "git push --follow-tags",
+```
+
+and install this github actions workflow
+
+```
+name: release
+
+on:
+  push:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: install node
+      uses: actions/setup-node@v1
+      with:
+        node-version: 14.x
+    - name: Cache node dependencies
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-dependencies
+      with:
+        path: |
+          ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('package-lock.json') }}
+    - name: install node dependencies
+      run: npm install
+    - name: build
+      run: npm run build
+    - name: release
+      run: npm run release
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+```
+
+You can now release new versions by issuing `npm version <major|minor|patch>`.
 
 # Allowing your user to send debug information
 

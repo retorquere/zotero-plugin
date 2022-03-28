@@ -88,7 +88,7 @@ The user will get an ID that looks like `C3WvhYgA8RDM-2XZGASLV`; the first part 
 
 # Starting Zotero with your plugin loaded
 
-Note is is *much* adviced to create a separate Zotero profile for testing!
+Note it is *much* adviced to create a separate Zotero profile for testing!
 
 You will need to have python3 installed to use this.
 

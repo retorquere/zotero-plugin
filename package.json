@@ -47,7 +47,7 @@
     "jsesc": "^3.0.2",
     "jszip": "^3.7.1",
     "lodash": "^4.17.21",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "peggy": "^1.2.0",
     "properties-reader": "^2.2.0",
     "pug": "^3.0.2",

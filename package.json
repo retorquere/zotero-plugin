@@ -38,7 +38,7 @@
     "archiver": "^5.3.1",
     "clp": "^4.0.12",
     "current-git-branch": "^1.1.0",
-    "dotenv": "^16.0.0",
+    "dotenv": "^16.0.1",
     "ejs": "^3.1.7",
     "eslint": "^8.15.0",
     "eslint-plugin-import": "^2.26.0",

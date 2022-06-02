@@ -48,7 +48,7 @@
     "jszip": "^3.10.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.3",
-    "peggy": "^2.0.0",
+    "peggy": "^2.0.1",
     "properties-reader": "^2.2.0",
     "pug": "^3.0.2",
     "rimraf": "^3.0.2",

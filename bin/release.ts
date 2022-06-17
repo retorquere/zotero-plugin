@@ -192,7 +192,7 @@ async function main(): Promise<void> {
     release = await getRelease('builds', true)
 
     for (const asset of release.data.assets || []) {
-      if (asset.created_at < EXPIRE_BUILDS) {
+      if (asset.name.endsWith('.xpi') && asset.created_at < EXPIRE_BUILDS) {
         report(`deleting ${asset.name}`)
         // TODO: double asset.id until https://github.com/octokit/rest.js/issues/933 is fixed
         if (!dryRun) await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })

@@ -55,7 +55,7 @@
     "shell-quote": "^1.7.3",
     "shelljs": "^0.8.5",
     "string-to-arraybuffer": "^1.0.2",
-    "ts-node": "^10.8.1",
+    "ts-node": "^10.8.2",
     "tslib": "^2.4.0",
     "typescript": "^4.7.4",
     "uri-templates": "^0.2.0",

@@ -31,7 +31,7 @@
     "@rgrove/parse-xml": "^3.0.0",
     "@types/node": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "^5.28.0",
-    "@typescript-eslint/parser": "^5.28.0",
+    "@typescript-eslint/parser": "^5.30.5",
     "@xmldom/xmldom": "^0.8.2",
     "ajv": "^8.11.0",
     "ajv-keywords": "^5.1.0",

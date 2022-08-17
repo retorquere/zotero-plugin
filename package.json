@@ -29,7 +29,7 @@
   "dependencies": {
     "@octokit/rest": "^19.0.4",
     "@rgrove/parse-xml": "^3.0.0",
-    "@types/node": "^18.7.5",
+    "@types/node": "^18.7.6",
     "@typescript-eslint/eslint-plugin": "^5.33.1",
     "@typescript-eslint/parser": "^5.33.1",
     "@xmldom/xmldom": "^0.8.2",

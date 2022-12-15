@@ -91,9 +91,7 @@ async function announce(issue, release) {
     console.log(`Failed to announce '${build}: ${reason}' on ${issue}`) // eslint-disable-line no-console
   }
 
-  if (process.env.GITHUB_ENV) {
-    fs.appendFileSync(process.env.GITHUB_ENV, 'XPI_RELEASED=true\n');
-  }
+  if (process.env.GITHUB_ENV) fs.appendFileSync(process.env.GITHUB_ENV, 'XPI_RELEASED=true\n')
 }
 
 async function uploadAsset(release, asset, contentType) {

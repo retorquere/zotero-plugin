@@ -41,7 +41,7 @@
     "dotenv": "^16.0.3",
     "ejs": "^3.1.8",
     "eslint": "^8.30.0",
-    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-import": "^2.27.4",
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "glob": "^8.0.3",
     "jsesc": "^3.0.2",

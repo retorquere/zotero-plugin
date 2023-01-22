@@ -27,7 +27,7 @@
     "test": "test"
   },
   "dependencies": {
-    "@octokit/rest": "^19.0.5",
+    "@octokit/rest": "^19.0.7",
     "@rgrove/parse-xml": "^4.0.1",
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.47.1",

@@ -108,14 +108,13 @@ class DebugLogSender { // tslint:disable-line:variable-name
     if (rdf) zip.file(`${key}/${key}.rdf`, rdf)
 
     const zipped = await zip.generateAsync({
-      type: 'uint8array',
+      type: 'blob',
       compression: 'DEFLATE',
       compressionOptions: { level: 9 },
     })
 
-    const blob = new Blob([zipped], { type: 'application/zip'})
     const formData = new FormData()
-    formData.append('file', blob, `${key}.zip`)
+    formData.append('file', zipped, `${key}.zip`)
 
     const response = await this.post('https://file.io', formData)
     this.alert(`Debug log ID for ${plugin}`, `${response.key}-${key}`)

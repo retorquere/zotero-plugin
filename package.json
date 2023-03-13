@@ -20,7 +20,6 @@
     "test": "eslint . --ext .ts && npm run build",
     "build": "tsc && chmod +x bin/*.js",
     "prepublishOnly": "npm install && npm run build",
-    "go": "npm run build && npm version patch && npm publish",
     "ncu": "ncu -u && npm i && git add package.json package-lock.json && git commit -m ncu"
   },
   "directories": {

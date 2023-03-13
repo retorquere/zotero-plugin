@@ -2,7 +2,7 @@
 
 import * as fs from 'fs'
 import * as path from 'path'
-import * as glob from 'glob'
+import { globSync as glob } from 'glob'
 import * as pug from 'pug'
 
 import PropertiesReader = require('properties-reader')
@@ -21,7 +21,7 @@ pkg.version = version
 if (pkg.updateLink) pkg.updateLink = uriTemplate(pkg.updateLink).fill({version: pkg.version})
 pkg.updateURL = `${pkg.xpi.releaseURL}update.rdf`
 
-const translations = glob.sync(path.join(root, 'locale/*/*.properties'))
+const translations = glob(path.join(root, 'locale/*/*.properties'))
 for (const translation of translations) {
   const locale = path.basename(path.dirname(translation))
   const properties = PropertiesReader(translation)

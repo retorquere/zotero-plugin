@@ -1,7 +1,7 @@
 /* eslint-disable no-console, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
 
 import * as fs from 'fs'
-import * as glob from 'glob'
+import { globSync as glob } from 'glob'
 import * as path from 'path'
 
 import root from './root'
@@ -26,7 +26,7 @@ console.log('copying assets')
 let files = []
 for (const dir of ['defaults', 'content', 'skin', 'locale', 'resource']) {
   if (fs.existsSync(dir) && !fs.existsSync(`${dir}/.nomedia}`)) {
-    files = files.concat(glob.sync(`${dir}/**/*.*`, { cwd: root, mark: true }).filter(file => include(file, dir !== 'resource')))
+    files = files.concat(glob(`${dir}/**/*.*`, { cwd: root, mark: true }).filter(file => include(file, dir !== 'resource')))
   }
 }
 files.push('chrome.manifest')

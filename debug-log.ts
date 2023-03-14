@@ -100,7 +100,6 @@ class DebugLogSender { // tslint:disable-line:variable-name
 
     const log = [
       await this.info(plugin),
-      this.preferences(plugin),
       Zotero.getErrors(true).join('\n\n'),
       Zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line no-magic-numbers
     ].filter((txt: string) => txt).join('\n\n').trim()

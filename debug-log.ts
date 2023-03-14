@@ -32,7 +32,8 @@ type ExportTranslator = {
 declare const Components: any
 declare const Services: any
 
-import Zip from 'jszip'
+import Tar from 'tar-js'
+import { gzip } from 'pako'
 
 type FileIO = {
   success: boolean
@@ -93,7 +94,8 @@ class DebugLogSender { // tslint:disable-line:variable-name
     await Zotero.Schema.schemaUpdatePromise
 
     const plugin = this.select()
-    const zip = new Zip()
+    const tape = new Tar
+    let out: Uint8Array
     const key: string = Zotero.Utilities.generateObjectKey()
 
     const log = [
@@ -102,19 +104,14 @@ class DebugLogSender { // tslint:disable-line:variable-name
       Zotero.getErrors(true).join('\n\n'),
       Zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line no-magic-numbers
     ].filter((txt: string) => txt).join('\n\n').trim()
-    zip.file(`${key}/${key}.txt`, log)
+    out = tape.append(`${key}/${key}.txt`, log)
 
     const rdf = await this.rdf()
-    if (rdf) zip.file(`${key}/${key}.rdf`, rdf)
+    if (rdf) out = tape.append(`${key}/${key}.rdf`, rdf)
 
-    const zipped = await zip.generateAsync({
-      type: 'blob',
-      compression: 'DEFLATE',
-      compressionOptions: { level: 9 },
-    })
-
+    const blob = new Blob([gzip(out)], { type: 'application/zip'})
     const formData = new FormData()
-    formData.append('file', zipped, `${key}.zip`)
+    formData.append('file', blob, `${key}.tgz`)
 
     const response = await this.post('https://file.io', formData)
     this.alert(`Debug log ID for ${plugin}`, `${response.key}-${key}`)

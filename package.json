@@ -32,7 +32,7 @@
     "@types/pako": "^2.0.0",
     "@types/tar-js": "^0.3.2",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
-    "@typescript-eslint/parser": "^5.55.0",
+    "@typescript-eslint/parser": "^5.57.1",
     "@xmldom/xmldom": "^0.8.6",
     "ajv": "^8.12.0",
     "ajv-keywords": "^5.1.0",

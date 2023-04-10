@@ -1,7 +1,6 @@
 /* eslint-disable no-console, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
 
 import * as fs from 'fs-extra'
-import { globSync as glob } from 'glob'
 import * as path from 'path'
 
 import root from './root'

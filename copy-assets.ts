@@ -3,8 +3,6 @@
 import * as fs from 'fs-extra'
 import * as path from 'path'
 
-import root from './root'
-
 function allow(file) {
   switch(path.basename(file)) {
     case '.DS_Store':
@@ -32,19 +30,19 @@ for (const dir of ['defaults', 'content', 'skin', 'locale', 'resource', 'chrome.
   if (!copy(dir)) continue
 
   fs.copySync(dir, path.join('build', dir), {
-    filter(src, dest) {
+    filter: src => {
       if (dir !== 'chrome.manifest' && dir !== 'resource' && !allow(src)) return false
       if (fs.lstatSync(src).isFile()) console.log(' ', src)
       return true
-    }
+    },
   })
 }
 
 if (copy('client')) {
   fs.copySync('client', 'build', {
-    filter(src) {
+    filter: src => {
       if (fs.lstatSync(src).isFile()) console.log(' ', src)
       return true
-    }
+    },
   })
 }

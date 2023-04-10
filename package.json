@@ -108,5 +108,8 @@
   ],
   "bugs": {
     "url": "https://github.com/retorquere/zotero-plugin/issues"
+  },
+  "devDependencies": {
+    "fs-extra": "^11.1.1"
   }
 }

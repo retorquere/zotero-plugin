@@ -1,20 +1,22 @@
 /* eslint-disable no-console, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
 
-import * as fs from 'fs'
+import * as fs from 'fs-extra'
 import { globSync as glob } from 'glob'
 import * as path from 'path'
 
 import root from './root'
 
-function include(file, sources) {
-  if (fs.lstatSync(file).isDirectory()) return false
-
-  if (!sources) return true
+function allow(file) {
+  switch(path.basename(file)) {
+    case '.DS_Store':
+      return false
+  }
 
   switch (path.extname(file).toLowerCase()) {
     case '.json':
     case '.ts':
     case '.peggy':
+    case '.pug':
       return false
   }
 
@@ -23,17 +25,27 @@ function include(file, sources) {
 
 console.log('copying assets')
 
-let files = []
-for (const dir of ['defaults', 'content', 'skin', 'locale', 'resource', 'client']) {
-  if (fs.existsSync(dir) && !fs.existsSync(`${dir}/.nomedia}`)) {
-    files = files.concat(glob(`${dir}/**/*.*`, { cwd: root, mark: true }).filter(file => include(file, dir !== 'resource')))
-  }
+function copy(dir) {
+  return fs.existsSync(dir) && !fs.existsSync(path.join(dir, '.nomedia'))
 }
-files.push('chrome.manifest')
 
-for (const source of (files as string[])) {
-  console.log(`  ${source}`)
-  const target = path.join(root, 'build', source)
-  if (!fs.existsSync(path.dirname(target))) fs.mkdirSync(path.dirname(target), { recursive: true })
-  fs.copyFileSync(source, target)
+for (const dir of ['defaults', 'content', 'skin', 'locale', 'resource', 'chrome.manifest']) {
+  if (!copy(dir)) continue
+
+  fs.copySync(dir, path.join('build', dir), {
+    filter(src, dest) {
+      if (dir !== 'chrome.manifest' && dir !== 'resource' && !allow(src)) return false
+      if (fs.lstatSync(src).isFile()) console.log(' ', src)
+      return true
+    }
+  })
+}
+
+if (copy('client')) {
+  fs.copySync('client', 'build', {
+    filter(src) {
+      if (fs.lstatSync(src).isFile()) console.log(' ', src)
+      return true
+    }
+  })
 }

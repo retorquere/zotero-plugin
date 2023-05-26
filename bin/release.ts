@@ -203,6 +203,8 @@ async function main(): Promise<void> {
     await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/vnd.zotero.plugin')
   }
 
+  if (process.env.VERBOSE) console.log({ tag: CI.tag, issues, release, tags })
+
   for (const issue of Array.from(issues)) {
     await announce(issue, release)
   }

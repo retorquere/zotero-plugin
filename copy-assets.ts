@@ -26,7 +26,7 @@ function copy(dir) {
   return fs.existsSync(dir) && !fs.existsSync(path.join(dir, '.nomedia'))
 }
 
-for (const dir of ['defaults', 'content', 'skin', 'locale', 'resource', 'chrome.manifest']) {
+for (const dir of ['defaults', 'content', 'skin', 'locale', 'resource', 'chrome.manifest', 'chrome']) {
   if (!copy(dir)) continue
 
   fs.copySync(dir, path.join('build', dir), {

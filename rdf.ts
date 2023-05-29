@@ -67,8 +67,8 @@ fs.writeFileSync(path.join(root, 'build/manifest.json'), JSON.stringify({
     zotero: {
       id: options_and_vars.id,
       update_url: options_and_vars.updateURL.replace('/update.rdf', '/updates.json'),
-      strict_min_version: "6.999",
-      strict_max_version: "7.0.*"
-    }
-  }
+      strict_min_version: '6.999',
+      strict_max_version: '7.0.*',
+    },
+  },
 }, null, 2))

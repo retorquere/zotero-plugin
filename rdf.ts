@@ -56,3 +56,19 @@ console.log('generating update.rdf')
 template = fs.readFileSync(path.join(__dirname, 'update.rdf.pug'), 'utf8')
 template = pug.render(template, options_and_vars)
 fs.writeFileSync(path.join(root, 'gen/update.rdf'), template, { encoding: 'utf8' })
+
+console.log('generating manifest.json')
+fs.writeFileSync(path.join(root, 'build/manifest.json'), JSON.stringify({
+  manifest_version: 2,
+  name: options_and_vars.name,
+  version: options_and_vars.version,
+  description: options_and_vars.description,
+  applications: {
+    zotero: {
+      id: options_and_vars.id,
+      update_url: options_and_vars.updateURL.replace('/update.rdf', '/updates.json'),
+      strict_min_version: "6.999",
+      strict_max_version: "7.0.*"
+    }
+  }
+}, null, 2))

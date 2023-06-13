@@ -1,4 +1,4 @@
-/* eslint-disable no-console, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/restrict-template-expressions */
+/* eslint-disable no-console, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/restrict-template-expressions, no-magic-numbers */
 
 import * as fs from 'fs'
 import * as path from 'path'
@@ -67,31 +67,31 @@ fs.writeFileSync(path.join(root, 'gen/updates.json'), JSON.stringify({
           update_link: options_and_vars.updateLink,
           applications: {
             zotero: {
-              strict_min_version: "6.999"
-            }
-          }
-        }
-      ]
-    }
-  }
+              strict_min_version: '6.999',
+            },
+          },
+        },
+      ],
+    },
+  },
 }, null, 2))
 
-const icons: { 48: string, 96?: string }[] = [
+const icons: { 48: string; 96?: string }[] = [
   { 48: pkg.xpi?.iconURL?.replace(/^chrome:\/\/[^/]+\//, '') },
 ]
-for (const icon of [ `skin/${pkg.id.replace(/@.*/, '')}.png`, `${pkg.id.replace(/@.*/, '')}.png`, `icon.png` ]) {
-  icons.push({ 48: icon })
-  icons.push({ 48: icon.replace('/zotero-', '/') })
+for (const i of [ `skin/${pkg.id.replace(/@.*/, '')}.png`, `${pkg.id.replace(/@.*/, '')}.png`, 'icon.png' ]) {
+  icons.push({ 48: i })
+  icons.push({ 48: i.replace('/zotero-', '/') })
 }
-for (const icon of [...icons]) {
-  icons.push({ 48: icon[48].replace(/[.](svg|png)$/, ext => ({'.svg': '.png', '.png': '.svg'}[ext])) })
+for (const i of [...icons]) {
+  icons.push({ 48: i[48].replace(/[.](svg|png)$/, ext => ({'.svg': '.png', '.png': '.svg'}[ext])) })
 }
-for (const icon of [...icons]) {
-  if (icon[48].endsWith('.svg')) {
-    icon[96] = icon[48]
+for (const i of [...icons]) {
+  if (i[48].endsWith('.svg')) {
+    i[96] = i[48]
   }
   else {
-    icon[96] = icon[48].replace(/([.][^.]+)$/, '@2x$1')
+    i[96] = i[48].replace(/([.][^.]+)$/, '@2x$1')
   }
 }
 const icon = icons.find(i => fs.existsSync(path.join(root, ...i[48].split('/'))))

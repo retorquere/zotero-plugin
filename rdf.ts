@@ -57,12 +57,57 @@ template = fs.readFileSync(path.join(__dirname, 'update.rdf.pug'), 'utf8')
 template = pug.render(template, options_and_vars)
 fs.writeFileSync(path.join(root, 'gen/update.rdf'), template, { encoding: 'utf8' })
 
+console.log('generating updates.json')
+fs.writeFileSync(path.join(root, 'gen/updates.json'), JSON.stringify({
+  addons: {
+    [pkg.id]: {
+      updates: [
+        {
+          version: options_and_vars.version,
+          update_link: options_and_vars.updateLink,
+          applications: {
+            zotero: {
+              strict_min_version: "6.999"
+            }
+          }
+        }
+      ]
+    }
+  }
+}, null, 2))
+
+const icons: { 48: string, 96?: string }[] = [
+  { 48: pkg.xpi?.iconURL?.replace(/^chrome:\/\/[^/]+\//, '') },
+]
+for (const icon of [ `skin/${pkg.id.replace(/@.*/, '')}.png`, `${pkg.id.replace(/@.*/, '')}.png`, `icon.png` ]) {
+  icons.push({ 48: icon })
+  icons.push({ 48: icon.replace('/zotero-', '/') })
+}
+for (const icon of [...icons]) {
+  icons.push({ 48: icon[48].replace(/[.](svg|png)$/, ext => ({'.svg': '.png', '.png': '.svg'}[ext])) })
+}
+for (const icon of [...icons]) {
+  if (icon[48].endsWith('.svg')) {
+    icon[96] = icon[48]
+  }
+  else {
+    icon[96] = icon[48].replace(/([.][^.]+)$/, '@2x$1')
+  }
+}
+const icon = icons.find(i => fs.existsSync(path.join(root, ...i[48].split('/'))))
+if (icon) {
+  options_and_vars.icons = {
+    48: icon[48],
+    96: fs.existsSync(path.join(root, ...icon[96].split('/'))) ? icon[96] : icon[48],
+  }
+}
 console.log('generating manifest.json')
 fs.writeFileSync(path.join(root, 'build/manifest.json'), JSON.stringify({
   manifest_version: 2,
   name: options_and_vars.name,
   version: options_and_vars.version,
   description: options_and_vars.description,
+  icons: options_and_vars.icons,
   applications: {
     zotero: {
       id: options_and_vars.id,

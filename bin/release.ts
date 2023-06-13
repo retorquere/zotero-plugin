@@ -151,13 +151,14 @@ async function update_rdf(releases_tag: string) {
   const assets = (await octokit.repos.listReleaseAssets({ owner, repo, release_id: release.data.id })).data
 
   for (const asset of assets) {
-    if (asset.name === 'update.rdf') {
-      report(`removing update.rdf from ${release.data.tag_name}`)
+    if (asset.name === 'update.rdf' || asset.name === 'updates.json') {
+      report(`removing ${asset.name} from ${release.data.tag_name}`)
       // TODO: double asset.id until https://github.com/octokit/rest.js/issues/933 is fixed
       if (!dryRun) await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })
     }
   }
   await uploadAsset(release, path.join(root, 'gen/update.rdf'), 'application/rdf+xml')
+  await uploadAsset(release, path.join(root, 'gen/updates.json'), 'application/json')
 }
 
 async function main(): Promise<void> {

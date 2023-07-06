@@ -78,8 +78,9 @@ fs.writeFileSync(path.join(root, 'gen/updates.json'), JSON.stringify({
 
 const icons: { 48: string; 96?: string }[] = [
   { 48: pkg.xpi?.iconURL?.replace(/^chrome:\/\/[^/]+\//, '') },
-]
-for (const i of [ `skin/${pkg.id.replace(/@.*/, '')}.png`, `${pkg.id.replace(/@.*/, '')}.png`, 'icon.png' ]) {
+].filter(i => i[48])
+const basename = pkg.id.replace(/@.*/, '')
+for (const i of [ `content/skin/${basename}.png`, `skin/${basename}.png`, `${basename}.png`, 'icon.png' ]) {
   icons.push({ 48: i })
   icons.push({ 48: i.replace('/zotero-', '/') })
 }

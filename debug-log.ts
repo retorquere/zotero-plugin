@@ -22,6 +22,7 @@ declare const Zotero: {
     schemaUpdatePromise: Promise<void>
   }
   getActiveZoteroPane: () => ZoteroPane
+  getMainWindow(): Window
 }
 type ExportTranslator = {
   setHandler: (phase: string, handler: (obj: { string: string }, success: boolean) => void) => void // eslint-disable-line id-blacklist
@@ -49,14 +50,7 @@ class DebugLogSender { // tslint:disable-line:variable-name
     this.plugins[plugin] = preferences
     this.enabled = true
 
-    let doc: Document = null
-    const enumerator = Services.wm.getEnumerator('navigator:browser') // eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-    while (enumerator.hasMoreElements()) { // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      const win: { ZoteroPane: boolean; document: Document } = enumerator.getNext() // eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-      if (!win.ZoteroPane) continue
-      doc = win.document
-    }
-
+    const doc = Zotero.getMainWindow().document
     if (!doc.querySelector('menuitem#debug-log-menu')) {
       const help = doc.querySelector('menupopup#menu_HelpPopup')
       const menuitem = help.appendChild(doc.createElement('menuitem'))

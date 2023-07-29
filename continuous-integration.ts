@@ -7,6 +7,7 @@ class ContinuousIntegrationSingleton {
   public commit_message = ''
   public branch = ''
   public pull_request = false
+  public issue = ''
 
   constructor() {
     for (const [id, name] of Object.entries({CIRCLECI: 'Circle', TRAVIS: 'Travis' , SEMAPHORE: 'Semaphore', GITHUB_ACTIONS: 'GitHub'})) {
@@ -43,7 +44,7 @@ class ContinuousIntegrationSingleton {
           this.branch = process.env.GITHUB_REF.split('/').pop()
         }
         this.branch = this.branch || ''
-
+        this.issue = this.branch.match(/^gh-([0-9]+)$/)?.[1] || ''
         break
 
       default:

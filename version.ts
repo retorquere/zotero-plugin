@@ -20,7 +20,8 @@ else {
   version = require(path.join(root, 'package.json')).version
 
   if (CI.service && !CI.tag) {
-    version = `${version}.${CI.build_number}`
+    const issue = CI.issue ? `.${CI.issue}` : ''
+    version = `${version}${issue}.${CI.build_number}`
   }
   else if (!CI.service) {
     version = `${version}.${os.userInfo().username}.${os.hostname()}`

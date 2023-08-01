@@ -1,3 +1,5 @@
+/* eslint-disable no-magic-numbers */
+
 type ZoteroPane = {
   getSelectedItems: () => any[]
 }
@@ -60,7 +62,8 @@ class DebugLogSender { // tslint:disable-line:variable-name
     if (!doc.querySelector('menuitem#debug-log-menu')) {
       Zotero.debug('debug-log-sender: adding menu entry')
       const help = doc.querySelector('menupopup#menu_HelpPopup')
-      const menuitem = help.appendChild(doc[Zotero.platformMajorVersion >= 102 ? 'createXULElement' : 'createElement']('menuitem'))
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      const menuitem: HTMLElement = help.appendChild(doc[Zotero.platformMajorVersion >= 102 ? 'createXULElement' : 'createElement']('menuitem')) as HTMLElement
       menuitem.setAttribute('id', 'debug-log-menu')
       menuitem.setAttribute('label', 'Send debug log to file.io')
       menuitem.setAttribute('oncommand', 'Zotero.DebugLogSender.send()')

@@ -1,7 +1,10 @@
 type ZoteroPane = {
   getSelectedItems: () => any[]
 }
+
 declare const Zotero: {
+  platformMajorVersion: number
+  debug: (msg: string) => void
   DebugLogSender: DebugLogSender
   Translate: any
   Prefs: {
@@ -24,12 +27,14 @@ declare const Zotero: {
   getActiveZoteroPane: () => ZoteroPane
   getMainWindow(): Window
 }
+
 type ExportTranslator = {
   setHandler: (phase: string, handler: (obj: { string: string }, success: boolean) => void) => void // eslint-disable-line id-blacklist
   setTranslator: (id: string) => void
   setItems: (items: any[]) => void
   translate: () => void
 }
+
 declare const Components: any
 declare const Services: any
 
@@ -46,17 +51,30 @@ class DebugLogSender { // tslint:disable-line:variable-name
   private enabled = false
   private plugins: Record<string, string[]> = {}
 
-  public register(plugin: string, preferences: string[]): void {
+  public register(plugin: string, preferences: string[] = []): void {
     this.plugins[plugin] = preferences
     this.enabled = true
 
     const doc = Zotero.getMainWindow().document
+    Zotero.debug(`debug-log-sender: registering ${plugin}`)
     if (!doc.querySelector('menuitem#debug-log-menu')) {
+      Zotero.debug('debug-log-sender: adding menu entry')
       const help = doc.querySelector('menupopup#menu_HelpPopup')
-      const menuitem = help.appendChild(doc.createElement('menuitem'))
+      const menuitem = help.appendChild(doc[Zotero.platformMajorVersion >= 102 ? 'createXULElement' : 'createElement']('menuitem'))
       menuitem.setAttribute('id', 'debug-log-menu')
       menuitem.setAttribute('label', 'Send debug log to file.io')
       menuitem.setAttribute('oncommand', 'Zotero.DebugLogSender.send()')
+      Zotero.debug('debug-log-sender: menu entry added')
+    }
+  }
+
+  public unregister(plugin: string): void {
+    Zotero.debug(`debug-log-sender: unregistering ${plugin}`)
+    delete this.plugins[plugin]
+    if (!Object.keys(this.plugins).length) {
+      const doc = Zotero.getMainWindow().document
+      const menuitem = doc.querySelector('menuitem#debug-log-menu')
+      if (menuitem) menuitem.remove()
     }
   }
 

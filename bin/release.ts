@@ -60,7 +60,7 @@ if ((/^((issue|gh)-)?[0-9]+(-[a-z]+)?$/i).exec(CI.branch)) {
   issues.add(parseInt(CI.branch.replace(/[^0-9]/g, '')))
 }
 
-async function announce(issue, release) {
+async function announce(issue_number, release) {
   if (tags.has('noannounce')) return
 
   let build
@@ -79,22 +79,22 @@ async function announce(issue, release) {
     reason += `\n\nInstall in Zotero by downloading ${link}, opening the Zotero "Tools" menu, selecting "Add-ons", open the gear menu in the top right, and select "Install Add-on From File...".`
   }
 
-  const msg = `:robot: this is your friendly neighborhood build bot announcing ${link}${reason}`
+  const body = `:robot: this is your friendly neighborhood build bot announcing ${link}${reason}`
 
-  report(msg)
+  report(body)
   if (dryRun) return
 
   try {
-    const locked = (await octokit.issues.get({ owner: owner, repo: repo, issue_number: issue })).data.locked
-    if (locked) await octokit.issues.unlock({ owner: owner, repo: repo, issue_number: issue })
-    await octokit.issues.createComment({ owner, repo, issue_number: issue, body: msg })
-    if (locked) await octokit.issues.lock({ owner: owner, repo: repo, issue_number: issue })
+    const locked = (await octokit.issues.get({ owner, repo, issue_number })).data.locked
+    if (locked) await octokit.issues.unlock({ owner, repo, issue_number })
+    await octokit.issues.createComment({ owner, repo, issue_number, body })
+    if (locked) await octokit.issues.lock({ owner, repo, issue_number })
   }
   catch (error) {
-    console.log(`Failed to announce '${build}: ${reason}' on ${issue}`) // eslint-disable-line no-console
+    console.log(`Failed to announce '${build}: ${reason}' on ${issue_number}`) // eslint-disable-line no-console
   }
 
-  if (process.env.GITHUB_ENV) fs.appendFileSync(process.env.GITHUB_ENV, `XPI_RELEASED=${issue}\n`)
+  if (process.env.GITHUB_ENV) fs.appendFileSync(process.env.GITHUB_ENV, `XPI_RELEASED=${issue_number}\n`)
 }
 
 async function uploadAsset(release, asset, contentType) {

@@ -60,12 +60,10 @@ export function unregister(plugin: string): void {
 }
 
 class DebugLogSender { // tslint:disable-line:variable-name
-  private enabled = false
-  private plugins: Record<string, string[]> = {}
+  public plugins: Record<string, string[]> = {}
 
   public register(plugin: string, preferences: string[] = []): void {
     this.plugins[plugin] = preferences
-    this.enabled = true
 
     const doc = Zotero.getMainWindow().document
     Zotero.debug(`debug-log-sender: registering ${plugin}`)

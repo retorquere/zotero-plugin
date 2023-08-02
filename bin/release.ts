@@ -85,7 +85,10 @@ async function announce(issue, release) {
   if (dryRun) return
 
   try {
+    const locked = (await octokit.issues.get({ owner: owner, repo: repo, issue_number: issue })).data.locked
+    if (locked) await octokit.issues.unlock({ owner: owner, repo: repo, issue_number: issue })
     await octokit.issues.createComment({ owner, repo, issue_number: issue, body: msg })
+    if (locked) await octokit.issues.lock({ owner: owner, repo: repo, issue_number: issue })
   }
   catch (error) {
     console.log(`Failed to announce '${build}: ${reason}' on ${issue}`) // eslint-disable-line no-console

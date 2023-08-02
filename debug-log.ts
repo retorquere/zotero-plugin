@@ -49,6 +49,16 @@ type FileIO = {
   link: string
 }
 
+export function unregister(plugin: string): void {
+  Zotero.debug(`debug-log-sender: unregistering ${plugin}`)
+  delete Zotero.DebugLogSender.plugins[plugin]
+  if (!Object.keys(Zotero.DebugLogSender.plugins).length) {
+    const doc = Zotero.getMainWindow().document
+    const menuitem = doc.querySelector('menuitem#debug-log-menu')
+    if (menuitem) menuitem.remove()
+  }
+}
+
 class DebugLogSender { // tslint:disable-line:variable-name
   private enabled = false
   private plugins: Record<string, string[]> = {}
@@ -72,13 +82,7 @@ class DebugLogSender { // tslint:disable-line:variable-name
   }
 
   public unregister(plugin: string): void {
-    Zotero.debug(`debug-log-sender: unregistering ${plugin}`)
-    delete this.plugins[plugin]
-    if (!Object.keys(this.plugins).length) {
-      const doc = Zotero.getMainWindow().document
-      const menuitem = doc.querySelector('menuitem#debug-log-menu')
-      if (menuitem) menuitem.remove()
-    }
+    unregister(plugin)
   }
 
   private alert(title, body) {

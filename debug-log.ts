@@ -65,6 +65,7 @@ class DebugLogSender {
 
   private element(name: string, attrs: Record<string, string> = {}): HTMLElement {
     const doc = Zotero.getMainWindow().document
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const elt: HTMLElement = doc[Zotero.platformMajorVersion >= 102 ? 'createXULElement' : 'createElement'](name)
     for (const [k, v] of Object.entries(attrs)) {
       elt.setAttribute(k, v)
@@ -86,7 +87,7 @@ class DebugLogSender {
     doc.querySelector(`.debug-log-sender[label=${JSON.stringify(plugin)}]`)?.remove()
     const menuitem = menupopup.appendChild(this.element('menuitem', {
       label: plugin,
-      'data-preferences': JSON.stringify(preferences),
+      'data-preferences': JSON.stringify(preferences || []),
     }))
     menuitem.addEventListener('command', event => this.send(event.currentTarget))
   }
@@ -108,13 +109,13 @@ class DebugLogSender {
   public send(target: EventTarget): void {
     const elt: HTMLElement = target as unknown as HTMLElement
     const plugin: string = elt.getAttribute('label')
-    const preferences: string[] = JSON.parse(elt.getAttribute('data-preferences'))
+    const preferences: string[] = JSON.parse(elt.getAttribute('data-preferences')) as string[]
 
     this.sendAsync(plugin, preferences).catch((err: Error) => {
       this.alert('Debug log submission error', `${err}`) // eslint-disable-line @typescript-eslint/restrict-template-expressions
     })
   }
-  private async sendAsync(plugin, preferences) {
+  private async sendAsync(plugin: string, preferences: string[]) {
     await Zotero.Schema.schemaUpdatePromise
 
     const tape = new Tar
@@ -169,7 +170,7 @@ class DebugLogSender {
   }
 
   // general state of Zotero
-  private async info(preferences: string[]) {
+  private async info(preferences: string[]): Promise<string> {
     let info = ''
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment

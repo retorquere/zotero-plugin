@@ -50,17 +50,24 @@ type FileIO = {
 }
 
 class DebugLogSender {
+  public id = {
+    menu: 'debug-log-sender-menu',
+    menupopup: 'debug-log-sender-menupopup',
+    menuitem: 'debug-log-sender',
+  }
+
   public plugins: Record<string, string[]> = {}
 
   public convertLegacy() {
+    if (!Zotero.DebugLogSender) return
+    const plugins = Zotero.DebugLogSender.plugins || {}
+    delete Zotero.DebugLogSender
+
     const doc = Zotero.getMainWindow().document
     doc.querySelector('menuitem#debug-log-menu')?.remove()
-    if (Zotero.DebugLogSender?.plugins) {
-      for (const [plugin, preferences] of Object.entries(Zotero.DebugLogSender.plugins)) {
-        this.register(plugin, preferences)
-      }
+    for (const [plugin, preferences] of Object.entries(plugins)) {
+      this.register(plugin, preferences)
     }
-    delete Zotero.DebugLogSender?.plugins
   }
 
   private element(name: string, attrs: Record<string, string> = {}): HTMLElement {
@@ -77,16 +84,17 @@ class DebugLogSender {
     this.convertLegacy()
 
     const doc = Zotero.getMainWindow().document
-    let menupopup = doc.querySelector('#debug-log-sender-menupopup')
+    let menupopup = doc.querySelector(`#${this.id.menupopup}`)
     if (!menupopup) {
       menupopup = doc.querySelector('menupopup#menu_HelpPopup')
-        .appendChild(this.element('menu', { id: 'debug-log-sender-menu', label: 'Send debug log to file.io' }))
-        .appendChild(this.element('menupopup', { id: 'debug-log-sender-menupopup' }))
+        .appendChild(this.element('menu', { id: this.id.menu, label: 'Send debug log to file.io' }))
+        .appendChild(this.element('menupopup', { id: this.id.menupopup }))
     }
 
-    doc.querySelector(`.debug-log-sender[label=${JSON.stringify(plugin)}]`)?.remove()
+    doc.querySelector(`.${this.id.menuitem}[label=${JSON.stringify(plugin)}]`)?.remove()
     const menuitem = menupopup.appendChild(this.element('menuitem', {
       label: plugin,
+      class: this.id.menuitem,
       'data-preferences': JSON.stringify(preferences || []),
     }))
     menuitem.addEventListener('command', event => this.send(event.currentTarget))
@@ -94,8 +102,10 @@ class DebugLogSender {
 
   public unregister(plugin: string): void {
     const doc = Zotero.getMainWindow().document
+    Zotero.debug(`debug-log-sender: removing .debug-log-sender[label=${JSON.stringify(plugin)}]: ${!!doc.querySelector(`.debug-log-sender[label=${JSON.stringify(plugin)}]`)}`)
     doc.querySelector(`.debug-log-sender[label=${JSON.stringify(plugin)}]`)?.remove()
     const menupopup = doc.querySelector('#debug-log-sender-menupopup')
+    Zotero.debug(`debug-log-sender: removing #debug-log-sender-menupopup: ${menupopup && menupopup.children.length}`)
     if (menupopup && !menupopup.children.length) doc.querySelector('#debug-log-sender-menu')?.remove()
   }
 

@@ -7,7 +7,9 @@ type ZoteroPane = {
 declare const Zotero: {
   platformMajorVersion: number
   debug: (msg: string) => void
-  DebugLogSender: DebugLogSender
+  DebugLogSender: {
+    plugins: Record<string, string[]>
+  }
   Translate: any
   Prefs: {
     get: (name: string, global?: boolean) => string | number | boolean
@@ -55,8 +57,7 @@ class DebugLogSender {
     menupopup: 'debug-log-sender-menupopup',
     menuitem: 'debug-log-sender',
   }
-
-  public plugins: Record<string, string[]> = {}
+  public debugEnabledAtStart: boolean = Zotero.Prefs.get('debug.store') as unknown as boolean
 
   public convertLegacy() {
     if (!Zotero.DebugLogSender) return
@@ -192,6 +193,8 @@ class DebugLogSender {
     if (addons.length) {
       info += 'Addons:\n' + addons.map((addon: string) => `  ${addon}\n`).join('') // eslint-disable-line prefer-template
     }
+    info += `Debug logging on at Zotero start: ${this.debugEnabledAtStart}\n`
+    info += `Debug logging on at log submit: ${Zotero.Prefs.get('debug.store')}\n`
 
     for (const [pref, value] of Object.entries(this.preferences(preferences))) {
       info += `${pref} = ${JSON.stringify(value)}\n`

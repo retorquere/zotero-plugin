@@ -22,6 +22,7 @@ declare const Zotero: {
     generateObjectKey: () => string
   }
   Debug: {
+    enabled: boolean
     getConsoleViewerOutput: () => string[]
   }
   getErrors: (something: boolean) => string[]
@@ -57,7 +58,7 @@ class DebugLogSender {
     menupopup: 'debug-log-sender-menupopup',
     menuitem: 'debug-log-sender',
   }
-  public debugEnabledAtStart: boolean = Zotero.Prefs.get('debug.store') as unknown as boolean
+  public debugEnabledAtStart: boolean = (Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled) as unknown as boolean
 
   public convertLegacy() {
     if (!Zotero.DebugLogSender) return
@@ -194,7 +195,7 @@ class DebugLogSender {
       info += 'Addons:\n' + addons.map((addon: string) => `  ${addon}\n`).join('') // eslint-disable-line prefer-template
     }
     info += `Debug logging on at Zotero start: ${this.debugEnabledAtStart}\n`
-    info += `Debug logging on at log submit: ${Zotero.Prefs.get('debug.store')}\n`
+    info += `Debug logging on at log submit: ${Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled}\n`
 
     for (const [pref, value] of Object.entries(this.preferences(preferences))) {
       info += `${pref} = ${JSON.stringify(value)}\n`

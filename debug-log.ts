@@ -149,7 +149,7 @@ class DebugLogSender {
     formData.append('file', blob, `${key}.tgz`)
 
     const response = await this.post('https://file.io', formData)
-    this.alert(`Debug log ID for ${plugin}`, `${response.key}-${key}`)
+    this.alert(`Debug log ID for ${plugin}`, `${key}-${response.key}`)
   }
 
   private preferences(preferences: string[]): Record<string, string | number | boolean> {

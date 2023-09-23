@@ -58,7 +58,7 @@ class DebugLogSender {
     menupopup: 'debug-log-sender-menupopup',
     menuitem: 'debug-log-sender',
   }
-  public debugEnabledAtStart: boolean = (Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled) as unknown as boolean
+  public debugEnabledAtStart: boolean = (Zotero.Prefs.get('debug.store') || Zotero?.Debug.enabled) as unknown as boolean
 
   public convertLegacy() {
     if (!Zotero.DebugLogSender) return

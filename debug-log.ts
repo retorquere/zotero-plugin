@@ -1,4 +1,4 @@
-/* eslint-disable no-magic-numbers */
+/* eslint-disable no-magic-numbers, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call */
 
 type ZoteroPane = {
   getSelectedItems: () => any[]

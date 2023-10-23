@@ -30,6 +30,8 @@
     "@octokit/rest": "^20.0.2",
     "@rgrove/parse-xml": "^4.1.0",
     "@types/node": "^20.8.7",
+    "@types/pako": "^2.0.2",
+    "@types/tar-js": "^0.3.4",
     "@typescript-eslint/eslint-plugin": "^6.8.0",
     "@typescript-eslint/parser": "^6.8.0",
     "@xmldom/xmldom": "^0.8.10",

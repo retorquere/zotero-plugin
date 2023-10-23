@@ -1,4 +1,4 @@
-/* eslint-disable no-magic-numbers, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call */
+/* eslint-disable no-magic-numbers */
 
 type ZoteroPane = {
   getSelectedItems: () => any[]
@@ -131,7 +131,6 @@ class DebugLogSender {
     await Zotero.Schema.schemaUpdatePromise
 
     const tape = new Tar
-    let out: Uint8Array
     const key: string = Zotero.Utilities.generateObjectKey()
 
     const log = [
@@ -139,7 +138,7 @@ class DebugLogSender {
       Zotero.getErrors(true).join('\n\n'),
       Zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line no-magic-numbers
     ].filter((txt: string) => txt).join('\n\n').trim()
-    out = tape.append(`${key}/debug.txt`, log)
+    let out = tape.append(`${key}/debug.txt`, log)
 
     const rdf = await this.rdf()
     if (rdf) out = tape.append(`${key}/items.rdf`, rdf)

@@ -104,10 +104,8 @@ class DebugLogSender {
 
   public unregister(plugin: string): void {
     const doc = Zotero.getMainWindow().document
-    Zotero.debug(`debug-log-sender: removing .debug-log-sender[label=${JSON.stringify(plugin)}]: ${!!doc.querySelector(`.debug-log-sender[label=${JSON.stringify(plugin)}]`)}`)
     doc.querySelector(`.debug-log-sender[label=${JSON.stringify(plugin)}]`)?.remove()
     const menupopup = doc.querySelector('#debug-log-sender-menupopup')
-    Zotero.debug(`debug-log-sender: removing #debug-log-sender-menupopup: ${menupopup && menupopup.children.length}`)
     if (menupopup && !menupopup.children.length) doc.querySelector('#debug-log-sender-menu')?.remove()
   }
 
@@ -148,7 +146,7 @@ class DebugLogSender {
     formData.append('file', blob, `${key}.tgz`)
 
     const response = await this.post('https://file.io', formData)
-    this.alert(`Debug log ID for ${plugin}`, `${key}-${response.key}`)
+    this.alert(`Debug log ID for ${plugin}`, `${key}-fio-${response.key}`)
   }
 
   private preferences(preferences: string[]): Record<string, string | number | boolean> {

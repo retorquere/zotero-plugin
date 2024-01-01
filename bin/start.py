@@ -11,6 +11,12 @@ import subprocess
 import collections
 import types
 import platform
+import argparse
+
+argParser = argparse.ArgumentParser()
+argParser.add_argument("-b", "--beta", help="start beta", action='store_true')
+
+args = argParser.parse_args()
 
 class Config:
   def __init__(self):
@@ -26,19 +32,20 @@ class Config:
     )
 
     self.zotero = types.SimpleNamespace(
-      path=config.get('zotero', 'path', fallback=None),
+      path=config.get('zotero', 'beta' if args.beta else 'path', fallback=None),
       log=config.get('zotero', 'log', fallback=None),
       db=config.get('zotero', 'db', fallback=None)
     )
 
+    beta_infix = '-beta' if args.beta else ''
     if self.zotero.path:
       self.zotero.path = os.path.expanduser(self.zotero.path)
     elif platform.system() == 'Darwin':
-      self.zotero.path = '/Applications/Zotero.app/Contents/MacOS/zotero'
+      self.zotero.path = f'/Applications/Zotero{beta_infix}.app/Contents/MacOS/zotero'
     elif platform.system() == 'Linux':
-      self.zotero.path = '/usr/lib/zotero/zotero'
+      self.zotero.path = f'/usr/lib/zotero{beta_infix}/zotero'
     elif platform.system() == 'Windows':
-      self.zotero.path = 'C:/Program Files (x86)/Zotero/Zotero.exe'
+      self.zotero.path = f'C:/Program Files (x86)/Zotero{beta_infix}/Zotero.exe'
     else:
       assert False, f'{platform.system()} not supported'
 

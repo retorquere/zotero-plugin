@@ -76,7 +76,7 @@ async function announce(issue_number, release) {
 
   if (!CI.tag) {
     reason = ` (${JSON.stringify(CI.commit_message)})`
-    reason += `\n\nInstall in Zotero by downloading ${link}, opening the Zotero "Tools" menu, selecting "Add-ons", open the gear menu in the top right, and select "Install Add-on From File...".`
+    reason += `\n\nThis update may name other issues, but the build just dropped here is for you; it just means problems already fixed in other issues have been folded into the work we are doing here. Install in Zotero by downloading ${link}, opening the Zotero "Tools" menu, selecting "Add-ons", open the gear menu in the top right, and select "Install Add-on From File...".`
   }
 
   const body = `:robot: this is your friendly neighborhood build bot announcing ${link}${reason}`

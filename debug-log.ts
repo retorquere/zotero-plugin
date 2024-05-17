@@ -130,7 +130,6 @@ class DebugLogSender {
     const files: Record<string, Uint8Array> = {}
     const enc = new TextEncoder()
 
-
     const key: string = Zotero.Utilities.generateObjectKey()
 
     const log = [
@@ -143,7 +142,9 @@ class DebugLogSender {
     const rdf = await this.rdf()
     if (rdf) files[`${key}/items.rdf`] =  enc.encode(rdf)
 
-    const blob = new Blob([new Uint8Array(UZip.encode(files) as ArrayBuffer)], { type: 'application/zip'})
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    const zip = new Uint8Array(UZip.encode(files) as ArrayBuffer)
+    const blob = new Blob([zip], { type: 'application/zip'})
     const formData = new FormData()
     formData.append('file', blob, `${key}.zip`)
 

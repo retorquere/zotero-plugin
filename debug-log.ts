@@ -43,8 +43,7 @@ type ExportTranslator = {
 declare const Components: any
 declare const Services: any
 
-import Tar from 'tar-js'
-import { gzip } from 'pako'
+import * as UZip from 'uzip'
 
 type FileIO = {
   success: boolean
@@ -128,7 +127,10 @@ class DebugLogSender {
   private async sendAsync(plugin: string, preferences: string[]) {
     await Zotero.Schema.schemaUpdatePromise
 
-    const tape = new Tar
+    const files: Record<string, Uint8Array> = {}
+    const enc = new TextEncoder()
+
+
     const key: string = Zotero.Utilities.generateObjectKey()
 
     const log = [
@@ -136,14 +138,14 @@ class DebugLogSender {
       Zotero.getErrors(true).join('\n\n'),
       Zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line no-magic-numbers
     ].filter((txt: string) => txt).join('\n\n').trim()
-    let out = tape.append(`${key}/debug.txt`, log)
+    files[`${key}/debug.txt`] =  enc.encode(log)
 
     const rdf = await this.rdf()
-    if (rdf) out = tape.append(`${key}/items.rdf`, rdf)
+    if (rdf) files[`${key}/items.rdf`] =  enc.encode(rdf)
 
-    const blob = new Blob([gzip(out)], { type: 'application/zip'})
+    const blob = new Blob([new Uint8Array(UZip.encode(files) as ArrayBuffer)], { type: 'application/zip'})
     const formData = new FormData()
-    formData.append('file', blob, `${key}.tgz`)
+    formData.append('file', blob, `${key}.zip`)
 
     const response = await this.post('https://file.io', formData)
     this.alert(`Debug log ID for ${plugin}`, `${key}-fio-${response.key}`)

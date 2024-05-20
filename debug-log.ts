@@ -109,8 +109,11 @@ class DebugLogSender {
   }
 
   private alert(title, body) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const ps = Zotero.platformMajorVersion >= 102
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       ? Services.prompt
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       : Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call

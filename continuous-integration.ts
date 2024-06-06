@@ -62,4 +62,4 @@ class ContinuousIntegrationSingleton {
   }
 }
 
-export const ContinuousIntegration = new ContinuousIntegrationSingleton // eslint-disable-line @typescript-eslint/naming-convention,no-underscore-dangle,id-blacklist,id-match
+export const ContinuousIntegration = new ContinuousIntegrationSingleton

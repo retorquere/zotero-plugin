@@ -1,5 +1,3 @@
-/* eslint-disable no-console, prefer-template, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/restrict-template-expressions */
-
 import * as path from 'path'
 
 import root from '../root'

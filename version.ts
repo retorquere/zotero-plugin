@@ -11,12 +11,12 @@ let version: string = null
 
 const version_js = path.join(root, 'gen/version.js')
 if (fs.existsSync(version_js)) {
-  version = (require(version_js) as string)
+  version = (require(version_js) as string) // eslint-disable-line @typescript-eslint/no-var-requires
 }
 else {
   console.log('writing version')
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   version = require(path.join(root, 'package.json')).version
 
   if (CI.service && !CI.tag) {

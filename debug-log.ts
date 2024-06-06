@@ -151,7 +151,7 @@ class DebugLogSender {
     const zip = new Uint8Array(UZip.encode(files) as ArrayBuffer)
     const blob = new Blob([zip], { type: 'application/zip'})
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const formData = (new ((Zotero.getMainWindow() as unknown as any).FormData)) as FormData
+    const formData = new FormData
     formData.append('file', blob, `${key}.zip`)
 
     const response = await this.post('https://file.io', formData)

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-/* eslint-disable @typescript-eslint/no-var-requires, no-console */
+/* eslint-disable no-console */
 
 process.on('unhandledRejection', up => { throw up })
 

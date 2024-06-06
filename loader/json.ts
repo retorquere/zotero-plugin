@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
+
 import jsesc = require('jsesc')
 
 function normalize(obj) {
   if (Array.isArray(obj)) {
-    return obj.map(normalize)
+    return obj.map(normalize) // eslint-disable-line @typescript-eslint/no-unsafe-return
   }
 
   if (obj !== null && typeof obj === 'object') {
@@ -16,7 +18,7 @@ function normalize(obj) {
     return obj.normalize('NFC')
   }
 
-  return obj
+  return obj // eslint-disable-line @typescript-eslint/no-unsafe-return
 }
 
 export = function loader(source: string): string {
@@ -26,5 +28,5 @@ export = function loader(source: string): string {
 
   // const jsesc_options = { compact: false, indent: '  ' }
   const jsesc_options = { compact: true }
-  return `module.exports = ${jsesc(normalize(value), jsesc_options)};`
+  return `module.exports = ${jsesc(normalize(value), jsesc_options)};` // eslint-disable-line @typescript-eslint/restrict-template-expressions
 }

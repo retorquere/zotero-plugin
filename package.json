@@ -99,6 +99,7 @@
     "root.d.ts",
     "root.js",
     ".eslintrc.js",
+    ".ncurc.js",
     "update.rdf.pug",
     "version.d.ts",
     "version.js",

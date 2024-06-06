@@ -20,7 +20,7 @@ class ContinuousIntegrationSingleton {
         try {
           this.tag = child_process.execSync(`git describe --exact-match ${process.env.CIRCLE_SHA1}`, {stdio: 'pipe' }).toString().trim()
         }
-        catch (err) { // eslint-disable-line @typescript-eslint/no-unused-vars
+        catch (err) {
           this.tag = null
         }
         this.commit_message = child_process.execSync(`git log --format=%B -n 1 ${process.env.CIRCLE_SHA1}`).toString().trim()

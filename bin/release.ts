@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-var-requires, no-console */
 
 process.on('unhandledRejection', up => { throw up })
 
@@ -89,7 +89,7 @@ async function announce(issue_number, release) {
     if (locked) await octokit.issues.lock({ owner, repo, issue_number })
   }
   catch (error) {
-    console.log(`Failed to announce '${build}: ${reason}' on ${issue_number} (${error.message})`)
+    console.log(`Failed to announce '${build}: ${reason}' on ${issue_number}`)
   }
 
   if (process.env.GITHUB_ENV) fs.appendFileSync(process.env.GITHUB_ENV, `XPI_RELEASED=${issue_number}\n`)
@@ -179,7 +179,7 @@ async function main(): Promise<void> {
       await octokit.repos.getReleaseByTag({ owner, repo, tag: CI.tag })
       bail(`release ${CI.tag} exists, bailing`)
     }
-    catch (err) { // eslint-disable-line @typescript-eslint/no-unused-vars
+    catch (err) {
       // actually OK
     }
 

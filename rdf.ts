@@ -42,7 +42,7 @@ const options_and_vars = { ...pkg, pretty: true }
 try {
   Object.assign(options_and_vars, JSON.parse(fs.readFileSync(path.join(root, 'schema', 'supported.json'), 'utf8')))
 }
-catch (err) { // eslint-disable-line @typescript-eslint/no-unused-vars
+catch (err) {
   // ignore
 }
 

@@ -21,7 +21,7 @@
     "build": "tsc && chmod +x bin/*.js",
     "pack": "npm test && npm pack",
     "prepublishOnly": "npm install && npm run build",
-    "ncu": "ncu -u -x '*eslint*' && npm i && git add package.json package-lock.json && git commit -m ncu"
+    "ncu": "ncu -u && npm i && git add package.json package-lock.json && git commit -m ncu"
   },
   "directories": {
     "test": "test"

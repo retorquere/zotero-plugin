@@ -49,7 +49,7 @@ if (CI.tag) {
 }
 
 const tags = new Set
-for (let regex = /(?:^|\s)(?:#)([a-zA-Z\d]+)/gm, tag; tag = regex.exec(CI.commit_message); ) {
+for (let regex = /(?:^|\s)(?:#)([a-zA-Z\d]+)/gm, tag; tag = regex.exec(CI.commit_message);) {
   tags.add(tag[1])
 }
 
@@ -134,12 +134,10 @@ async function uploadAsset(release, asset, contentType) {
 async function getRelease(tag, prerelease) {
   try {
     return await octokit.repos.getReleaseByTag({ owner, repo, tag })
-
   }
   catch {
     try {
       return await octokit.repos.createRelease({ owner, repo, tag_name: tag, prerelease })
-
     }
     catch (err) {
       bail(`Could not get release ${tag}: ${err}`)
@@ -181,7 +179,7 @@ async function main(): Promise<void> {
       await octokit.repos.getReleaseByTag({ owner, repo, tag: CI.tag })
       bail(`release ${CI.tag} exists, bailing`)
     }
-    catch (err) {
+    catch (err) { // eslint-disable-line @typescript-eslint/no-unused-vars
       // actually OK
     }
 

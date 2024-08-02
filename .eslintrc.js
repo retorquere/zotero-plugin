@@ -1,3 +1,8 @@
+const stylistic = require('@stylistic/eslint-plugin').configs.customize({
+  indent: 2,
+  quotes: 'single',
+})
+
 module.exports = {
     "root": true,
     "env": {
@@ -17,12 +22,27 @@ module.exports = {
         "sourceType": "module"
     },
     "plugins": [
+        '@stylistic',
         "eslint-plugin-import",
         "eslint-plugin-prefer-arrow",
         "@typescript-eslint",
         "@typescript-eslint/eslint-plugin",
     ],
     "rules": {
+        ...stylistic.rules,
+        '@stylistic/semi': [ 'error', 'never' ],
+        '@stylistic/member-delimiter-style': [ 'error', {
+          multiline: { delimiter: 'none', requireLast: false },
+          singleline: { delimiter: 'semi', requireLast: false }
+        }],
+        '@stylistic/array-bracket-spacing': ['error', 'always', { singleValue: false }],
+        '@stylistic/object-curly-spacing': ['error', 'always', { arraysInObjects: false, objectsInObjects: false }],
+        '@stylistic/new-parens': ['error', 'never'],
+        '@stylistic/quote-props': [ 'error', 'as-needed' ],
+        '@stylistic/arrow-parens': [ 'error', 'as-needed' ],
+        '@stylistic/max-statements-per-line': 'off',
+
+        '@typescript-eslint/no-require-imports': 'off',
         "@typescript-eslint/adjacent-overload-signatures": "error",
         "@typescript-eslint/array-type": [
             "error",
@@ -32,51 +52,9 @@ module.exports = {
         ],
         "@typescript-eslint/await-thenable": "error",
         "@typescript-eslint/ban-ts-comment": "error",
-        "@typescript-eslint/ban-types": [
-            "warn",
-            {
-                "types": {
-                    "Object": {
-                        "message": "Avoid using the `Object` type. Did you mean `object`?"
-                    },
-                    "Function": {
-                        "message": "Avoid using the `Function` type. Prefer a specific function type, like `() => void`."
-                    },
-                    "Boolean": {
-                        "message": "Avoid using the `Boolean` type. Did you mean `boolean`?"
-                    },
-                    "Number": {
-                        "message": "Avoid using the `Number` type. Did you mean `number`?"
-                    },
-                    "String": {
-                        "message": "Avoid using the `String` type. Did you mean `string`?"
-                    },
-                    "Symbol": {
-                        "message": "Avoid using the `Symbol` type.  Did you mean `symbol`?"
-                    }
-                }
-            }
-        ],
         "@typescript-eslint/consistent-type-assertions": "error",
         "@typescript-eslint/dot-notation": "error",
         "@typescript-eslint/explicit-module-boundary-types": "warn",
-        "@typescript-eslint/indent": [
-            "error",
-            2
-        ],
-        "@typescript-eslint/member-delimiter-style": [
-            "error",
-            {
-                "multiline": {
-                    "delimiter": "none",
-                    "requireLast": true
-                },
-                "singleline": {
-                    "delimiter": "semi",
-                    "requireLast": false
-                }
-            }
-        ],
         "@typescript-eslint/member-ordering": "off",
         "@typescript-eslint/naming-convention": "off",
         "@typescript-eslint/no-array-constructor": "error",
@@ -84,7 +62,6 @@ module.exports = {
         "@typescript-eslint/no-empty-interface": "error",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-extra-non-null-assertion": "error",
-        "@typescript-eslint/no-extra-semi": "error",
         "@typescript-eslint/no-floating-promises": "error",
         "@typescript-eslint/no-for-in-array": "error",
         "@typescript-eslint/no-implied-eval": "error",
@@ -116,20 +93,9 @@ module.exports = {
         "@typescript-eslint/prefer-function-type": "error",
         "@typescript-eslint/prefer-namespace-keyword": "error",
         "@typescript-eslint/prefer-regexp-exec": "warn",
-        "@typescript-eslint/quotes": [
-            "error",
-            "single",
-            {
-                "avoidEscape": true
-            }
-        ],
         "@typescript-eslint/require-await": "error",
         "@typescript-eslint/restrict-plus-operands": "error",
         "@typescript-eslint/restrict-template-expressions": "error",
-        "@typescript-eslint/semi": [
-            "error",
-            "never"
-        ],
         "@typescript-eslint/triple-slash-reference": [
             "error",
             {
@@ -141,10 +107,6 @@ module.exports = {
         "@typescript-eslint/unbound-method": "error",
         "@typescript-eslint/unified-signatures": "error",
         "arrow-body-style": "error",
-        "arrow-parens": [
-            "error",
-            "as-needed"
-        ],
         "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ],
         "comma-dangle": [
             "error",
@@ -236,23 +198,11 @@ module.exports = {
         "no-unused-vars": "off",
         "no-var": "error",
         "object-shorthand": "error",
-        "one-var": [
-            "off",
-            "never"
-        ],
-        "prefer-arrow/prefer-arrow-functions": [ "error", { "allowStandaloneDeclarations": true } ],
-        "prefer-const": [
-            "error",
-            {
-                "destructuring": "all"
-            }
-        ],
+        "one-var": [ "off", "never" ],
+        'prefer-arrow/prefer-arrow-functions': 'off',
+        "prefer-const": [ "error", { "destructuring": "all" } ],
         "prefer-object-spread": "error",
         "prefer-template": "error",
-        "quote-props": [
-            "error",
-            "as-needed"
-        ],
         "radix": "off",
         "require-await": "off",
         "space-before-function-paren": [

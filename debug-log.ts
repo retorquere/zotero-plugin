@@ -57,6 +57,7 @@ class DebugLogSender {
     menupopup: 'debug-log-sender-menupopup',
     menuitem: 'debug-log-sender',
   }
+
   public debugEnabledAtStart: boolean = Zotero ? (Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled) as unknown as boolean : null
 
   public convertLegacy() {
@@ -66,7 +67,7 @@ class DebugLogSender {
 
     const doc = Zotero.getMainWindow().document
     doc.querySelector('menuitem#debug-log-menu')?.remove()
-    for (const [plugin, preferences] of Object.entries(plugins)) {
+    for (const [ plugin, preferences ] of Object.entries(plugins)) {
       this.register(plugin, preferences)
     }
   }
@@ -75,7 +76,7 @@ class DebugLogSender {
     const doc = Zotero.getMainWindow().document
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const elt: HTMLElement = doc[Zotero.platformMajorVersion >= 102 ? 'createXULElement' : 'createElement'](name)
-    for (const [k, v] of Object.entries(attrs)) {
+    for (const [ k, v ] of Object.entries(attrs)) {
       elt.setAttribute(k, v)
     }
     return elt
@@ -129,11 +130,12 @@ class DebugLogSender {
       this.alert('Debug log submission error', `${err}`) // eslint-disable-line @typescript-eslint/restrict-template-expressions
     })
   }
+
   private async sendAsync(plugin: string, preferences: string[]) {
     await Zotero.Schema.schemaUpdatePromise
 
     const files: Record<string, Uint8Array> = {}
-    const enc = new TextEncoder()
+    const enc = new TextEncoder
 
     const key: string = Zotero.Utilities.generateObjectKey()
 
@@ -142,14 +144,14 @@ class DebugLogSender {
       Zotero.getErrors(true).join('\n\n'),
       Zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line no-magic-numbers
     ].filter((txt: string) => txt).join('\n\n').trim()
-    files[`${key}/debug.txt`] =  enc.encode(log)
+    files[`${key}/debug.txt`] = enc.encode(log)
 
     const rdf = await this.rdf()
-    if (rdf) files[`${key}/items.rdf`] =  enc.encode(rdf)
+    if (rdf) files[`${key}/items.rdf`] = enc.encode(rdf)
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const zip = new Uint8Array(UZip.encode(files) as ArrayBuffer)
-    const blob = new Blob([zip], { type: 'application/zip'})
+    const blob = new Blob([zip], { type: 'application/zip' })
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const formData = new FormData
     formData.append('file', blob, `${key}.zip`)
@@ -203,7 +205,7 @@ class DebugLogSender {
     info += `Debug logging on at Zotero start: ${this.debugEnabledAtStart}\n`
     info += `Debug logging on at log submit: ${Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled}\n`
 
-    for (const [pref, value] of Object.entries(this.preferences(preferences))) {
+    for (const [ pref, value ] of Object.entries(this.preferences(preferences))) {
       info += `${pref} = ${JSON.stringify(value)}\n`
     }
 
@@ -217,7 +219,7 @@ class DebugLogSender {
       if (items.length === 0) return resolve('')
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      const translation: ExportTranslator = new Zotero.Translate.Export() as ExportTranslator
+      const translation: ExportTranslator = new Zotero.Translate.Export as ExportTranslator
       translation.setItems(items)
       translation.setTranslator('14763d24-8ba0-45df-8f52-b8d1108e7ac9') // rdf
 
@@ -226,7 +228,7 @@ class DebugLogSender {
           resolve(obj ? obj.string : undefined)
         }
         else {
-          reject('translation failed')
+          reject(new Error('translation failed'))
         }
       })
 

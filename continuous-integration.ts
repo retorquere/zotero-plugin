@@ -10,7 +10,7 @@ class ContinuousIntegrationSingleton {
   public issue = ''
 
   constructor() {
-    for (const [id, name] of Object.entries({CIRCLECI: 'Circle', TRAVIS: 'Travis' , SEMAPHORE: 'Semaphore', GITHUB_ACTIONS: 'GitHub'})) {
+    for (const [ id, name ] of Object.entries({ CIRCLECI: 'Circle', TRAVIS: 'Travis', SEMAPHORE: 'Semaphore', GITHUB_ACTIONS: 'GitHub' })) {
       if (process.env[id] === 'true') this.service = name
     }
 
@@ -18,7 +18,7 @@ class ContinuousIntegrationSingleton {
       case 'Circle':
         this.build_number = this.parseInt(process.env.CIRCLE_BUILD_NUM)
         try {
-          this.tag = child_process.execSync(`git describe --exact-match ${process.env.CIRCLE_SHA1}`, {stdio: 'pipe' }).toString().trim()
+          this.tag = child_process.execSync(`git describe --exact-match ${process.env.CIRCLE_SHA1}`, { stdio: 'pipe' }).toString().trim()
         }
         catch (err) {
           this.tag = null
@@ -49,9 +49,7 @@ class ContinuousIntegrationSingleton {
 
       default:
         if (process.env.CI === 'true') throw new Error(`Unexpected CI service ${this.service}`)
-
     }
-
   }
 
   private parseInt(n: number | string): number {

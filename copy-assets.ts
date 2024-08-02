@@ -4,7 +4,7 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 
 function allow(file) {
-  switch(path.basename(file)) {
+  switch (path.basename(file)) {
     case '.DS_Store':
       return false
   }
@@ -26,11 +26,11 @@ function copy(dir) {
   return fs.existsSync(dir) && !fs.existsSync(path.join(dir, '.nomedia'))
 }
 
-for (const dir of ['defaults', 'content', 'skin', 'locale', 'resource', 'chrome.manifest', 'chrome']) {
+for (const dir of [ 'defaults', 'content', 'skin', 'locale', 'resource', 'chrome.manifest', 'chrome' ]) {
   if (!copy(dir)) continue
 
   fs.copySync(dir, path.join('build', dir), {
-    filter: src => {
+    filter(src) {
       if (dir !== 'chrome.manifest' && dir !== 'resource' && !allow(src)) return false
       if (fs.lstatSync(src).isFile()) console.log(' ', src)
       return true
@@ -40,7 +40,7 @@ for (const dir of ['defaults', 'content', 'skin', 'locale', 'resource', 'chrome.
 
 if (copy('client')) {
   fs.copySync('client', 'build', {
-    filter: src => {
+    filter(src) {
       if (fs.lstatSync(src).isFile()) console.log(' ', src)
       return true
     },

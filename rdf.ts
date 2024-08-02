@@ -18,7 +18,7 @@ if (pkg.xpi) Object.assign(pkg, pkg.xpi)
 
 pkg.version = version
 
-if (pkg.updateLink) pkg.updateLink = uriTemplate(pkg.updateLink).fill({version: pkg.version})
+if (pkg.updateLink) pkg.updateLink = uriTemplate(pkg.updateLink).fill({ version: pkg.version })
 pkg.updateURL = `${pkg.xpi.releaseURL}update.rdf`
 
 const translations = glob(path.join(root, 'locale/*/*.properties'))
@@ -42,7 +42,7 @@ const options_and_vars = { ...pkg, pretty: true }
 try {
   Object.assign(options_and_vars, JSON.parse(fs.readFileSync(path.join(root, 'schema', 'supported.json'), 'utf8')))
 }
-catch (err) {
+catch (err) { // eslint-disable-line @typescript-eslint/no-unused-vars
   // ignore
 }
 
@@ -85,7 +85,7 @@ for (const i of [ `content/skin/${basename}.png`, `skin/${basename}.png`, `${bas
   icons.push({ 48: i.replace('/zotero-', '/') })
 }
 for (const i of [...icons]) {
-  icons.push({ 48: i[48].replace(/[.](svg|png)$/, ext => ({'.svg': '.png', '.png': '.svg'}[ext])) })
+  icons.push({ 48: i[48].replace(/[.](svg|png)$/, ext => ({ '.svg': '.png', '.png': '.svg' }[ext])) })
 }
 for (const i of [...icons]) {
   if (i[48].endsWith('.svg')) {

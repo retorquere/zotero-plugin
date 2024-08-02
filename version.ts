@@ -11,13 +11,13 @@ let version: string = null
 
 const version_js = path.join(root, 'gen/version.js')
 if (fs.existsSync(version_js)) {
-  version = (require(version_js) as string)
+  version = (require(version_js) as string) // eslint-disable-line @typescript-eslint/no-require-imports
 }
 else {
   console.log('writing version')
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-  version = require(path.join(root, 'package.json')).version
+  version = require(path.join(root, 'package.json')).version // eslint-disable-line @typescript-eslint/no-require-imports
 
   if (CI.service && !CI.tag) {
     const issue = CI.issue ? `.${CI.issue}` : ''

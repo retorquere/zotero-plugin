@@ -5,8 +5,8 @@ import * as path from 'path'
 import { globSync as glob } from 'glob'
 import * as pug from 'pug'
 
-import PropertiesReader = require('properties-reader')
-import uriTemplate = require('uri-templates')
+import PropertiesReader from 'properties-reader'
+import uriTemplate from 'uri-templates'
 
 import root from './root'
 import version from './version'

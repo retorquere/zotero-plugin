@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
 
-import jsesc = require('jsesc')
+import jsesc from 'jsesc'
 
 function normalize(obj) {
   if (Array.isArray(obj)) {
@@ -21,7 +21,7 @@ function normalize(obj) {
   return obj // eslint-disable-line @typescript-eslint/no-unsafe-return
 }
 
-export = function loader(source: string): string {
+export default function loader(source: string): string {
   if (this.cacheable) this.cacheable()
 
   const value = typeof source === 'string' ? JSON.parse(source) : source

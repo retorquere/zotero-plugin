@@ -5,7 +5,7 @@ import * as path from 'path'
 import root from '../root'
 const pkg = { ...require(path.join(root, 'package.json')) }
 
-export = function loader(source: string): string {
+export default function loader(source: string): string {
   // this.cacheable()
 
   const src: string = this.resourcePath.substring(process.cwd().length + 1)

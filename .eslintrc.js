@@ -205,7 +205,7 @@ module.exports = {
         "prefer-template": "error",
         "radix": "off",
         "require-await": "off",
-        "space-before-function-paren": [
+        "@stylistic/space-before-function-paren": [
             "error",
             {
                 "anonymous": "never",

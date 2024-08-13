@@ -20,7 +20,8 @@ else {
   version = require(path.join(root, 'package.json')).version // eslint-disable-line @typescript-eslint/no-require-imports
 
   if (CI.service && !CI.tag) {
-    version = `${version}.${CI.build_number}`
+    const issue = CI.issue && process.env.VERSION_WITH_ISSUE !== 'false' ? `.${CI.issue}` : ''
+    version = `${version}${issue}.${CI.build_number}`
   }
   else if (!CI.service) {
     version = `${version}.${os.userInfo().username}.${os.hostname()}`

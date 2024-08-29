@@ -32,8 +32,11 @@ declare const Zotero: {
   getActiveZoteroPane: () => ZoteroPane
   getMainWindow(): Window
 }
-if (Zotero.platformMajorVersion >= 102) Components.utils.importGlobalProperties(['FormData'])
 
+declare const Services: any
+declare const Components: any
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+if (Zotero.platformMajorVersion >= 102) Components.utils.importGlobalProperties(['FormData'])
 
 type ExportTranslator = {
   setHandler: (phase: string, handler: (obj: { string: string }, success: boolean) => void) => void // eslint-disable-line id-blacklist
@@ -41,9 +44,6 @@ type ExportTranslator = {
   setItems: (items: any[]) => void
   translate: () => void
 }
-
-declare const Components: any
-declare const Services: any
 
 import * as UZip from 'uzip'
 

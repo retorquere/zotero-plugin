@@ -32,6 +32,8 @@ declare const Zotero: {
   getActiveZoteroPane: () => ZoteroPane
   getMainWindow(): Window
 }
+if (Zotero.platformMajorVersion >= 102) Components.utils.importGlobalProperties(['FormData'])
+
 
 type ExportTranslator = {
   setHandler: (phase: string, handler: (obj: { string: string }, success: boolean) => void) => void // eslint-disable-line id-blacklist

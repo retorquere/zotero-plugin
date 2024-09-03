@@ -17,6 +17,7 @@ declare const Zotero: {
   getInstalledExtensions: () => Promise<string[]>
   platform: string
   oscpu: string
+  arch: string
   locale: string
   Utilities: {
     generateObjectKey: () => string
@@ -204,7 +205,10 @@ class DebugLogSender {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
     const appInfo: { name: string; version: string } = Components.classes['@mozilla.org/xre/app-info;1'].getService(Components.interfaces.nsIXULAppInfo)
     info += `Application: ${appInfo.name} ${appInfo.version} ${Zotero.locale}\n`
-    info += `Platform: ${Zotero.platform} ${Zotero.oscpu}\n`
+
+    const platform = [ 'Win', 'Mac', 'Linux' ].find(p => Zotero[`is${p}`]) || 'Unknown'
+    const arch = Zotero.oscpu || Zotero.arch
+    info += `Platform: ${platform} ${arch}\n`
 
     const addons: string[] = await Zotero.getInstalledExtensions()
     if (addons.length) {

@@ -36,8 +36,6 @@ declare const Zotero: {
 
 declare const Services: any
 declare const Components: any
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-if (Zotero.platformMajorVersion >= 102) Components.utils.importGlobalProperties(['FormData'])
 
 type ExportTranslator = {
   setHandler: (phase: string, handler: (obj: { string: string }, success: boolean) => void) => void // eslint-disable-line id-blacklist
@@ -157,6 +155,10 @@ class DebugLogSender {
 
     const rdf = await this.rdf()
     if (rdf) files[`${key}/items.rdf`] = enc.encode(rdf)
+
+    // do this runtime because Zotero is not defined at start for bootstrapped zoter6 plugins
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    if (typeof FormData === 'undefined' && Zotero.platformMajorVersion >= 102) Components.utils.importGlobalProperties(['FormData'])
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const zip = new Uint8Array(UZip.encode(files) as ArrayBuffer)

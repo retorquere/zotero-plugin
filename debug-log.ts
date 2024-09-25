@@ -4,7 +4,7 @@ type ZoteroPane = {
   getSelectedItems: () => any[]
 }
 
-declare var Zotero: {
+declare var Zotero: { // eslint-disable-line no-var
   platformMajorVersion: number
   debug: (msg: string) => void
   DebugLogSender: {
@@ -34,7 +34,7 @@ declare var Zotero: {
   getMainWindow(): Window
 }
 
-declare const Services: any
+declare var Services: any // eslint-disable-line no-var
 declare const Components: any
 declare const ChromeUtils: any
 
@@ -69,10 +69,13 @@ class DebugLogSender {
   private get zotero() {
     if (typeof Zotero !== 'undefined') return Zotero
     if (!this.$zotero) {
-      const { Services } = ChromeUtils.import('resource://gre/modules/Services.jsm')
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      if (typeof Services === 'undefined') Services = ChromeUtils.import('resource://gre/modules/Services.jsm').Services
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       const windows = Services.wm.getEnumerator('navigator:browser')
-      let found = false
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       while (!this.$zotero && windows.hasMoreElements()) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         this.$zotero = windows.getNext().Zotero
       }
     }

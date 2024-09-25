@@ -4,7 +4,7 @@ type ZoteroPane = {
   getSelectedItems: () => any[]
 }
 
-declare const Zotero: {
+declare var Zotero: {
   platformMajorVersion: number
   debug: (msg: string) => void
   DebugLogSender: {
@@ -36,6 +36,7 @@ declare const Zotero: {
 
 declare const Services: any
 declare const Components: any
+declare const ChromeUtils: any
 
 type ExportTranslator = {
   setHandler: (phase: string, handler: (obj: { string: string }, success: boolean) => void) => void // eslint-disable-line id-blacklist
@@ -53,20 +54,37 @@ type FileIO = {
 }
 
 class DebugLogSender {
+  private $zotero: typeof Zotero
+
   public id = {
     menu: 'debug-log-sender-menu',
     menupopup: 'debug-log-sender-menupopup',
     menuitem: 'debug-log-sender',
   }
 
-  public debugEnabledAtStart: boolean = Zotero ? (Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled) as unknown as boolean : null
+  public debugEnabledAtStart: boolean = typeof Zotero !== 'undefined'
+    ? (Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled) as unknown as boolean
+    : null
+
+  private get zotero() {
+    if (typeof Zotero !== 'undefined') return Zotero
+    if (!this.$zotero) {
+      const { Services } = ChromeUtils.import('resource://gre/modules/Services.jsm')
+      const windows = Services.wm.getEnumerator('navigator:browser')
+      let found = false
+      while (!this.$zotero && windows.hasMoreElements()) {
+        this.$zotero = windows.getNext().Zotero
+      }
+    }
+    return this.$zotero
+  }
 
   public convertLegacy() {
-    if (!Zotero.DebugLogSender) return
-    const plugins = Zotero.DebugLogSender.plugins || {}
-    delete Zotero.DebugLogSender
+    if (!this.zotero.DebugLogSender) return
+    const plugins = this.zotero.DebugLogSender.plugins || {}
+    delete this.zotero.DebugLogSender
 
-    const doc = Zotero.getMainWindow()?.document
+    const doc = this.zotero.getMainWindow()?.document
     if (doc) {
       doc.querySelector('menuitem#debug-log-menu')?.remove()
       for (const [ plugin, preferences ] of Object.entries(plugins)) {
@@ -76,9 +94,9 @@ class DebugLogSender {
   }
 
   private element(name: string, attrs: Record<string, string> = {}): HTMLElement {
-    const doc = Zotero.getMainWindow().document
+    const doc = this.zotero.getMainWindow().document
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const elt: HTMLElement = doc[Zotero.platformMajorVersion >= 102 ? 'createXULElement' : 'createElement'](name)
+    const elt: HTMLElement = doc[this.zotero.platformMajorVersion >= 102 ? 'createXULElement' : 'createElement'](name)
     for (const [ k, v ] of Object.entries(attrs)) {
       elt.setAttribute(k, v)
     }
@@ -88,7 +106,7 @@ class DebugLogSender {
   public register(plugin: string, preferences: string[] = []): void {
     this.convertLegacy()
 
-    const doc = Zotero.getMainWindow()?.document
+    const doc = this.zotero.getMainWindow()?.document
     if (doc) {
       let menupopup = doc.querySelector(`#${this.id.menupopup}`)
       if (!menupopup) {
@@ -108,7 +126,7 @@ class DebugLogSender {
   }
 
   public unregister(plugin: string): void {
-    const doc = Zotero.getMainWindow()?.document
+    const doc = this.zotero.getMainWindow()?.document
     if (doc) {
       doc.querySelector(`.debug-log-sender[label=${JSON.stringify(plugin)}]`)?.remove()
       const menupopup = doc.querySelector('#debug-log-sender-menupopup')
@@ -118,7 +136,7 @@ class DebugLogSender {
 
   private alert(title, body) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const ps = Zotero.platformMajorVersion >= 102
+    const ps = this.zotero.platformMajorVersion >= 102
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       ? Services.prompt
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
@@ -139,17 +157,17 @@ class DebugLogSender {
   }
 
   private async sendAsync(plugin: string, preferences: string[]) {
-    await Zotero.Schema.schemaUpdatePromise
+    await this.zotero.Schema.schemaUpdatePromise
 
     const files: Record<string, Uint8Array> = {}
     const enc = new TextEncoder
 
-    const key: string = Zotero.Utilities.generateObjectKey()
+    const key: string = this.zotero.Utilities.generateObjectKey()
 
     const log = [
       await this.info(preferences),
-      Zotero.getErrors(true).join('\n\n'),
-      Zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line no-magic-numbers
+      this.zotero.getErrors(true).join('\n\n'),
+      this.zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line no-magic-numbers
     ].filter((txt: string) => txt).join('\n\n').trim()
     files[`${key}/debug.txt`] = enc.encode(log)
 
@@ -158,7 +176,7 @@ class DebugLogSender {
 
     // do this runtime because Zotero is not defined at start for bootstrapped zoter6 plugins
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    if (typeof FormData === 'undefined' && Zotero.platformMajorVersion >= 102) Components.utils.importGlobalProperties(['FormData'])
+    if (typeof FormData === 'undefined' && this.zotero.platformMajorVersion >= 102) Components.utils.importGlobalProperties(['FormData'])
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const zip = new Uint8Array(UZip.encode(files) as ArrayBuffer)
@@ -189,7 +207,7 @@ class DebugLogSender {
     }
 
     for (const pref of names.sort()) {
-      prefs[pref] = Zotero.Prefs.get(pref, true)
+      prefs[pref] = this.zotero.Prefs.get(pref, true)
     }
 
     return prefs
@@ -206,18 +224,18 @@ class DebugLogSender {
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
     const appInfo: { name: string; version: string } = Components.classes['@mozilla.org/xre/app-info;1'].getService(Components.interfaces.nsIXULAppInfo)
-    info += `Application: ${appInfo.name} ${appInfo.version} ${Zotero.locale}\n`
+    info += `Application: ${appInfo.name} ${appInfo.version} ${this.zotero.locale}\n`
 
     const platform = [ 'Win', 'Mac', 'Linux' ].find(p => Zotero[`is${p}`]) || 'Unknown'
-    const arch = Zotero.oscpu || Zotero.arch
+    const arch = this.zotero.oscpu || this.zotero.arch
     info += `Platform: ${platform} ${arch}\n`
 
-    const addons: string[] = await Zotero.getInstalledExtensions()
+    const addons: string[] = await this.zotero.getInstalledExtensions()
     if (addons.length) {
       info += 'Addons:\n' + addons.map((addon: string) => `  ${addon}\n`).join('') // eslint-disable-line prefer-template
     }
     info += `Debug logging on at Zotero start: ${this.debugEnabledAtStart}\n`
-    info += `Debug logging on at log submit: ${Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled}\n`
+    info += `Debug logging on at log submit: ${this.zotero.Prefs.get('debug.store') || this.zotero.Debug.enabled}\n`
 
     for (const [ pref, value ] of Object.entries(this.preferences(preferences))) {
       info += `${pref} = ${JSON.stringify(value)}\n`
@@ -229,11 +247,11 @@ class DebugLogSender {
   private rdf(): Promise<string> {
     return new Promise((resolve, reject) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-      const items: any[] = Zotero.getActiveZoteroPane().getSelectedItems()
+      const items: any[] = this.zotero.getActiveZoteroPane().getSelectedItems()
       if (items.length === 0) return resolve('')
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      const translation: ExportTranslator = new Zotero.Translate.Export as ExportTranslator
+      const translation: ExportTranslator = new this.zotero.Translate.Export as ExportTranslator
       translation.setItems(items)
       translation.setTranslator('14763d24-8ba0-45df-8f52-b8d1108e7ac9') // rdf
 

@@ -2,12 +2,14 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-argument, no-console, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/restrict-template-expressions */
 
-process.on('unhandledRejection', up => { throw up })
+process.on('unhandledRejection', up => {
+  throw up
+})
 
 import 'dotenv/config'
-import * as path from 'path'
-import moment from 'moment'
 import * as fs from 'fs'
+import moment from 'moment'
+import * as path from 'path'
 
 import { Octokit } from '@octokit/rest'
 const octokit = new Octokit({ auth: `token ${process.env.GITHUB_TOKEN}` })
@@ -16,7 +18,7 @@ import { ContinuousIntegration as CI } from '../continuous-integration'
 import root from '../root'
 
 const pkg = require(path.join(root, 'package.json'))
-const [ , owner, repo ] = pkg.repository.url.match(/:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)
+const [, owner, repo] = pkg.repository.url.match(/:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)
 
 import version from '../version'
 const xpi = `${pkg.name}-${version}.xpi`
@@ -48,7 +50,7 @@ if (CI.tag) {
   if (CI.branch && CI.branch !== 'master' && CI.branch !== 'main') bail(`Building tag ${CI.tag}, but branch is ${CI.branch}`)
 }
 
-const tags = new Set
+const tags = new Set()
 for (let regex = /(?:^|\s)(?:#)([a-zA-Z\d]+)/gm, tag; tag = regex.exec(CI.commit_message);) {
   tags.add(tag[1])
 }

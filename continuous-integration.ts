@@ -10,7 +10,7 @@ class ContinuousIntegrationSingleton {
   public issue = ''
 
   constructor() {
-    for (const [ id, name ] of Object.entries({ CIRCLECI: 'Circle', TRAVIS: 'Travis', SEMAPHORE: 'Semaphore', GITHUB_ACTIONS: 'GitHub' })) {
+    for (const [id, name] of Object.entries({ CIRCLECI: 'Circle', TRAVIS: 'Travis', SEMAPHORE: 'Semaphore', GITHUB_ACTIONS: 'GitHub' })) {
       if (process.env[id] === 'true') this.service = name
     }
 
@@ -60,4 +60,4 @@ class ContinuousIntegrationSingleton {
   }
 }
 
-export const ContinuousIntegration = new ContinuousIntegrationSingleton // eslint-disable-line @typescript-eslint/naming-convention,no-underscore-dangle,id-blacklist,id-match
+export const ContinuousIntegration = new ContinuousIntegrationSingleton() // eslint-disable-line @typescript-eslint/naming-convention,no-underscore-dangle,id-blacklist,id-match

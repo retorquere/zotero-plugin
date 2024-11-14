@@ -90,7 +90,7 @@ class DebugLogSender {
     const doc = this.zotero.getMainWindow()?.document
     if (doc) {
       doc.querySelector('menuitem#debug-log-menu')?.remove()
-      for (const [ plugin, preferences ] of Object.entries(plugins)) {
+      for (const [plugin, preferences] of Object.entries(plugins)) {
         this.register(plugin, preferences)
       }
     }
@@ -100,7 +100,7 @@ class DebugLogSender {
     const doc = this.zotero.getMainWindow().document
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const elt: HTMLElement = doc[this.zotero.platformMajorVersion >= 102 ? 'createXULElement' : 'createElement'](name)
-    for (const [ k, v ] of Object.entries(attrs)) {
+    for (const [k, v] of Object.entries(attrs)) {
       elt.setAttribute(k, v)
     }
     return elt
@@ -163,7 +163,7 @@ class DebugLogSender {
     await this.zotero.Schema.schemaUpdatePromise
 
     const files: Record<string, Uint8Array> = {}
-    const enc = new TextEncoder
+    const enc = new TextEncoder()
 
     const key: string = this.zotero.Utilities.generateObjectKey()
 
@@ -185,7 +185,7 @@ class DebugLogSender {
     const zip = new Uint8Array(UZip.encode(files) as ArrayBuffer)
     const blob = new Blob([zip], { type: 'application/zip' })
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const formData = new FormData
+    const formData = new FormData()
     formData.append('file', blob, `${key}.zip`)
 
     const response = await this.post('https://file.io', formData)
@@ -229,7 +229,7 @@ class DebugLogSender {
     const appInfo: { name: string; version: string } = Components.classes['@mozilla.org/xre/app-info;1'].getService(Components.interfaces.nsIXULAppInfo)
     info += `Application: ${appInfo.name} ${appInfo.version} ${this.zotero.locale}\n`
 
-    const platform = [ 'Win', 'Mac', 'Linux' ].find(p => Zotero[`is${p}`]) || 'Unknown'
+    const platform = ['Win', 'Mac', 'Linux'].find(p => Zotero[`is${p}`]) || 'Unknown'
     const arch = this.zotero.oscpu || this.zotero.arch
     info += `Platform: ${platform} ${arch}\n`
 
@@ -240,7 +240,7 @@ class DebugLogSender {
     info += `Debug logging on at Zotero start: ${this.debugEnabledAtStart}\n`
     info += `Debug logging on at log submit: ${this.zotero.Prefs.get('debug.store') || this.zotero.Debug.enabled}\n`
 
-    for (const [ pref, value ] of Object.entries(this.preferences(preferences))) {
+    for (const [pref, value] of Object.entries(this.preferences(preferences))) {
       info += `${pref} = ${JSON.stringify(value)}\n`
     }
 
@@ -254,7 +254,7 @@ class DebugLogSender {
       if (items.length === 0) return resolve('')
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      const translation: ExportTranslator = new this.zotero.Translate.Export as ExportTranslator
+      const translation: ExportTranslator = new this.zotero.Translate.Export() as ExportTranslator
       translation.setItems(items)
       translation.setTranslator('14763d24-8ba0-45df-8f52-b8d1108e7ac9') // rdf
 
@@ -272,4 +272,4 @@ class DebugLogSender {
   }
 }
 
-export const DebugLog = new DebugLogSender
+export const DebugLog = new DebugLogSender()

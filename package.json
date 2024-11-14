@@ -8,7 +8,8 @@
     "zotero-plugin-zipup": "bin/zipup.js",
     "zotero-plugin-link": "bin/link.js",
     "issue-branches": "bin/branches.js",
-    "zotero-start": "bin/start.py"
+    "zotero-start": "bin/start.py",
+    "fetch-zotero-log": "bin/fetch-zotero-log.py"
   },
   "author": {
     "name": "Emiliano Heyns",
@@ -79,6 +80,7 @@
     "bin/zipup.d.ts",
     "bin/zipup.js",
     "bin/start.py",
+    "bin/fetch-zotero-log.py",
     "continuous-integration.d.ts",
     "continuous-integration.js",
     "copy-assets.d.ts",

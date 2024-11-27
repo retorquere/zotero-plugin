@@ -100,7 +100,9 @@
     "version.d.ts",
     "version.js",
     "debug-log.js",
-    "debug-log.d.ts"
+    "debug-log.d.ts",
+    "create-element.js",
+    "create-element.d.ts"
   ],
   "bugs": {
     "url": "https://github.com/retorquere/zotero-plugin/issues"

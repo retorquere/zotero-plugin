@@ -4,17 +4,6 @@ declare const Zotero: any
 
 declare const dump: (msg: string) => void
 
-export const discard = {
-  log(): void {},
-  error(): void {},
-  warn(): void {},
-  debug(): void {},
-  info(): void {},
-  clear(): void {},
-  dir(): void {},
-  table(): void {},
-}
-
 function stringifyXPCOM(obj): string {
   if (!obj.QueryInterface) return ''
   if (obj.message) return `[XPCOM error ${obj.message}]`

@@ -47,17 +47,9 @@ function replacer() {
   }
 }
 
-function to_s(obj: any): string {
-  if (typeof obj === 'string') return obj
-  return JSON.stringify(obj, replacer())
-}
-
-export function format(...msg): string {
-  return msg.map(to_s).join(' ')
-}
-
 export class Logger {
   public phase = ''
+  public indent?: number
 
   constructor(public id: string) {
   }
@@ -67,23 +59,32 @@ export class Logger {
   }
 
   public debug(...msg): void {
-    Zotero.debug(`${this.#prefix()}${format(...msg)}\n`)
+    Zotero.debug(`${this.#prefix()}${this.format(...msg)}\n`)
   }
 
   public info(...msg): void {
-    Zotero.debug(`${this.#prefix()}${format(...msg)}\n`)
+    Zotero.debug(`${this.#prefix()}${this.format(...msg)}\n`)
   }
 
   public error(...msg): void {
-    Zotero.debug(`${this.#prefix(true)}${format(...msg)}\n`)
+    Zotero.debug(`${this.#prefix(true)}${this.format(...msg)}\n`)
   }
 
   public dump(msg: string, error?: Error): void {
     if (error) {
-      dump(`${this.#prefix(error)}${format(msg, error)}\n`)
+      dump(`${this.#prefix(error)}${this.format(msg, error)}\n`)
     }
     else {
-      dump(`${this.#prefix()}${format(msg)}\n`)
+      dump(`${this.#prefix()}${this.format(msg)}\n`)
     }
+  }
+
+  private to_s(obj: any): string {
+    if (typeof obj === 'string') return obj
+    return JSON.stringify(obj, replacer(), this.indent)
+  }
+
+  public format(...msg): string {
+    return msg.map(m => this.to_s(m)).join(' ')
   }
 }

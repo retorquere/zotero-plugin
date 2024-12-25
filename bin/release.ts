@@ -7,11 +7,10 @@ process.on('unhandledRejection', up => {
 })
 
 import 'dotenv/config'
+import { execSync } from 'child_process'
 import * as fs from 'fs'
 import moment from 'moment'
 import * as path from 'path'
-import { execSync } from 'child_process'
-
 
 import { Octokit } from '@octokit/rest'
 const octokit = new Octokit({ auth: `token ${process.env.GITHUB_TOKEN}` })

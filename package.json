@@ -30,19 +30,18 @@
   "dependencies": {
     "@octokit/rest": "^21.0.2",
     "@rgrove/parse-xml": "^4.2.0",
-    "@types/node": "^22.10.1",
-    "@xmldom/xmldom": "^0.9.5",
+    "@types/node": "^22.10.2",
+    "@xmldom/xmldom": "^0.9.6",
     "ajv": "^8.17.1",
     "ajv-keywords": "^5.1.0",
     "archiver": "^7.0.1",
     "clp": "^4.0.12",
-    "current-git-branch": "^1.1.0",
     "dotenv": "^16.4.7",
-    "dprint": "^0.47.6",
+    "dprint": "^0.48.0",
     "ejs": "^3.1.10",
     "fs-extra": "^11.2.0",
     "glob": "^11.0.0",
-    "jsesc": "^3.0.2",
+    "jsesc": "^3.1.0",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "peggy": "^4.2.0",
@@ -110,6 +109,6 @@
     "url": "https://github.com/retorquere/zotero-plugin/issues"
   },
   "devDependencies": {
-    "esbuild": "^0.24.0"
+    "esbuild": "^0.24.2"
   }
 }

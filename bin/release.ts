@@ -10,6 +10,8 @@ import 'dotenv/config'
 import * as fs from 'fs'
 import moment from 'moment'
 import * as path from 'path'
+import { execSync } from 'child_process'
+
 
 import { Octokit } from '@octokit/rest'
 const octokit = new Octokit({ auth: `token ${process.env.GITHUB_TOKEN}` })
@@ -35,7 +37,7 @@ function bail(msg, status = 1) {
 const dryRun = !CI.service
 if (dryRun) {
   console.log('Not running on CI service, switching to dry-run mode') // eslint-disable-line no-console
-  CI.branch = require('current-git-branch')()
+  CI.branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim()
 }
 
 function report(msg) {

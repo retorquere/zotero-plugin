@@ -48,7 +48,8 @@ if (CI.pull_request) bail('Not releasing pull requests', 0)
 if (CI.tag) {
   if (`v${pkg.version}` !== CI.tag) bail(`Building tag ${CI.tag}, but package version is ${pkg.version}`)
 
-  if (CI.branch && CI.branch !== 'master' && CI.branch !== 'main') bail(`Building tag ${CI.tag}, but branch is ${CI.branch}`)
+  const releaseBranches = ['main', 'master'].concat(pkg.xpi.releaseBranches || [])
+  if (CI.branch && !releaseBranches.includes(CI.branch)) bail(`Building tag ${CI.tag}, but branch is ${CI.branch}`)
 }
 
 const tags = new Set()
@@ -154,15 +155,21 @@ async function update_rdf(releases_tag: string) {
 
   const assets = (await octokit.repos.listReleaseAssets({ owner, repo, release_id: release.data.id })).data
 
+  const updates = {
+    'update.rdf': !pkg.xpi.update || pkg.xpi.update.rdf ? 'application/rdf+xml' : '',
+    'updates.json': !pkg.xpi.update || pkg.xpi.update.json ? 'application/json' : ''
+  }
+
   for (const asset of assets) {
-    if (asset.name === 'update.rdf' || asset.name === 'updates.json') {
+    if (asset.name in updates && updates[asset.name]) {
       report(`removing ${asset.name} from ${release.data.tag_name}`)
       // TODO: double asset.id until https://github.com/octokit/rest.js/issues/933 is fixed
       if (!dryRun) await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })
     }
   }
-  await uploadAsset(release, path.join(root, 'gen/update.rdf'), 'application/rdf+xml')
-  await uploadAsset(release, path.join(root, 'gen/updates.json'), 'application/json')
+  for (const [pointer, mimetype] of Object.entries(updates)) {
+    if (mimetype) await uploadAsset(release, path.join(root, `gen/${pointer}`), mimetype)
+  }
 }
 
 async function main(): Promise<void> {

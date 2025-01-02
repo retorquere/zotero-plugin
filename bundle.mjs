@@ -17,6 +17,7 @@ let external = [
   'url',
   'util',
   'zlib',
+  'node:process',
 ]
 external = external.concat(external.map(m => `node:${m}`))
 

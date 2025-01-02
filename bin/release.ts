@@ -11,20 +11,33 @@ import { execSync } from 'child_process'
 import * as fs from 'fs'
 import moment from 'moment'
 import * as path from 'path'
+import uriTemplate from 'uri-templates'
+import { program } from 'commander'
+
+import { ContinuousIntegration as CI } from '../continuous-integration'
+
+program
+  .version(require('../package.json').version)
+  .option('-r, --release-message <value>', 'add message to github release')
+  .option('-x, --xpi', 'xpi filename template', '{name}-{version}.xpi')
+  .option('-d, --dry-run', 'dry run', !CI.service)
+  .option('-p, --pre-release', 'release is a pre-release')
+  .parse(process.argv)
+const options = program.opts()
+
+if (options.releaseMessage?.startsWith('@')) options.releaseMessage = fs.readFileSync(options.releaseMessage.substring(1), 'utf-8')
 
 import { Octokit } from '@octokit/rest'
 const octokit = new Octokit({ auth: `token ${process.env.GITHUB_TOKEN}` })
 
-import { ContinuousIntegration as CI } from '../continuous-integration'
 import root from '../root'
 
 const pkg = require(path.join(root, 'package.json'))
 const [, owner, repo] = pkg.repository.url.match(/:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)
 
 import version from '../version'
-const xpi = `${pkg.name}-${version}.xpi`
+const xpi = uriTemplate(options.xpi).fill({ ...pkg, version })
 
-const PRERELEASE = false
 // eslint-disable-next-line no-magic-numbers
 const EXPIRE_BUILDS = moment().subtract(7, 'days').toDate().toISOString()
 
@@ -33,14 +46,13 @@ function bail(msg, status = 1) {
   process.exit(status)
 }
 
-const dryRun = !CI.service
-if (dryRun) {
+if (options.dryRun) {
   console.log('Not running on CI service, switching to dry-run mode') // eslint-disable-line no-console
   CI.branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim()
 }
 
 function report(msg) {
-  console.log(`${dryRun ? 'dry-run: ' : ''}${msg}`) // eslint-disable-line no-console
+  console.log(`${options.dryRun ? 'dry-run: ' : ''}${msg}`) // eslint-disable-line no-console
 }
 
 if (CI.pull_request) bail('Not releasing pull requests', 0)
@@ -71,7 +83,7 @@ async function announce(issue_number, release) {
   let reason = ''
 
   if (CI.tag) {
-    build = `${PRERELEASE ? 'pre-' : ''}release ${CI.tag}`
+    build = `${options.preRelease ? 'pre-' : ''}release ${CI.tag}`
   }
   else {
     build = `test build ${version}`
@@ -86,7 +98,7 @@ async function announce(issue_number, release) {
   const body = `:robot: this is your friendly neighborhood build bot announcing ${link}${reason}`
 
   report(body)
-  if (dryRun) return
+  if (options.dryRun) return
 
   try {
     const locked = (await octokit.issues.get({ owner, repo, issue_number })).data.locked
@@ -103,7 +115,7 @@ async function announce(issue_number, release) {
 
 async function uploadAsset(release, asset, contentType) {
   report(`uploading ${path.basename(asset)} to ${release.data.tag_name}`)
-  if (dryRun) return
+  if (options.dryRun) return
 
   const name = path.basename(asset)
   const exists = (await octokit.repos.listReleaseAssets({ owner, repo, release_id: release.data.id })).data.find(a => a.name === name)
@@ -164,7 +176,7 @@ async function update_rdf(releases_tag: string) {
     if (asset.name in updates && updates[asset.name]) {
       report(`removing ${asset.name} from ${release.data.tag_name}`)
       // TODO: double asset.id until https://github.com/octokit/rest.js/issues/933 is fixed
-      if (!dryRun) await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })
+      if (!options.dryRun) await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })
     }
   }
   for (const [pointer, mimetype] of Object.entries(updates)) {
@@ -194,8 +206,8 @@ async function main(): Promise<void> {
     }
 
     report(`uploading ${xpi} to new release ${CI.tag}`)
-    if (!dryRun) {
-      release = await octokit.repos.createRelease({ owner, repo, tag_name: CI.tag, prerelease: !!PRERELEASE, body: process.argv[2] || '' })
+    if (!options.dryRun) {
+      release = await octokit.repos.createRelease({ owner, repo, tag_name: CI.tag, prerelease: !!options.preRelease, body: options.releaseMessage || '' })
       await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/vnd.zotero.plugin')
     }
 
@@ -209,7 +221,7 @@ async function main(): Promise<void> {
       if (asset.name.endsWith('.xpi') && asset.created_at < EXPIRE_BUILDS) {
         report(`deleting ${asset.name}`)
         // TODO: double asset.id until https://github.com/octokit/rest.js/issues/933 is fixed
-        if (!dryRun) await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })
+        if (!options.dryRun) await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })
       }
     }
     await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/vnd.zotero.plugin')

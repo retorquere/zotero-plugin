@@ -8,11 +8,11 @@ process.on('unhandledRejection', up => {
 
 import 'dotenv/config'
 import { execSync } from 'child_process'
+import { program } from 'commander'
 import * as fs from 'fs'
 import moment from 'moment'
 import * as path from 'path'
 import uriTemplate from 'uri-templates'
-import { program } from 'commander'
 
 import { ContinuousIntegration as CI } from '../continuous-integration'
 

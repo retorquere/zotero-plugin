@@ -19,7 +19,7 @@ import { ContinuousIntegration as CI } from '../continuous-integration'
 program
   .version(require('../package.json').version)
   .option('-r, --release-message <value>', 'add message to github release')
-  .option('-x, --xpi', 'xpi filename template', '{name}-{version}.xpi')
+  .option('-x, --xpi <value>', 'xpi filename template', '{name}-{version}.xpi')
   .option('-d, --dry-run', 'dry run', !CI.service)
   .option('-p, --pre-release', 'release is a pre-release')
   .parse(process.argv)

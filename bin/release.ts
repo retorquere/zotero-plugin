@@ -169,7 +169,7 @@ async function update_rdf(releases_tag: string) {
 
   const updates = {
     'update.rdf': !pkg.xpi.update || pkg.xpi.update.rdf ? 'application/rdf+xml' : '',
-    'updates.json': !pkg.xpi.update || pkg.xpi.update.json ? 'application/json' : '',
+    'updates.json': !pkg.xpi.update || pkg.xpi.updates.json ? 'application/json' : '',
   }
 
   for (const asset of assets) {

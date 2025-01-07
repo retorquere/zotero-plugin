@@ -38,7 +38,7 @@ for (const translation of translations) {
   }
 }
 
-const options_and_vars = { ...pkg, pretty: true }
+const options_and_vars = { minVersion: '6.0.9', maxVersion: '7.*', ...pkg, pretty: true }
 try {
   Object.assign(options_and_vars, JSON.parse(fs.readFileSync(path.join(root, 'schema', 'supported.json'), 'utf8')))
 }
@@ -46,89 +46,93 @@ catch (err) { // eslint-disable-line @typescript-eslint/no-unused-vars
   // ignore
 }
 
-let template
-console.log('generating install.rdf')
-template = fs.readFileSync(path.join(__dirname, 'install.rdf.pug'), 'utf8')
-template = pug.render(template, options_and_vars)
-fs.writeFileSync(path.join(root, 'build/install.rdf'), template, { encoding: 'utf8' })
+if (options_and_vars.minVersion.match(/^6/)) {
+  let template
+  console.log('generating install.rdf')
+  template = fs.readFileSync(path.join(__dirname, 'install.rdf.pug'), 'utf8')
+  template = pug.render(template, options_and_vars)
+  fs.writeFileSync(path.join(root, 'build/install.rdf'), template, { encoding: 'utf8' })
 
-console.log('generating update.rdf')
-template = fs.readFileSync(path.join(__dirname, 'update.rdf.pug'), 'utf8')
-template = pug.render(template, options_and_vars)
-fs.writeFileSync(path.join(root, 'gen/update.rdf'), template, { encoding: 'utf8' })
+  console.log('generating update.rdf')
+  template = fs.readFileSync(path.join(__dirname, 'update.rdf.pug'), 'utf8')
+  template = pug.render(template, options_and_vars)
+  fs.writeFileSync(path.join(root, 'gen/update.rdf'), template, { encoding: 'utf8' })
+}
 
-console.log('generating updates.json')
-fs.writeFileSync(
-  path.join(root, 'gen/updates.json'),
-  JSON.stringify(
-    {
-      addons: {
-        [pkg.id]: {
-          updates: [
-            {
-              version: options_and_vars.version,
-              update_link: options_and_vars.updateLink,
-              applications: {
-                zotero: {
-                  strict_min_version: '6.999',
+if (options_and_vars.maxVersion.match(/^7/)) {
+  console.log('generating updates.json')
+  fs.writeFileSync(
+    path.join(root, 'gen/updates.json'),
+    JSON.stringify(
+      {
+        addons: {
+          [pkg.id]: {
+            updates: [
+              {
+                version: options_and_vars.version,
+                update_link: options_and_vars.updateLink,
+                applications: {
+                  zotero: {
+                    strict_min_version: '6.999',
+                  },
                 },
               },
-            },
-          ],
+            ],
+          },
         },
       },
-    },
-    null,
-    2,
-  ),
-)
+      null,
+      2,
+    ),
+  )
 
-const icons: { 48: string; 96?: string }[] = [
-  { 48: pkg.xpi?.iconURL?.replace(/^chrome:\/\/[^/]+\//, '') },
-].filter(i => i[48])
-const basename = pkg.id.replace(/@.*/, '')
-for (const i of [`content/skin/${basename}.png`, `skin/${basename}.png`, `${basename}.png`, 'icon.png']) {
-  icons.push({ 48: i })
-  icons.push({ 48: i.replace('/zotero-', '/') })
-}
-for (const i of [...icons]) {
-  icons.push({ 48: i[48].replace(/[.](svg|png)$/, ext => ({ '.svg': '.png', '.png': '.svg' }[ext])) })
-}
-for (const i of [...icons]) {
-  if (i[48].endsWith('.svg')) {
-    i[96] = i[48]
+  const icons: { 48: string; 96?: string }[] = [
+    { 48: pkg.xpi?.iconURL?.replace(/^chrome:\/\/[^/]+\//, '') },
+  ].filter(i => i[48])
+  const basename = pkg.id.replace(/@.*/, '')
+  for (const i of [`content/skin/${basename}.png`, `skin/${basename}.png`, `${basename}.png`, 'icon.png']) {
+    icons.push({ 48: i })
+    icons.push({ 48: i.replace('/zotero-', '/') })
   }
-  else {
-    i[96] = i[48].replace(/([.][^.]+)$/, '@2x$1')
+  for (const i of [...icons]) {
+    icons.push({ 48: i[48].replace(/[.](svg|png)$/, ext => ({ '.svg': '.png', '.png': '.svg' }[ext])) })
   }
-}
-const icon = icons.find(i => fs.existsSync(path.join(root, ...i[48].split('/'))))
-if (icon) {
-  options_and_vars.icons = {
-    48: icon[48],
-    96: fs.existsSync(path.join(root, ...icon[96].split('/'))) ? icon[96] : icon[48],
+  for (const i of [...icons]) {
+    if (i[48].endsWith('.svg')) {
+      i[96] = i[48]
+    }
+    else {
+      i[96] = i[48].replace(/([.][^.]+)$/, '@2x$1')
+    }
   }
-}
-console.log('generating manifest.json')
-fs.writeFileSync(
-  path.join(root, 'build/manifest.json'),
-  JSON.stringify(
-    {
-      manifest_version: 2,
-      name: options_and_vars.name,
-      version: options_and_vars.version,
-      description: options_and_vars.description,
-      icons: options_and_vars.icons,
-      applications: {
-        zotero: {
-          id: options_and_vars.id,
-          update_url: options_and_vars.updateURL.replace('/update.rdf', '/updates.json'),
-          strict_min_version: '6.999',
-          strict_max_version: '7.*',
+  const icon = icons.find(i => fs.existsSync(path.join(root, ...i[48].split('/'))))
+  if (icon) {
+    options_and_vars.icons = {
+      48: icon[48],
+      96: fs.existsSync(path.join(root, ...icon[96].split('/'))) ? icon[96] : icon[48],
+    }
+  }
+  console.log('generating manifest.json')
+  fs.writeFileSync(
+    path.join(root, 'build/manifest.json'),
+    JSON.stringify(
+      {
+        manifest_version: 2,
+        name: options_and_vars.name,
+        version: options_and_vars.version,
+        description: options_and_vars.description,
+        icons: options_and_vars.icons,
+        applications: {
+          zotero: {
+            id: options_and_vars.id,
+            update_url: options_and_vars.updateURL.replace('/update.rdf', '/updates.json'),
+            strict_min_version: '6.999',
+            strict_max_version: '7.*',
+          },
         },
       },
-    },
-    null,
-    2,
-  ),
-)
+      null,
+      2,
+    ),
+  )
+}

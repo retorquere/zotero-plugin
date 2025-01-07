@@ -174,8 +174,8 @@ async function update_rdf(releases_tag: string) {
   const assets = (await octokit.repos.listReleaseAssets({ owner, repo, release_id: release.data.id })).data
 
   const updates = {
-    'update.rdf': !pkg.xpi.update || pkg.xpi.update.rdf ? 'application/rdf+xml' : '',
-    'updates.json': !pkg.xpi.update || pkg.xpi.updates.json ? 'application/json' : '',
+    'update.rdf': (pkg.xpi?.minVersion || '6').match(/^6/) ? 'application/rdf+xml' : '',
+    'updates.json': (pkg.xpi?.maxVersion || '7').match(/^7/) ? 'application/json' : '',
   }
 
   for (const asset of assets) {

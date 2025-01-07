@@ -22,8 +22,14 @@ program
   .option('-x, --xpi <value>', 'xpi filename template', '{name}-{version}.xpi')
   .option('-d, --dry-run', 'dry run', !CI.service)
   .option('-p, --pre-release', 'release is a pre-release')
+  .option('-t, --tag', 'tag for release', CI.tag)
   .parse(process.argv)
 const options = program.opts()
+
+if (options.tag && options.tag !== CI.tag) {
+  console.log('dry-run: tag specified manually, switching to dry-run mode')
+  options.dryRun = true
+}
 
 if (options.releaseMessage?.startsWith('@')) options.releaseMessage = fs.readFileSync(options.releaseMessage.substring(1), 'utf-8')
 
@@ -57,11 +63,11 @@ function report(msg) {
 
 if (CI.pull_request) bail('Not releasing pull requests', 0)
 
-if (CI.tag) {
-  if (`v${pkg.version}` !== CI.tag) bail(`Building tag ${CI.tag}, but package version is ${pkg.version}`)
+if (options.tag) {
+  if (`v${pkg.version}` !== options.tag) bail(`Building tag ${options.tag}, but package version is ${pkg.version}`)
 
   const releaseBranches = ['main', 'master'].concat(pkg.xpi.releaseBranches || [])
-  if (CI.branch && !releaseBranches.includes(CI.branch)) bail(`Building tag ${CI.tag}, but branch is ${CI.branch}`)
+  if (CI.branch && !releaseBranches.includes(CI.branch)) bail(`Building tag ${options.tag}, but branch is ${CI.branch}`)
 }
 
 const tags = new Set()
@@ -82,7 +88,7 @@ async function announce(issue_number, release) {
   let build
   let reason = ''
 
-  if (CI.tag) {
+  if (options.tag) {
     build = `${options.preRelease ? 'pre-' : ''}release ${CI.tag}`
   }
   else {
@@ -90,7 +96,7 @@ async function announce(issue_number, release) {
   }
   const link = `[${build}](https://github.com/${owner}/${repo}/releases/download/${release.data.tag_name}/${pkg.name}-${version}.xpi)`
 
-  if (!CI.tag) {
+  if (!options.tag) {
     reason = ` (${JSON.stringify(CI.commit_message)})`
     reason += `\n\nThis update may name other issues, but the build just dropped here is for you; it just means problems already fixed in other issues have been folded into the work we are doing here. Install in Zotero by downloading ${link}, opening the Zotero "Tools" menu, selecting "Add-ons", open the gear menu in the top right, and select "Install Add-on From File...".`
   }
@@ -107,7 +113,7 @@ async function announce(issue_number, release) {
     if (locked) await octokit.issues.lock({ owner, repo, issue_number })
   }
   catch (error) {
-    console.log(`Failed to announce '${build}: ${reason}' on ${issue_number}`) // eslint-disable-line no-console
+    report(`Failed to announce '${build}: ${reason}' on ${issue_number}`)
   }
 
   if (process.env.GITHUB_ENV) fs.appendFileSync(process.env.GITHUB_ENV, `XPI_RELEASED=${issue_number}\n`)
@@ -176,7 +182,12 @@ async function update_rdf(releases_tag: string) {
     if (asset.name in updates && updates[asset.name]) {
       report(`removing ${asset.name} from ${release.data.tag_name}`)
       // TODO: double asset.id until https://github.com/octokit/rest.js/issues/933 is fixed
-      if (!options.dryRun) await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })
+      if (options.dryRun) {
+        report(`update ${asset.name}`)
+      }
+      else {
+        await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })
+      }
     }
   }
   for (const [pointer, mimetype] of Object.entries(updates)) {
@@ -194,19 +205,23 @@ async function main(): Promise<void> {
   }
 
   let release
-  if (CI.tag) {
+  if (options.tag) {
     // upload XPI
 
     try {
-      await octokit.repos.getReleaseByTag({ owner, repo, tag: CI.tag })
-      bail(`release ${CI.tag} exists, bailing`)
+      await octokit.repos.getReleaseByTag({ owner, repo, tag: options.tag })
+      if (!options.dryRun) bail(`release ${options.tag} exists, bailing`)
     }
     catch (err) { // eslint-disable-line @typescript-eslint/no-unused-vars
       // actually OK
     }
 
-    report(`uploading ${xpi} to new release ${CI.tag}`)
-    if (!options.dryRun) {
+    if (options.dryRun) {
+      report(`create release ${options.tag}`)
+      report(`upload asset ${xpi}`)
+    }
+    else {
+      report(`uploading ${xpi} to new release ${CI.tag}`)
       release = await octokit.repos.createRelease({ owner, repo, tag_name: CI.tag, prerelease: !!options.preRelease, body: options.releaseMessage || '' })
       await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/vnd.zotero.plugin')
     }
@@ -221,7 +236,12 @@ async function main(): Promise<void> {
       if (asset.name.endsWith('.xpi') && asset.created_at < EXPIRE_BUILDS) {
         report(`deleting ${asset.name}`)
         // TODO: double asset.id until https://github.com/octokit/rest.js/issues/933 is fixed
-        if (!options.dryRun) await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })
+        if (options.dryRun) {
+          report(`delete asset ${asset.name}`)
+        }
+        else {
+          await octokit.repos.deleteReleaseAsset({ owner, repo, asset_id: asset.id })
+        }
       }
     }
     await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/vnd.zotero.plugin')

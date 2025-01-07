@@ -22,7 +22,7 @@ program
   .option('-x, --xpi <value>', 'xpi filename template', '{name}-{version}.xpi')
   .option('-d, --dry-run', 'dry run', !CI.service)
   .option('-p, --pre-release', 'release is a pre-release')
-  .option('-t, --tag', 'tag for release', CI.tag)
+  .option('-t, --tag <value>', 'tag for release', CI.tag)
   .parse(process.argv)
 const options = program.opts()
 

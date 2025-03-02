@@ -11,7 +11,7 @@ let version: string = null
 
 const version_js = path.join(root, 'gen/version.js')
 if (fs.existsSync(version_js)) {
-  version = require(version_js) as string // eslint-disable-line @typescript-eslint/no-require-imports
+  version = require(version_js).version as string // eslint-disable-line @typescript-eslint/no-require-imports
 }
 else {
   console.log('writing version')
@@ -28,7 +28,7 @@ else {
   }
 
   if (!fs.existsSync(path.dirname(version_js))) fs.mkdirSync(path.dirname(version_js))
-  fs.writeFileSync(version_js, `module.exports = ${JSON.stringify(version)};\n`, 'utf8')
+  fs.writeFileSync(version_js, `module.exports.version = ${JSON.stringify(version)};\n`, 'utf8')
 }
 
 export default version

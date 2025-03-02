@@ -9,9 +9,9 @@ import root from './root'
 
 let version: string = null
 
-const version_js = path.join(root, 'gen/version.js')
-if (fs.existsSync(version_js)) {
-  version = require(version_js).version as string // eslint-disable-line @typescript-eslint/no-require-imports
+const version_json = path.join(root, 'gen/version.json')
+if (fs.existsSync(version_json)) {
+  version = require(version_json).version as string // eslint-disable-line @typescript-eslint/no-require-imports
 }
 else {
   console.log('writing version')
@@ -27,8 +27,8 @@ else {
     version = `${version}.${os.userInfo().username}.${os.hostname()}`
   }
 
-  if (!fs.existsSync(path.dirname(version_js))) fs.mkdirSync(path.dirname(version_js))
-  fs.writeFileSync(version_js, `module.exports.version = ${JSON.stringify(version)};\n`, 'utf8')
+  if (!fs.existsSync(path.dirname(version_json))) fs.mkdirSync(path.dirname(version_json))
+  fs.writeFileSync(version_json, JSON.stringify({ version }))
 }
 
 export default version

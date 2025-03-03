@@ -4,47 +4,47 @@
   "description": "Zotero plugin builder",
   "homepage": "https://github.com/retorquere/zotero-plugin/wiki",
   "exports": {
-    "build/root": {
+    "./build/root": {
       "import": "./dist/root.mjs",
       "require": "./dist/root.js"
     },
-    "build/rdf": {
+    "./build/rdf": {
       "import": "./dist/rdf.mjs",
       "require": "./dist/rdf.js"
     },
-    "plugin/logger": {
+    "./plugin/logger": {
       "import": "./dist/logger.mjs",
       "require": "./dist/logger.js"
     },
-    "plugin/create-element": {
+    "./plugin/create-element": {
       "import": "./dist/create-element.mjs",
       "require": "./dist/create-element.js"
     },
-    "build/continuous-integration": {
+    "./build/continuous-integration": {
       "import": "./dist/continuous-integration.mjs",
       "require": "./dist/continuous-integration.js"
     },
-    "build/loader/peggy": {
+    "./build/loader/peggy": {
       "import": "./dist/loader/peggy.mjs",
       "require": "./dist/loader/peggy.js"
     },
-    "build/loader/json": {
+    "./build/loader/json": {
       "import": "./dist/loader/json.mjs",
       "require": "./dist/loader/json.js"
     },
-    "plugin/debug-log": {
+    "./plugin/debug-log": {
       "import": "./dist/debug-log.mjs",
       "require": "./dist/debug-log.js"
     },
-    "build/version": {
+    "./build/version": {
       "import": "./dist/version.mjs",
       "require": "./dist/version.js"
     },
-    "build/copy-assets": {
+    "./build/copy-assets": {
       "import": "./dist/copy-assets.mjs",
       "require": "./dist/copy-assets.js"
     },
-    "build/make-dirs": {
+    "./build/make-dirs": {
       "import": "./dist/make-dirs.mjs",
       "require": "./dist/make-dirs.js"
     }

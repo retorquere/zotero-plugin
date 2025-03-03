@@ -22,7 +22,7 @@ function normalize(obj) {
 }
 
 export default function loader(source: string): string {
-  if (this.cacheable) this.cacheable()
+  // if (this.cacheable) this.cacheable()
 
   const value = typeof source === 'string' ? JSON.parse(source) : source
 

@@ -95,7 +95,7 @@ if (options_and_vars.maxVersion.match(/^7/)) {
     icons.push({ 48: i.replace('/zotero-', '/') })
   }
   for (const i of [...icons]) {
-    icons.push({ 48: i[48].replace(/[.](svg|png)$/, ext => ({ '.svg': '.png', '.png': '.svg' }[ext])) })
+    icons.push({ 48: (i[48] || '').replace(/[.](svg|png)$/, ext => ({ '.svg': '.png', '.png': '.svg' }[ext] || ext)) })
   }
   for (const i of [...icons]) {
     if (i[48].endsWith('.svg')) {
@@ -109,7 +109,7 @@ if (options_and_vars.maxVersion.match(/^7/)) {
   if (icon) {
     options_and_vars.icons = {
       48: icon[48],
-      96: fs.existsSync(path.join(root, ...icon[96].split('/'))) ? icon[96] : icon[48],
+      96: fs.existsSync(path.join(root, ...(icon[96] || '').split('/'))) ? icon[96] : icon[48],
     }
   }
   console.log('generating manifest.json')

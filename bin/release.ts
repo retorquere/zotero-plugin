@@ -70,14 +70,14 @@ if (options.tag) {
   if (CI.branch && !releaseBranches.includes(CI.branch)) bail(`Building tag ${options.tag}, but branch is ${CI.branch}`)
 }
 
-const tags = new Set()
+const tags: Set<string> = new Set()
 for (let regex = /(?:^|\s)(?:#)([a-zA-Z\d]+)/gm, tag; tag = regex.exec(CI.commit_message);) {
   tags.add(tag[1])
 }
 
 if (tags.has('norelease')) bail(`Not releasing on ${CI.branch || 'default branch'} because of 'norelease' tag`, 0)
 
-const issues: Set<number> = new Set(Array.from(tags).map(parseInt).filter(tag => !isNaN(tag)))
+const issues: Set<number> = new Set(Array.from(tags).map(tag => parseInt(tag)).filter(tag => !isNaN(tag)))
 if ((/^((issue|gh)-)?[0-9]+(-[a-z]+)?$/i).exec(CI.branch)) {
   issues.add(parseInt(CI.branch.replace(/[^0-9]/g, '')))
 }
@@ -170,6 +170,7 @@ async function getRelease(tag, prerelease) {
 
 async function update_rdf(releases_tag: string) {
   const release = await getRelease(releases_tag, false)
+  if (!release) throw new Error(`release ${releases_tag} does not exist`)
 
   const assets = (await octokit.repos.listReleaseAssets({ owner, repo, release_id: release.data.id })).data
 

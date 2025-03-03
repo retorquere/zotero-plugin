@@ -25,7 +25,7 @@ for (const bin of ['branches', 'link', 'release', 'zipup']) {
   await esbuild.build({
     entryPoints: [`bin/${bin}.ts`],
     bundle: true,
-    outfile: `bin/${bin}.js`,
+    outfile: `dist/bin/${bin}.js`,
     external,
   })
 }

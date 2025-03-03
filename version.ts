@@ -7,7 +7,7 @@ import * as path from 'path'
 import { ContinuousIntegration as CI } from './continuous-integration'
 import root from './root'
 
-let version: string = null
+let version: string
 
 const version_json = path.join(root, 'gen/version.json')
 if (fs.existsSync(version_json)) {

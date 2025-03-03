@@ -27,7 +27,7 @@
     "postversion": "git push --follow-tags",
     "test": "dprint fmt *.ts */*.ts && dprint check *.ts */*.ts && npm run build",
     "buildx": "tsc && ./bundle.mjs && chmod +x bin/*.js",
-    "build": "tsc -b tsconfig.json && tsc -p tsconfig.cjs.json && ./bundle.mjs && chmod +x dist/bin/*.js && cp bin/*.py dist/bin",
+    "build": "make",
     "pack": "npm test && npm pack",
     "prepublishOnly": "npm install && npm run build",
     "ncu": "ncu -u && npm i && git add package.json package-lock.json && git commit -m ncu"

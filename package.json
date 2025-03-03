@@ -6,6 +6,10 @@
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
+  "exports": {
+    "require": "./dist/cjs/index.js",
+    "import": "./dist/esm/index.js"
+  },
   "bin": {
     "zotero-plugin-release": "dist/bin/release.js",
     "zotero-plugin-zipup": "dist/bin/zipup.js",

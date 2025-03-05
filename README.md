@@ -84,7 +84,7 @@ the array is a list of either full names of preferences you want to know about, 
 
 The Help menu will now have an entry "send debug log to 0x0.st"; when your user selects that, the error log and the selected settings will be sent to 0x0.st; if any items are selected, when that is clicked, a copy of those items will be included in RDF format.
 
-The user will get an ID that looks like `C3WvhYgA8RDM-0x0-2XZGASLV.zip`; the last part is the 0x0.st ID, so you would go to `https://0x0.st/2XZGASLV.zip` to retrieve the download; the zipfile you get there will be `C3WvhYgA8RDM.zip`.
+The user will get an ID that looks like `C3WvhYgA8RDM-0x0-2XZGASLV`; the last part is the 0x0.st ID, so you would go to `https://0x0.st/2XZGASLV.zip` to retrieve the download; the zipfile you get there will be `C3WvhYgA8RDM.zip`.
 
 # Starting Zotero with your plugin loaded
 

@@ -189,12 +189,12 @@ class DebugLogSender {
         body: formData,
         headers: {
           'User-Agent': 'curl/8.7.1',
-        }
+        },
       })
       const body = await response.text()
       url += '/'
       if (!body.startsWith(url)) throw new Error(body)
-      this.alert(`Debug log ID for ${plugin}`, `${key}-fio-${body.replace(url, '')}`)
+      this.alert(`Debug log ID for ${plugin}`, `${key}-0x0-${body.replace(url, '')}`)
     }
     catch (err) {
       this.alert(`Could not post debug log for ${plugin}`, err.message)

@@ -47,12 +47,6 @@ type ExportTranslator = {
 
 import * as UZip from 'uzip'
 
-type FileIO = {
-  success: boolean
-  key: string
-  link: string
-}
-
 class DebugLogSender {
   private $zotero: typeof Zotero
 
@@ -114,7 +108,7 @@ class DebugLogSender {
       let menupopup = doc.querySelector(`#${this.id.menupopup}`)
       if (!menupopup) {
         menupopup = doc.querySelector('menupopup#menu_HelpPopup')
-          .appendChild(this.element('menu', { id: this.id.menu, label: 'Send debug log to file.io' }))
+          .appendChild(this.element('menu', { id: this.id.menu, label: 'Send debug log to 0x0.st' }))
           .appendChild(this.element('menupopup', { id: this.id.menupopup }))
       }
 
@@ -188,8 +182,8 @@ class DebugLogSender {
     const formData = new FormData()
     formData.append('file', blob, `${key}.zip`)
 
-    const response = await this.post('https://file.io', formData)
-    this.alert(`Debug log ID for ${plugin}`, `${key}-fio-${response.key}`)
+    const response = await this.post('https://0x0.st', formData)
+    this.alert(`Debug log ID for ${plugin}`, `${key}-fio-${response.replace('https://0x0.st/', '')}`)
   }
 
   private preferences(preferences: string[]): Record<string, string | number | boolean> {
@@ -216,9 +210,9 @@ class DebugLogSender {
     return prefs
   }
 
-  private async post(url: string, data: FormData): Promise<FileIO> {
+  private async post(url: string, data: FormData): Promise<string> {
     const response = await fetch(url, { method: 'POST', body: data })
-    return (await response.json()) as FileIO
+    return await response.text()
   }
 
   // general state of Zotero

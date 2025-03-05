@@ -30,7 +30,7 @@
   "dependencies": {
     "@octokit/rest": "^21.1.1",
     "@rgrove/parse-xml": "^4.2.0",
-    "@types/node": "^22.13.8",
+    "@types/node": "^22.13.9",
     "@xmldom/xmldom": "^0.9.8",
     "ajv": "^8.17.1",
     "ajv-keywords": "^5.1.0",

@@ -191,7 +191,7 @@ class DebugLogSender {
           'User-Agent': 'curl/8.7.1',
         },
       })
-      const body = await response.text()
+      const body = (await response.text()).trim()
       url += '/'
       if (!body.startsWith(url)) throw new Error(body)
       this.alert(`Debug log ID for ${plugin}`, `${key}-0x0-${body.replace(url, '').replace(/[.]zip$/, '')}`)

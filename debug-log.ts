@@ -182,8 +182,23 @@ class DebugLogSender {
     const formData = new FormData()
     formData.append('file', blob, `${key}.zip`)
 
-    const response = await this.post('https://0x0.st', formData)
-    this.alert(`Debug log ID for ${plugin}`, `${key}-fio-${response.replace('https://0x0.st/', '')}`)
+    let url = 'https://0x0.st'
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'User-Agent': 'curl/8.7.1',
+        }
+      })
+      const body = await response.text()
+      url += '/'
+      if (!body.startsWith(url)) throw new Error(body)
+      this.alert(`Debug log ID for ${plugin}`, `${key}-fio-${body.replace(url, '')}`)
+    }
+    catch (err) {
+      this.alert(`Could not post debug log for ${plugin}`, err.message)
+    }
   }
 
   private preferences(preferences: string[]): Record<string, string | number | boolean> {
@@ -208,11 +223,6 @@ class DebugLogSender {
     }
 
     return prefs
-  }
-
-  private async post(url: string, data: FormData): Promise<string> {
-    const response = await fetch(url, { method: 'POST', body: data })
-    return await response.text()
   }
 
   // general state of Zotero

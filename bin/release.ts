@@ -85,6 +85,9 @@ if ((/^((issue|gh)-)?[0-9]+(-[a-z]+)?$/i).exec(CI.branch)) {
 async function announce(issue_number, release) {
   if (tags.has('noannounce')) return
 
+  const issue = (await octokit.issues.get({ owner, repo, issue_number })).data
+  if (issue.locked || issue.state !== 'open') return
+
   let build
   let reason = ''
 
@@ -107,10 +110,7 @@ async function announce(issue_number, release) {
   if (options.dryRun) return
 
   try {
-    const locked = (await octokit.issues.get({ owner, repo, issue_number })).data.locked
-    if (locked) await octokit.issues.unlock({ owner, repo, issue_number })
     await octokit.issues.createComment({ owner, repo, issue_number, body })
-    if (locked) await octokit.issues.lock({ owner, repo, issue_number })
   }
   catch (error) {
     report(`Failed to announce '${build}: ${reason}' on ${issue_number}`)

@@ -103,12 +103,17 @@ class DebugLogSender {
   public register(plugin: string, preferences: string[] = []): void {
     this.convertLegacy()
 
+    const label = 'Send debug log to bashupload.com'
+
     const doc = this.zotero.getMainWindow()?.document
     if (doc) {
       let menupopup = doc.querySelector(`#${this.id.menupopup}`)
-      if (!menupopup) {
+      if (menupopup) {
+        menupopup.setAttribute('label', label)
+      }
+      else {
         menupopup = doc.querySelector('menupopup#menu_HelpPopup')
-          .appendChild(this.element('menu', { id: this.id.menu, label: 'Send debug log to 0x0.st' }))
+          .appendChild(this.element('menu', { id: this.id.menu, label }))
           .appendChild(this.element('menupopup', { id: this.id.menupopup }))
       }
 
@@ -182,19 +187,18 @@ class DebugLogSender {
     const formData = new FormData()
     formData.append('file', blob, `${key}.zip`)
 
-    let url = 'https://0x0.st'
     try {
-      const response = await fetch(url, {
+      const response = await fetch(`https://bashupload.com/${key}.zip`, {
         method: 'POST',
         body: formData,
         headers: {
           'User-Agent': 'curl/8.7.1',
         },
       })
-      const body = (await response.text()).trim()
-      url += '/'
-      if (!body.startsWith(url)) throw new Error(body)
-      this.alert(`Debug log ID for ${plugin}`, `${key}-0x0-${body.replace(url, '').replace(/[.]zip$/, '')}`)
+      const body = await response.text()
+      const id = body.match(/https:[/][/]bashupload.com[/]([A-Z0-9]+)[/]/i)
+      if (!id) throw new Error(body)
+      this.alert(`Debug log ID for ${plugin}`, `${key}-buc-${id[1]}`)
     }
     catch (err) {
       this.alert(`Could not post debug log for ${plugin}`, err.message)

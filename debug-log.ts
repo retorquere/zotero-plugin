@@ -196,9 +196,9 @@ class DebugLogSender {
         },
       })
       const body = await response.text()
-      const id = body.match(/https:[/][/]bashupload.com[/]([A-Z0-9]+)[/]/i)
+      const id = body.match(/https:[/][/]bashupload.com[/]([A-Z0-9]+)[/][A-Z0-9]+[.]zip/i)
       if (!id) throw new Error(body)
-      this.alert(`Debug log ID for ${plugin}`, `${key}-buc-${id[1]}`)
+      this.alert(`Debug log ID for ${plugin}`, `${key}-buc-${id[1]}. If you sent this log in error, visit ${id[0]} and it will be automatically removed.`)
     }
     catch (err) {
       this.alert(`Could not post debug log for ${plugin}`, err.message)

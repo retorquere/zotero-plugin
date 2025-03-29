@@ -73,7 +73,7 @@ if (options_and_vars.maxVersion.match(/^7/)) {
                 update_link: options_and_vars.updateLink,
                 applications: {
                   zotero: {
-                    strict_min_version: '6.999',
+                    strict_min_version: options_and_vars.minVersion.match(/^7/) ? options_and_vars.minVersion : '6.999',
                   },
                 },
               },

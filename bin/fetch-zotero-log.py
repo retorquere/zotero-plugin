@@ -4,9 +4,10 @@ import sys, os
 import urllib.request
 from zipfile import ZipFile
 
-local, fio, remote = sys.argv[1].split('-')
-url = 'https://file.io/' + remote
+local, buc, remote = sys.argv[1].split('-')
+url = f'https://bashupload.com/{remote}/{local}.zip'
 log = 'logs/' + local + '.zip'
+print(url, '=>', log)
 logs = os.path.dirname(log)
 if not os.path.exists(logs):
   os.makedirs(logs)

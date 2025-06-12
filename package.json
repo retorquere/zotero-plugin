@@ -30,7 +30,7 @@
   "dependencies": {
     "@octokit/rest": "^22.0.0",
     "@rgrove/parse-xml": "^4.2.0",
-    "@types/node": "^22.15.29",
+    "@types/node": "^24.0.1",
     "@xmldom/xmldom": "^0.9.8",
     "ajv": "^8.17.1",
     "ajv-keywords": "^5.1.0",
@@ -40,7 +40,7 @@
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "fs-extra": "^11.3.0",
-    "glob": "^11.0.2",
+    "glob": "^11.0.3",
     "jsesc": "^3.1.0",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",

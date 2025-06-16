@@ -101,7 +101,11 @@ async function announce(issue_number, release) {
 
   if (!options.tag) {
     reason = ` (${JSON.stringify(CI.commit_message)})`
-    reason += `\n\nPlease test this build and send a new log. Install in Zotero by downloading ${link}, opening the Zotero "Tools" menu, selecting "Add-ons", open the gear menu in the top right, and select "Install Add-on From File...".`
+    reason += [
+      '',
+      `Install in Zotero by downloading ${link}, opening the Zotero "Tools" menu, selecting "Add-ons", open the gear menu in the top right, and select "Install Add-on From File...".`,
+      'Please test this build and report back whether it fixes the issue, and if not, what the remaining problem is. In the latter case, please also send a new log.',
+    ].join('\n\n')
   }
 
   const body = `:robot: this is your friendly neighborhood build bot announcing ${link}${reason}`

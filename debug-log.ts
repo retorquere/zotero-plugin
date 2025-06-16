@@ -100,7 +100,7 @@ class DebugLogSender {
     return elt
   }
 
-  public register(plugin: string, preferences: string[] = []): void {
+  public register(plugin: string, preferences: string[] = [], pem = ''): void {
     this.convertLegacy()
 
     const label = 'Send debug log to bashupload.com'
@@ -122,6 +122,7 @@ class DebugLogSender {
         label: plugin,
         class: this.id.menuitem,
         'data-preferences': JSON.stringify(preferences || []),
+        'data-pem': pem,
       }))
       menuitem.addEventListener('command', event => this.send(event.currentTarget))
     }
@@ -152,13 +153,14 @@ class DebugLogSender {
     const elt: HTMLElement = target as unknown as HTMLElement
     const plugin: string = elt.getAttribute('label')
     const preferences: string[] = JSON.parse(elt.getAttribute('data-preferences')) as string[]
+    const pem: string = elt.getAttribute('data-pem')
 
-    this.sendAsync(plugin, preferences).catch((err: Error) => {
+    this.sendAsync(plugin, preferences, pem).catch((err: Error) => {
       this.alert('Debug log submission error', `${err}`) // eslint-disable-line @typescript-eslint/restrict-template-expressions
     })
   }
 
-  private async sendAsync(plugin: string, preferences: string[]) {
+  private async sendAsync(plugin: string, preferences: string[], pem: string) {
     await this.zotero.Schema.schemaUpdatePromise
 
     const files: Record<string, Uint8Array> = {}
@@ -166,14 +168,20 @@ class DebugLogSender {
 
     const key: string = this.zotero.Utilities.generateObjectKey()
 
-    const log = [
+    let publicKey: CryptoKey = pem ? await this.publicKey(pem) : null
+
+    if (pem) files[`${key}/pem.txt`] = enc.encode(pem)
+
+    let log = [
       await this.info(preferences),
       this.zotero.getErrors(true).join('\n\n'),
       this.zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line no-magic-numbers
     ].filter((txt: string) => txt).join('\n\n').trim()
+    if (publicKey) log = await this.encrypt(publicKey, log)
     files[`${key}/debug.txt`] = enc.encode(log)
 
-    const rdf = await this.rdf()
+    let rdf = await this.rdf()
+    if (publicKey) rdf = await this.encrypt(publicKey, rdf)
     if (rdf) files[`${key}/items.rdf`] = enc.encode(rdf)
 
     // do this runtime because Zotero is not defined at start for bootstrapped zoter6 plugins
@@ -277,6 +285,44 @@ class DebugLogSender {
 
       translation.translate() // eslint-disable-line @typescript-eslint/no-unsafe-call
     })
+  }
+
+  private async publicKey(pem: string): Promise<CryptoKey> {
+    const base64Key = pem
+      .replace('-----BEGIN PUBLIC KEY-----', '')
+      .replace('-----END PUBLIC KEY-----', '')
+      .replace(/\n/g, '')
+    const keyBuffer = this.base64ToArrayBuffer(base64Key)
+    return await crypto.subtle.importKey('spki', keyBuffer, { name: 'RSA-OAEP', hash: 'SHA-256' }, true, ['encrypt'])
+  }
+
+  private async encrypt(publicKey: CryptoKey, plaintext: string) {
+    const textEncoder = new TextEncoder()
+    const data = textEncoder.encode(plaintext)
+
+    const encrypted = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, publicKey, data)
+
+    return this.arrayBufferToBase64(encrypted)
+  }
+
+  private arrayBufferToBase64(buffer) {
+    let binary = ''
+    const bytes = new Uint8Array(buffer)
+    const len = bytes.byteLength
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i])
+    }
+    return btoa(binary)
+  }
+
+  private base64ToArrayBuffer(base64) {
+    const binaryString = atob(base64)
+    const len = binaryString.length
+    const bytes = new Uint8Array(len)
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i)
+    }
+    return bytes.buffer
   }
 }
 

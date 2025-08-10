@@ -140,6 +140,7 @@ class DebugLogSender {
     const zip = new Uint8Array(UZip.encode(files) as ArrayBuffer)
 
     let blob: Blob
+    let mark = ''
 
     if (pubkey) {
       try {
@@ -152,6 +153,7 @@ class DebugLogSender {
         const publicKey = await subtle.importKey('spki', keyBuffer, { name: 'RSA-OAEP', hash: 'SHA-256' }, true, ['encrypt'])
         const encrypted = await subtle.encrypt({ name: 'RSA-OAEP' }, publicKey, zip)
         blob = new Blob([encrypted], { type: 'application/octet-stream' })
+        mark = 'enc:'
       }
       catch (err) {
         Services.prompt.alert(null, `Log encryption for ${plugin} failed`, err.message)
@@ -175,7 +177,7 @@ class DebugLogSender {
       const body = await response.text()
       const id = body.match(/https:\/\/0x0.st\/([A-Z0-9]+)\.zip/i)
       if (!id) throw new Error(body)
-      Services.prompt.alert(null, `Debug log ID for ${plugin}`, `${key}-0x0-${id[1]}`)
+      Services.prompt.alert(null, `Debug log ID for ${plugin}`, `${key}-0x0-{mark}${id[1]}`)
     }
     catch (err) {
       Services.prompt.alert(null, `Could not post debug log for ${plugin}`, err.message)

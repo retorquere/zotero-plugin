@@ -4,6 +4,10 @@ import sys, os
 import urllib.request
 from zipfile import ZipFile
 
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
+
 local, host, remote = sys.argv[1].split('-')
 assert host == '0x0', sys.argv[1]
 url = f'https://0x0.com/{remote}.zip'

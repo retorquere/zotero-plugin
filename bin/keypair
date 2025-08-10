@@ -2,6 +2,24 @@
 
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
+import sys, os
+
+script_name = os.path.basename(sys.argv[0])
+if len(sys.argv) != 2:
+  print(f'Usage: {script_name} <directory>')
+  sys.exit(1)
+
+target = sys.argv[1]
+if not os.path.isdir(target):
+    print(f'Error: {target} is not a directory.')
+    sys.exit(1)
+
+valid_files = {'public.pem', 'private.pem'}
+all_files = set(os.listdir(target))
+
+if not all_files.issubset(valid_files):
+  print(f'Error: Directory contains invalid files: {all_files - valid_files}')
+  sys.exit(1)
 
 private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
 private_pem = private_key.private_bytes(
@@ -9,12 +27,13 @@ private_pem = private_key.private_bytes(
   format=serialization.PrivateFormat.PKCS8,
   encryption_algorithm=serialization.NoEncryption()
 )
+with open(os.path.join(target, 'private.pem'), 'w') as f:
+  f.write(private_pem.decode('utf-8'))
 
 public_key = private_key.public_key()
 public_pem = public_key.public_bytes(
   encoding=serialization.Encoding.PEM,
   format=serialization.PublicFormat.SubjectPublicKeyInfo
 )
-
-print(private_pem.decode('utf-8'))
-print(public_pem.decode('utf-8'))
+with open(os.path.join(target, 'public.pem'), 'w') as f:
+  f.write(public_pem.decode('utf-8'))

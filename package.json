@@ -9,7 +9,8 @@
     "zotero-plugin-link": "bin/link.js",
     "issue-branches": "bin/branches.js",
     "zotero-start": "bin/start.py",
-    "fetch-zotero-log": "bin/fetch-zotero-log.py"
+    "fetch-zotero-log": "bin/fetch-zotero-log.py",
+    "zotero-keypair": "bin/keypair",
   },
   "author": {
     "name": "Emiliano Heyns",

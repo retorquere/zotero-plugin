@@ -4,6 +4,8 @@ type ZoteroPane = {
   getSelectedItems: () => any[]
 }
 
+const pkg = require('./package.json')
+
 declare var Zotero: { // eslint-disable-line no-var
   platformMajorVersion: number
   debug: (msg: string) => void
@@ -171,7 +173,7 @@ class DebugLogSender {
         method: 'POST',
         body: formData,
         headers: {
-          'User-Agent': 'curl/8.7.1',
+          'User-Agent': `Zotero-plugin/${pkg.version}`,
         },
       })
       const body = await response.text()

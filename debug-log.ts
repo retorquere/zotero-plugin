@@ -193,10 +193,10 @@ class DebugLogSender {
       Zotero.getErrors(true).join('\n\n'),
       Zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line no-magic-numbers
     ].filter((txt: string) => txt).join('\n\n').trim()
-    bundler.add('debug.txt', log)
+    await bundler.add('debug.txt', log)
 
     let rdf = await this.rdf()
-    if (rdf) bundler.add('items.rdf', rdf, true)
+    if (rdf) await bundler.add('items.rdf', rdf, true)
 
     const blob = new Blob([bundler.zip], { type: 'application/zip' })
     const formData = new FormData()

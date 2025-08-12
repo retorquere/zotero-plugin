@@ -23,7 +23,7 @@ export class Bundler {
   #subtle: SubtleCrypto
   #files: Record<string, Uint8Array> = {}
 
-  #encoder = new TextEncoder
+  #encoder = new TextEncoder()
 
   constructor(pubkey: string) {
     this.key = Zotero.Utilities.generateObjectKey()
@@ -32,7 +32,7 @@ export class Bundler {
     this.#subtle = this.#crypto.subtle
   }
 
-  async add(path: string, data: string, refs=false): Promise<void> {
+  async add(path: string, data: string, refs = false): Promise<void> {
     this.#refs = this.#refs || refs
 
     const encoded = this.#encoder.encode(data)

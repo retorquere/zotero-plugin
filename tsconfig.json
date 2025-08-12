@@ -6,7 +6,7 @@
     "allowUnreachableCode": false,
     "declaration": true,
     "importHelpers": true,
-    "target": "es2017",
+    "target": "es2022",
     "disableSizeLimit": true,
     "module": "commonjs",
     "noImplicitAny": false,

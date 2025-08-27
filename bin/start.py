@@ -74,7 +74,7 @@ class Config:
     self.preference['extensions.lastAppVersion'] = None
 
   def find_source(self):
-    for rdf in glob.glob(os.path.join('*', 'install.rdf')):
+    for rdf in glob.glob(os.path.join('*', 'manifest.json')):
       return os.path.dirname(rdf)
     if os.path.isdir('build'):
       return 'build'
@@ -143,8 +143,8 @@ if config.plugin.build:
 if config.zotero.db:
   shutil.copyfile(config.zotero.db, os.path.join(config.profile.path, 'zotero', 'zotero.sqlite'))
 
-for plugin_id in ET.parse(os.path.join(config.plugin.source, 'install.rdf')).getroot().findall('{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Description/{http://www.mozilla.org/2004/em-rdf#}id'):
-  plugin_path = os.path.join(config.profile.path, 'extensions', plugin_id.text)
+with open(os.path.join(config.plugin.source, 'manifest.json')) as f:
+  plugin_path = os.path.join(config.profile.path, 'extensions', json.load(f)['applications']['zotero']['id'])
 with open(plugin_path, 'w') as f:
   sources = config.plugin.source
   if sources[-1] not in '/\\': sources += os.sep

@@ -138,7 +138,7 @@ class DebugLogSender {
   }
 
   public register(plugin: string, preferences: string[] = [], pubkey = ''): void {
-    const label = 'Send debug log to 0x0'
+    const label = 'Send plugin debug log'
 
     const doc = Zotero.getMainWindow()?.document
     if (doc) {

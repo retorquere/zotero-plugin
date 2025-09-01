@@ -113,8 +113,8 @@ fs.writeFileSync(
         zotero: {
           id: options_and_vars.id,
           update_url: options_and_vars.updateURL.replace('/update.rdf', '/updates.json'),
-          strict_min_version: '6.999',
-          strict_max_version: '7.*',
+          strict_min_version: options_and_vars.minVersion,
+          strict_max_version: options_and_vars.maxVersion,
         },
       },
     },

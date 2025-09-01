@@ -107,7 +107,7 @@ def unpack():
 
         case _:
           print(Path('logs') / name)
-          f.extract(name, path='logs')
+          zip.extract(name, path='logs')
 
 download()
 unpack()

@@ -109,5 +109,7 @@ def unpack():
           print(Path('logs') / name)
           zip.extract(name, path='logs')
 
+  os.remove(debuglog.zip)
+
 download()
 unpack()

@@ -9,8 +9,20 @@ import json
 from pykeepass import PyKeePass, Entry, create_database
 from types import SimpleNamespace
 
-with open('package.json') as f:
-  pkg = json.load(f, object_hook=lambda d: SimpleNamespace(**d))
+cwd = os.getcwd()
+pkg = None
+while True:
+  pkg = os.path.join(cwd, 'package.json')
+  if os.path.exists(pkg):
+    with open(pkg) as f:
+      pkg = json.load(f, object_hook=lambda d: SimpleNamespace(**d))
+    break
+
+  parent = os.path.dirname(cwd)
+  if parent == cwd:
+    pkg = SimpleNamespace(name='plugin')
+    break
+  cwd = parent
 
 parser = argparse.ArgumentParser(description='A script to generate and store an RSA key pair in a KeePass database.')
 parser.add_argument('-p', '--public', default=f'{pkg.name}.pem', help='public key file')

@@ -77,6 +77,7 @@
     "bin/zipup.js",
     "bin/start.py",
     "bin/fetch-zotero-log.py",
+    "bin/keypair.py",
     "continuous-integration.d.ts",
     "continuous-integration.js",
     "copy-assets.d.ts",

@@ -9,6 +9,9 @@ import json
 from pykeepass import PyKeePass, Entry, create_database
 from types import SimpleNamespace
 
+from dotenv import load_dotenv
+load_dotenv(override=True)
+
 cwd = os.getcwd()
 pkg = None
 while True:

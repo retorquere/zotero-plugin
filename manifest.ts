@@ -13,7 +13,7 @@ import version from './version'
 
 const pkg = { ...require(path.join(root, 'package.json')) }
 
-if (!pkg.id) (pkg.id as string) = `${pkg.name.replace(/^zotero-/, '')}@${pkg.author.email.replace(/.*@/, '')}`.toLowerCase()
+if (!pkg.id) (pkg.id as string) = `${pkg.name}@${pkg.author.email.replace(/.*@/, '')}`.toLowerCase()
 if (pkg.xpi) Object.assign(pkg, pkg.xpi)
 
 pkg.version = version

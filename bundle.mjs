@@ -1,31 +1,29 @@
 #!/usr/bin/env node
 
-import * as esbuild from 'esbuild'
+import { build } from 'esbuild'
+import { platform } from 'os'
+import { chmod, readFile } from 'fs/promises'
 
-let external = [
-  'assert',
-  'child_process',
-  'constants',
-  'crypto',
-  'events',
-  'fs',
-  'fs/promises',
-  'os',
-  'path',
-  'stream',
-  'string_decoder',
-  'url',
-  'util',
-  'zlib',
-  'node:process',
-]
-external = external.concat(external.map(m => `node:${m}`))
+const pkg = JSON.parse(await readFile('package.json', 'utf-8'))
+const external = [ ...Object.keys(pkg.dependencies), ...Object.keys(pkg.devDependencies) ]
+  .map(dep => dep.replace(/^node:/, ''))
+  .map(dep => [ dep, `node:${dep}` ])
+  .flat()
 
-for (const bin of ['branches', 'link', 'release', 'zipup']) {
-  await esbuild.build({
+for (const bin of ['start', 'fetch-log', 'keypair', 'branches', 'link', 'release', 'zipup']) {
+  const outfile = `bin/${bin}.mjs`
+  await build({
     entryPoints: [`bin/${bin}.ts`],
     bundle: true,
-    outfile: `bin/${bin}.js`,
+    outfile,
     external,
+    platform: 'node',
+    format: 'esm'
   })
+
+  switch (platform()) {
+    case 'darwin':
+    case 'linux':
+      await chmod(outfile, 0o755);
+  }
 }

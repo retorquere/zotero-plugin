@@ -1,4 +1,6 @@
+logs
 node_modules
+bin/*.mjs
 *.js
 *.d.ts
 .env

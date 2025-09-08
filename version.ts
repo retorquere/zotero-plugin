@@ -9,15 +9,18 @@ import root from './root'
 
 let version: string = null
 
+function load(vpath: string): string {
+  return JSON.parse(fs.readFileSync(vpath, 'utf-8')).version as string
+}
+
 const version_json = path.join(root, 'gen/version.json')
 if (fs.existsSync(version_json)) {
-  version = require(version_json).version as string // eslint-disable-line @typescript-eslint/no-require-imports
+  version = load(version_json)
 }
 else {
   console.log('writing version')
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-  version = require(path.join(root, 'package.json')).version // eslint-disable-line @typescript-eslint/no-require-imports
+  version = load(path.join(root, 'package.json'))
 
   if (CI.service && !CI.tag) {
     const issue = CI.issue && process.env.VERSION_WITH_ISSUE !== 'false' ? `.${CI.issue}` : ''

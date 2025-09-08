@@ -10,8 +10,8 @@ import path from 'path'
 import { Entry as KeyRingEntry } from '@napi-rs/keyring'
 import prompts from 'prompts'
 
+import * as pkg from '../package.json'
 import { decrypt } from './crypto'
-import * as pkg from '../package.json';
 
 async function getPassphrase(service, account): Promise<string> {
   const entry = new KeyRingEntry(service, account)
@@ -70,7 +70,7 @@ async function main() {
       method: 'GET',
       headers: {
         'User-Agent': `Zotero plugin log fetcher ${pkg.version}`,
-        'Accept': '*/*',
+        Accept: '*/*',
       },
     })
     if (!response.ok) oops(`Failed to download: ${response.statusText}`)
@@ -91,12 +91,12 @@ async function main() {
 
     const zipfile = new StreamZip.async({ file: options.zip })
     let decryptionKey: Buffer
-    const fileEntries: Record<string, { filename: string, contents?: string; iv?: string, encrypted?: boolean }> = {}
+    const fileEntries: Record<string, { filename: string; contents?: string; iv?: string; encrypted?: boolean }> = {}
     for (const entry of Object.values(await zipfile.entries())) {
       if (entry.isDirectory) continue
 
       const m = entry.name.match(/(?<filename>.+)\.(?<type>key|enc|iv)$/i)
-      let filename = (m?.groups!.filename || entry.name)
+      let filename = m?.groups!.filename || entry.name
       const type = (m?.groups!.ext || '').toLowerCase()
 
       if (type && !options.encrypted) oops('unexpected', type, 'file in non-encrypted log')

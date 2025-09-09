@@ -1,15 +1,12 @@
 #!/usr/bin/env node
 
-import { exec as childProcessExec } from 'child_process'
+import { ChildProcess, exec, spawn } from 'child_process'
 import { program } from 'commander'
 import fs from 'fs'
 import { globSync } from 'glob'
 import ini from 'ini'
 import os from 'os'
 import path from 'path'
-import { promisify } from 'util'
-
-const execPromise = promisify(childProcessExec)
 
 program.option('-b, --beta', 'start beta')
 program.parse(process.argv)
@@ -167,27 +164,22 @@ function patch_prefs(prefs: string, add_config: boolean): void {
   fs.writeFileSync(prefs_path, new_lines.join('\n'))
 }
 
-async function system(cmd: string): Promise<void> {
-  console.log('$', cmd)
-  try {
-    const { stdout, stderr } = await execPromise(cmd)
-    if (stdout) console.log(stdout)
-    if (stderr) console.error(stderr)
-  }
-  catch (error) {
-    const err = error as { code?: number; message?: string }
-    console.error(`Command failed with exit code ${err.code || 1}: ${err.message}`)
-    process.exit(err.code || 1)
-  }
-}
-
 async function main() {
   try {
     patch_prefs('prefs', false)
     patch_prefs('user', true)
 
     if (config.plugin.build) {
-      await system(config.plugin.build)
+      await new Promise<void>((resolve, reject) => {
+        exec(config.plugin.build, (error, stdout, stderr) => {
+          if (error) {
+            reject(error)
+          }
+          else {
+            resolve()
+          }
+        })
+      })
     }
 
     if (config.zotero.db) {
@@ -211,24 +203,28 @@ async function main() {
 
     fs.writeFileSync(plugin_path, proxyPath)
 
-    const zoteroDebugFlag = config.windows ? '-ZoteroDebug' : '-ZoteroDebugText'
-    const cmdParts = [
+    const cmd = [
       config.zotero.path,
       '-purgecaches',
       '-P',
       config.profile.name,
-      zoteroDebugFlag,
+      config.windows ? '-ZoteroDebug' : '-ZoteroDebugText',
       '-jsconsole',
       '-datadir',
       'profile',
     ]
-
+    let child: ChildProcess
     if (config.zotero.log) {
-      cmdParts.push(`> ${config.zotero.log}`)
-      if (!config.windows) cmdParts.push('&')
+      const log = fs.openSync(config.zotero.log, 'w')
+      child = spawn(cmd[0], cmd.slice(1), {
+        detached: true,
+        stdio: ['ignore', log, 'ignore'],
+      })
     }
-
-    await system(cmdParts.join(' '))
+    else {
+      child = spawn(cmd[0], cmd.slice(1))
+    }
+    child.unref()
   }
   catch (err) {
     console.error(err)

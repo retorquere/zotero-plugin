@@ -16,8 +16,9 @@ import uriTemplate from 'uri-templates'
 
 import { ContinuousIntegration as CI } from '../continuous-integration'
 
+import root from '../root'
+
 program
-  .version(require('../package.json').version)
   .option('-r, --release-message <value>', 'add message to github release')
   .option('-x, --xpi <value>', 'xpi filename template', '{name}-{version}.xpi')
   .option('-d, --dry-run', 'dry run', !CI.service)
@@ -35,8 +36,6 @@ if (options.releaseMessage?.startsWith('@')) options.releaseMessage = fs.readFil
 
 import { Octokit } from '@octokit/rest'
 const octokit = new Octokit({ auth: `token ${process.env.GITHUB_TOKEN}` })
-
-import root from '../root'
 
 const pkg = require(path.join(root, 'package.json'))
 const [, owner, repo] = pkg.repository.url.match(/:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)

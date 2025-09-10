@@ -37,7 +37,7 @@ if (options.releaseMessage?.startsWith('@')) options.releaseMessage = fs.readFil
 import { Octokit } from '@octokit/rest'
 const octokit = new Octokit({ auth: `token ${process.env.GITHUB_TOKEN}` })
 
-const pkg = require(path.join(root, 'package.json'))
+const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf-8'))
 const [, owner, repo] = pkg.repository.url.match(/:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)
 
 import version from '../version'

@@ -131,7 +131,43 @@ In your startup, you can call
 
 ```
 import { DebugLog } from 'zotero-plugin/debug-log'
-DebugLog.register('<your plugin name>', [':your-plugin.', ':fileHandler.pdf'])
+DebugLog.register('<your plugin name>', ['your-plugin.', 'fileHandler.pdf'])
 ```
 
-const pubkey: string = require('./public.pem')
+and you will get an entry in the Help menu that will allow your users to upload their debug log for diagnosis. You can fetch the log by
+running
+
+```
+zp-fetch-log <the ID that the user was presented with>
+```
+
+If you want to be extra secure, you can encrypt the logs before they are sent; first, run
+
+```
+zp-keypair
+```
+
+which will generate a keypair. Remember the passphrase, it cannot be recovered, but if you do forget, you can generate a new keypair. Logs
+sent with the old keypair cannot be decrypted, so if you forget your passphrase, you will have to put out a new release of your plugin.
+
+add this to your esbuild script:
+
+```
+const { pem } = require('zotero-plugin/esbuild')
+```
+
+and add `pem` to your plugins in the esbuild config:
+
+```
+...
+plugins: [pem],
+...
+```
+
+and in your code, register using
+
+```
+DebugLog.register('<your plugin name>', ['your-plugin.', 'fileHandler.pdf'], require('./public.pem'))
+```
+
+Logs are sent to/retrieved from 0x0.st

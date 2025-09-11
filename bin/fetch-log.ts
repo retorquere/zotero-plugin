@@ -97,7 +97,7 @@ async function main() {
 
       const m = entry.name.match(/(?<filename>.+)\.(?<type>key|enc|iv)$/i)
       let filename = m?.groups!.filename || entry.name
-      const type = (m?.groups!.ext || '').toLowerCase()
+      const type = (m?.groups!.type || '').toLowerCase()
 
       if (type && !options.encrypted) oops('unexpected', type, 'file in non-encrypted log')
 

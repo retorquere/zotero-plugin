@@ -1,13 +1,5 @@
 /* eslint-disable no-magic-numbers */
 
-var ZOTERO_CONFIG: any // eslint-disable-line no-var
-if ((Zotero as unknown as { version: string }).version[0] === '8') {
-  ;({ ZOTERO_CONFIG } = ChromeUtils.importESModule('resource://zotero/config.mjs'))
-}
-else {
-  Components.utils.import('resource://zotero/config.js')
-}
-
 Components.utils.importGlobalProperties(['FormData'])
 
 type ZoteroPane = {
@@ -234,9 +226,8 @@ class DebugLogSender {
 
     const names: string[] = []
     for (let pref of preferences) {
-      pref = pref.replace(/^:/, ZOTERO_CONFIG.PREF_BRANCH)
+      pref = pref.replace(/^:/, 'extensions.zotero.')
       if (pref.endsWith('.')) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         const childkeys: string[] = Services.prefs.getBranch(pref).getChildList('', {})
         for (const key of childkeys) {
           names.push(pref + key)

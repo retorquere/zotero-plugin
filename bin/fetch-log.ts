@@ -20,7 +20,7 @@ async function getPassphrase(service, account): Promise<string> {
     const response = await prompts({
       type: 'password',
       name: 'passphrase',
-      message: 'Enter a passphrase to decrypt your private key for ${service} ${account}:',
+      message: `Enter a passphrase to decrypt your private key for ${service} ${account}:`,
     })
     entry.setPassword(passphrase = response.passphrase)
   }

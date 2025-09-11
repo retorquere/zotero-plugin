@@ -1,6 +1,7 @@
 /* eslint-disable no-magic-numbers */
 
 Components.utils.importGlobalProperties(['FormData'])
+const { ZOTERO_CONFIG } = ChromeUtils.importESModule('resource://zotero/config.mjs')
 
 type ZoteroPane = {
   getSelectedItems: () => any[]
@@ -225,7 +226,8 @@ class DebugLogSender {
     const prefs: Record<string, string | number | boolean> = {}
 
     const names: string[] = []
-    for (const pref of preferences) {
+    for (let pref of preferences) {
+      pref = pref.replace(/^:/, ZOTERO_CONFIG.PREF_BRANCH)
       if (pref.endsWith('.')) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         const childkeys: string[] = Services.prefs.getBranch(pref).getChildList('', {})

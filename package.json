@@ -80,6 +80,8 @@
     "bin/start.mjs",
     "bin/fetch-log.mjs",
     "bin/keypair.mjs",
+    "esbuild.d.ts",
+    "esbuild.js",
     "continuous-integration.d.ts",
     "continuous-integration.js",
     "copy-assets.d.ts",

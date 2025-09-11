@@ -2,7 +2,7 @@
 
 var ZOTERO_CONFIG: any // eslint-disable-line no-var
 if ((Zotero as unknown as { version: string }).version[0] === '8') {
-  ({ ZOTERO_CONFIG } = ChromeUtils.importESModule('resource://zotero/config.mjs'))
+  ;({ ZOTERO_CONFIG } = ChromeUtils.importESModule('resource://zotero/config.mjs'))
 }
 else {
   Components.utils.import('resource://zotero/config.js')

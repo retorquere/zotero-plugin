@@ -1,13 +1,14 @@
 /* eslint-disable no-magic-numbers */
 
-Components.utils.importGlobalProperties(['FormData'])
 var ZOTERO_CONFIG: any // eslint-disable-line no-var
-if (Zotero.platformMajorVersion < 140) {
-  Components.utils.import('resource://zotero/config.js')
-}
-else {
+if ((Zotero as unknown as { version: string }).version[0] === '8') {
   ({ ZOTERO_CONFIG } = ChromeUtils.importESModule('resource://zotero/config.mjs'))
 }
+else {
+  Components.utils.import('resource://zotero/config.js')
+}
+
+Components.utils.importGlobalProperties(['FormData'])
 
 type ZoteroPane = {
   getSelectedItems: () => any[]

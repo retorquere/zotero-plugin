@@ -124,3 +124,14 @@ then when you execute `npm start`, zotero will start up with the latest build of
 **DO CREATE A BACKUP OF YOUR ZOTERO DATA *AND* YOUR ZOTERO PROFILE BEFORE USING THIS THE FIRST TIME**
 
 `zotero-start` will **blindly** trust you've set it up right and will **alter data** in the profile
+
+# Getting logging from your users
+
+In your startup, you can call
+
+```
+import { DebugLog } from 'zotero-plugin/debug-log'
+DebugLog.register('<your plugin name>', [':your-plugin.', ':fileHandler.pdf'])
+```
+
+const pubkey: string = require('./public.pem')

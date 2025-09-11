@@ -116,6 +116,8 @@ type ExportTranslator = {
   translate: () => void
 }
 
+const zotero_prefs_root = 'extensions.zotero.'
+
 class DebugLogSender {
   public id = {
     menu: 'debug-log-sender-menu',
@@ -226,7 +228,12 @@ class DebugLogSender {
 
     const names: string[] = []
     for (let pref of preferences) {
-      pref = pref.replace(/^:/, 'extensions.zotero.')
+      if (pref[0] === ':') {
+        pref = pref.substring(1)
+      }
+      else if (!pref.startsWith(zotero_prefs_root)) {
+        pref = zotero_prefs_root + pref
+      }
       if (pref.endsWith('.')) {
         const childkeys: string[] = Services.prefs.getBranch(pref).getChildList('', {})
         for (const key of childkeys) {

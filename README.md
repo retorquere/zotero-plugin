@@ -171,3 +171,5 @@ DebugLog.register('<your plugin name>', ['your-plugin.', 'fileHandler.pdf'], req
 ```
 
 Logs are sent to/retrieved from 0x0.st
+
+The preferences you list will be included in the log; if a preference ends with a period (`.`), all preferences under it will be included

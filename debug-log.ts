@@ -73,6 +73,14 @@ export class Bundler {
   public id(remote: string): string {
     return `${this.key}-${remote}${this.#refs ? '.refs' : ''}${this.#pubkey ? '.enc' : ''}`
   }
+
+  public formData(expire=7): FormData {
+    const blob = new Blob([this.zip], { type: 'application/zip' })
+    const formData = new FormData()
+    formData.append('file', blob, this.name)
+    formData.append('expire', `${expire * 24}`)
+    return formData
+  }
 }
 
 declare var Zotero: { // eslint-disable-line no-var
@@ -200,15 +208,10 @@ class DebugLogSender {
     let rdf = await this.rdf()
     if (rdf) await bundler.add('items.rdf', rdf, true)
 
-    const blob = new Blob([bundler.zip], { type: 'application/zip' })
-    const formData = new FormData()
-    formData.append('file', blob, bundler.name)
-    formData.append('expire', `${7 * 24}`)
-
     try {
       const response = await fetch('https://0x0.st', {
         method: 'POST',
-        body: formData,
+        body: bundler.formData(),
         headers: {
           'User-Agent': `Zotero-plugin/${pkg.version}`,
         },

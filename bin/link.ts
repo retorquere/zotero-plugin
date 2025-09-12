@@ -9,7 +9,7 @@ import root from '../root'
 
 const pkg = { ...require(path.join(root, 'package.json')) }
 
-if (!pkg.id) pkg.id = `${pkg.name.replace(/^zotero-/, '')}@${pkg.author.email.replace(/.*@/, '')}`.toLowerCase()
+if (!pkg.id) pkg.id = `${pkg.name}@${pkg.author.email.replace(/.*@/, '')}`.toLowerCase()
 if (pkg.xpi) Object.assign(pkg, pkg.xpi)
 
 const build = path.join(root, 'build')

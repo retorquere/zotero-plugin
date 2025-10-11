@@ -3,9 +3,10 @@
 import { Command } from 'commander'
 import crypto from 'crypto'
 import fs from 'fs'
-import fetch from 'node-fetch'
 import StreamZip from 'node-stream-zip'
 import path from 'path'
+import { Readable } from 'node:stream';
+import { finished } from 'node:stream/promises';
 
 import { Entry as KeyRingEntry } from '@napi-rs/keyring'
 import prompts from 'prompts'
@@ -75,12 +76,9 @@ async function main() {
     })
     if (!response.ok) oops(`Failed to download: ${response.statusText}`)
 
+    const readable = Readable.fromWeb(response.body as any)
     const download = fs.createWriteStream(options.zip)
-    response.body.pipe(download)
-    await new Promise<void>((resolve, reject) => {
-      download.on('finish', () => resolve())
-      download.on('error', err => reject(err))
-    })
+    await finished(readable.pipe(download));
 
     let privateKey
     if (options.encrypted) {

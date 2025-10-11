@@ -10,6 +10,16 @@ const pkg = require('./package.json')
 
 import * as UZip from 'uzip'
 
+/*
+const path = new class {
+  #home = ''
+
+  get home(): string {
+    return this.#home = (this.#home || FileUtils.getDir('Home', []).path)
+  }
+}
+*/
+
 export class Bundler {
   public key: string
 

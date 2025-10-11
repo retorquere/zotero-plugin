@@ -18,7 +18,7 @@
   },
   "scripts": {
     "preversion": "npm test",
-    "postversion": "git push --follow-tags",
+    "postversion": "git add -u && git commit -m version && git push --follow-tags",
     "test": "dprint fmt *.ts */*.ts && dprint check *.ts */*.ts && npm run build",
     "build": "tsc && ./bundle.mjs && chmod +x bin/*.mjs",
     "postbuild": "rm bin/*.js bin/*.d.ts",

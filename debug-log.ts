@@ -84,7 +84,7 @@ export class Bundler {
     return `${this.key}-${remote}${this.#refs ? '.refs' : ''}${this.#pubkey ? '.enc' : ''}`
   }
 
-  public formData(expire = 7): FormData {
+  public formData(expire = 30): FormData {
     const blob = new Blob([this.zip], { type: 'application/zip' })
     const formData = new FormData()
     formData.append('file', blob, this.name)

@@ -14,6 +14,10 @@
     "./debug-log": {
       "import": "./dist/esm/utils/debug-log.js",
       "require": "./dist/cjs/utils/debug-log.cjs"
+    },
+    "./logger": {
+      "import": "./dist/esm/utils/logger.js",
+      "require": "./dist/cjs/utils/logger.cjs"
     }
   },
   "author": {

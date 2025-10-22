@@ -7,7 +7,7 @@ import * as path from 'path'
 import { parseTemplate } from 'url-template'
 
 // @ts-expect-error TS2835
-import { pkg, root } from './root'
+import { pkg, root } from './find-root'
 // @ts-expect-error TS2835
 import { version } from './version'
 

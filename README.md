@@ -153,7 +153,7 @@ sent with the old keypair cannot be decrypted, so if you forget your passphrase,
 add this to your esbuild script:
 
 ```
-const { pem } = require('zotero-plugin/esbuild')
+const { pem } = require('zotero-plugin/loader/pem')
 ```
 
 and add `pem` to your plugins in the esbuild config:

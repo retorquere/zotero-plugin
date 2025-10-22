@@ -26,7 +26,6 @@
     "test": "dprint fmt *.ts */*.ts && dprint check *.ts */*.ts && npm run build",
     "prebuild": "rm -rf dist",
     "build": "tsup",
-    "postbuild": "chmod +x dist/*/bin/*js dist/*/{version,copy-assets}.*js",
     "check": "tsc --noEmit",
     "start": "concurrently --raw --group 'npm run check' 'npm run build'",
     "pack": "npm test && npm pack",
@@ -85,13 +84,17 @@
     "dist"
   ],
   "bin": {
-    "zp-release": "dist/esm/bin/release.mjs",
-    "zp-zipup": "dist/esm/bin/zipup.mjs",
-    "zp-link": "dist/esm/bin/link.mjs",
-    "issue-branches": "dist/esm/bin/branches.mjs",
-    "zotero-start": "dist/esm/bin/start.mjs",
-    "zp-fetch-log": "dist/esm/bin/fetch-log.mjs",
-    "zp-keypair": "dist/esm/bin/keypair.mjs"
+    "zp-release": "dist/cjs/bin/release.cjs",
+    "zp-zipup": "dist/cjs/bin/zipup.cjs",
+    "zp-link": "dist/cjs/bin/link.cjs",
+    "issue-branches": "dist/cjs/bin/branches.cjs",
+    "zotero-start": "dist/cjs/bin/start.cjs",
+    "zp-fetch-log": "dist/cjs/bin/fetch-log.cjs",
+    "zp-keypair": "dist/cjs/bin/keypair.cjs",
+    "zp-copy-assets": "dist/cjs/copy-assets.cjs",
+    "zp-make-dirs": "dist/cjs/make-dirs.cjs",
+    "zp-manifest": "dist/cjs/make-manifest.cjs",
+    "zp-version": "dist/cjs/version.cjs"
   },
   "bugs": {
     "url": "https://github.com/retorquere/zotero-plugin/issues"

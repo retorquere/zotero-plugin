@@ -12,7 +12,7 @@ import { Entry as KeyRingEntry } from '@napi-rs/keyring'
 import prompts from 'prompts'
 
 // @ts-expect-error TS2835
-import { pkg } from '../root'
+import { pkg } from './find-root'
 // @ts-expect-error TS2835
 import { decrypt } from './crypto'
 

@@ -7,9 +7,9 @@ import * as fs from 'fs'
 import * as path from 'path'
 
 // @ts-expect-error TS2835
-import { root } from '../root'
+import { root } from './find-root'
 // @ts-expect-error TS2835
-import { version } from '../version'
+import { version } from './version'
 
 const [, , source, target] = process.argv
 

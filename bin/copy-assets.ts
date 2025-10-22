@@ -4,7 +4,7 @@ import fs from 'fs-extra'
 import path from 'path'
 
 // @ts-expect-error TS2835
-import { root } from './root'
+import { root } from './find-root'
 
 function allow(file) {
   switch (path.basename(file)) {

@@ -7,7 +7,7 @@ import path from 'path'
 // @ts-expect-error TS2835
 import { ContinuousIntegration as CI } from './continuous-integration'
 // @ts-expect-error TS2835
-import { pkg, root } from './root'
+import { pkg, root } from './find-root'
 
 export function version(): string {
   let version = pkg.version as string

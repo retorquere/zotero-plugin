@@ -20,20 +20,20 @@
       "require": "./dist/cjs/utils/logger.cjs"
     },
     "./copy-assets": {
-      "import": "dist/esm/bin/copy-assets.js",
-      "require": "dist/cjs/bin/copy-assets.cjs"
+      "import": "./dist/esm/bin/copy-assets.js",
+      "require": "./dist/cjs/bin/copy-assets.cjs"
     },
     "./make-dirs": {
-      "import": "dist/esm/bin/make-dirs.js",
-      "require": "dist/cjs/bin/make-dirs.cjs"
+      "import": "./dist/esm/bin/make-dirs.js",
+      "require": "./dist/cjs/bin/make-dirs.cjs"
     },
     "./make-manifest": {
-      "import": "dist/esm/bin/make-manifest.js",
-      "require": "dist/cjs/bin/make-manifest.cjs"
+      "import": "./dist/esm/bin/make-manifest.js",
+      "require": "./dist/cjs/bin/make-manifest.cjs"
     },
     "./make-version": {
-      "import": "dist/esm/bin/version.js",
-      "require": "dist/cjs/bin/version.cjs"
+      "import": "./dist/esm/bin/version.js",
+      "require": "./dist/cjs/bin/version.cjs"
     }
   },
   "author": {

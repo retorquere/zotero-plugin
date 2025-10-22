@@ -3,14 +3,18 @@
   "version": "6.4.5",
   "description": "Zotero plugin builder",
   "homepage": "https://github.com/retorquere/zotero-plugin/wiki",
-  "bin": {
-    "zp-release": "bin/release.mjs",
-    "zp-zipup": "bin/zipup.mjs",
-    "zp-link": "bin/link.mjs",
-    "issue-branches": "bin/branches.mjs",
-    "zotero-start": "bin/start.mjs",
-    "zp-fetch-log": "bin/fetch-log.mjs",
-    "zp-keypair": "bin/keypair.mjs"
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.cjs"
+    },
+    "./debug-log": {
+      "import": "./dist/esm/utils/debug-log.js",
+      "require": "./dist/cjs/utils/debug-log.cjs"
+    }
   },
   "author": {
     "name": "Emiliano Heyns",
@@ -20,8 +24,11 @@
     "preversion": "npm test",
     "postversion": "git push --follow-tags",
     "test": "dprint fmt *.ts */*.ts && dprint check *.ts */*.ts && npm run build",
-    "build": "tsc && ./bundle.mjs && chmod +x bin/*.mjs",
-    "postbuild": "rm bin/*.js bin/*.d.ts",
+    "prebuild": "rm -rf dist",
+    "build": "tsup",
+    "postbuild": "chmod +x dist/*/bin/*js dist/*/{version,copy-assets}.*js",
+    "check": "tsc --noEmit",
+    "start": "concurrently --raw --group 'npm run check' 'npm run build'",
     "pack": "npm test && npm pack",
     "prepublishOnly": "npm install && npm run build",
     "ncu": "ncu -u && npm i && git add package.json package-lock.json && git commit -m ncu"
@@ -30,6 +37,7 @@
     "test": "test"
   },
   "dependencies": {
+    "@fluent/syntax": "^0.19.0",
     "@napi-rs/keyring": "^1.2.0",
     "@octokit/rest": "^22.0.0",
     "@rgrove/parse-xml": "^4.2.0",
@@ -52,7 +60,6 @@
     "openpgp": "^6.2.2",
     "peggy": "^5.0.6",
     "prompts": "^2.4.2",
-    "properties-reader": "^2.3.0",
     "pug": "^3.0.3",
     "rimraf": "^6.0.1",
     "shell-quote": "^1.8.3",
@@ -62,6 +69,7 @@
     "tslib": "^2.8.1",
     "typescript": "^5.9.3",
     "uri-templates": "^0.2.0",
+    "url-template": "^3.1.1",
     "uzip": "^0.20201231.0",
     "xml-parser": "^1.2.1",
     "xpath": "^0.0.34"
@@ -72,49 +80,27 @@
   },
   "license": "ISC",
   "files": [
-    "bin/branches.mjs",
-    "bin/link.mjs",
-    "bin/release.mjs",
-    "bin/zipup.mjs",
-    "bin/start.mjs",
-    "bin/fetch-log.mjs",
-    "bin/keypair.mjs",
-    "esbuild.d.ts",
-    "esbuild.js",
-    "continuous-integration.d.ts",
-    "continuous-integration.js",
-    "copy-assets.d.ts",
-    "copy-assets.js",
-    "error-report.pug",
-    "loader/json.d.ts",
-    "loader/json.js",
-    "loader/peggy.d.ts",
-    "loader/peggy.js",
-    "loader/trace.d.ts",
-    "loader/wrap.d.ts",
-    "loader/wrap.js",
-    "make-dirs.d.ts",
-    "make-dirs.js",
     "package.json",
-    "manifest.d.ts",
-    "manifest.js",
-    "root.d.ts",
-    "root.js",
-    "version.d.ts",
-    "version.js",
-    "debug-log.js",
-    "debug-log.d.ts",
-    "create-element.js",
-    "create-element.d.ts",
-    "logger.js",
-    "logger.d.ts"
+    "README.md",
+    "dist"
   ],
+  "bin": {
+    "zp-release": "dist/esm/bin/release.mjs",
+    "zp-zipup": "dist/esm/bin/zipup.mjs",
+    "zp-link": "dist/esm/bin/link.mjs",
+    "issue-branches": "dist/esm/bin/branches.mjs",
+    "zotero-start": "dist/esm/bin/start.mjs",
+    "zp-fetch-log": "dist/esm/bin/fetch-log.mjs",
+    "zp-keypair": "dist/esm/bin/keypair.mjs"
+  },
   "bugs": {
     "url": "https://github.com/retorquere/zotero-plugin/issues"
   },
   "devDependencies": {
     "@openpgp/web-stream-tools": "^0.2.0",
+    "concurrently": "^9.2.1",
     "dprint": "^0.50.2",
-    "esbuild": "^0.25.11"
+    "esbuild": "^0.25.11",
+    "tsup": "^8.5.0"
   }
 }

@@ -12,8 +12,9 @@ import * as path from 'path'
 import { Octokit } from '@octokit/rest'
 const octokit = new Octokit({ auth: `token ${process.env.GITHUB_TOKEN}` })
 
-import root from '../root'
-const pkg = require(path.join(root, 'package.json'))
+// @ts-expect-error TS2835
+import { pkg, root } from '../root'
+
 const [, owner, repo] = pkg.repository.url.match(/:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)
 
 async function main() {

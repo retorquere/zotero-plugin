@@ -12,15 +12,19 @@ import { program } from 'commander'
 import * as fs from 'fs'
 import moment from 'moment'
 import * as path from 'path'
-import uriTemplate from 'uri-templates'
+import { parseTemplate } from 'url-template'
 
+// @ts-expect-error TS2835
 import { ContinuousIntegration as CI } from '../continuous-integration'
 
-import root from '../root'
+// @ts-expect-error TS2835
+import { pkg, root } from '../root'
+// @ts-expect-error TS2835
+import { version } from '../version'
 
 program
   .option('-r, --release-message <value>', 'add message to github release')
-  .option('-x, --xpi <value>', 'xpi filename template', '{name}-{version}.xpi')
+  .option('-x, --xpi <value>', 'xpi filename template', '{name}-{version()}.xpi')
   .option('-d, --dry-run', 'dry run', !CI.service)
   .option('-p, --pre-release', 'release is a pre-release')
   .option('-t, --tag <value>', 'tag for release', CI.tag)
@@ -37,11 +41,9 @@ if (options.releaseMessage?.startsWith('@')) options.releaseMessage = fs.readFil
 import { Octokit } from '@octokit/rest'
 const octokit = new Octokit({ auth: `token ${process.env.GITHUB_TOKEN}` })
 
-const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf-8'))
 const [, owner, repo] = pkg.repository.url.match(/:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)
 
-import version from '../version'
-const xpi = uriTemplate(options.xpi).fill({ ...pkg, version })
+const xpi = parseTemplate(options.xpi).expand({ ...pkg, version: version() })
 
 // eslint-disable-next-line no-magic-numbers
 const EXPIRE_BUILDS = moment().subtract(7, 'days').toDate().toISOString()
@@ -94,9 +96,9 @@ async function announce(issue_number, release) {
     build = `${options.preRelease ? 'pre-' : ''}release ${CI.tag}`
   }
   else {
-    build = `test build ${version}`
+    build = `test build ${version()}`
   }
-  const link = `[${build}](https://github.com/${owner}/${repo}/releases/download/${release.data.tag_name}/${pkg.name}-${version}.xpi)`
+  const link = `[${build}](https://github.com/${owner}/${repo}/releases/download/${release.data.tag_name}/${pkg.name}-${version()}.xpi)`
 
   if (!options.tag) {
     reason = ` (${JSON.stringify(CI.commit_message)})`

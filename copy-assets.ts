@@ -1,7 +1,10 @@
-/* eslint-disable no-console, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
+#!/usr/bin/env node
 
-import * as fs from 'fs-extra'
-import * as path from 'path'
+import fs from 'fs-extra'
+import path from 'path'
+
+// @ts-expect-error TS2835
+import { root } from './root'
 
 function allow(file) {
   switch (path.basename(file)) {
@@ -22,27 +25,31 @@ function allow(file) {
 
 console.log('copying assets')
 
-function copy(dir) {
+function shouldCopy(dir) {
   return fs.existsSync(dir) && !fs.existsSync(path.join(dir, '.nomedia'))
 }
 
-for (const dir of ['defaults', 'content', 'skin', 'locale', 'resource', 'chrome.manifest', 'chrome']) {
-  if (!copy(dir)) continue
+export function copy() {
+  for (const dir of ['defaults', 'content', 'skin', 'locale', 'resource', 'chrome.manifest', 'chrome'].map(_ => path.join(root, _))) {
+    if (!shouldCopy(dir)) continue
 
-  fs.copySync(dir, path.join('build', dir), {
-    filter(src) {
-      if (dir !== 'chrome.manifest' && dir !== 'resource' && !allow(src)) return false
-      if (fs.lstatSync(src).isFile()) console.log(' ', src)
-      return true
-    },
-  })
+    fs.copySync(dir, path.join('build', dir), {
+      filter(src) {
+        if (dir !== 'chrome.manifest' && dir !== 'resource' && !allow(src)) return false
+        if (fs.lstatSync(src).isFile()) console.log(' ', src)
+        return true
+      },
+    })
+  }
+
+  if (shouldCopy('client')) {
+    fs.copySync('client', 'build', {
+      filter(src) {
+        if (fs.lstatSync(src).isFile()) console.log(' ', src)
+        return true
+      },
+    })
+  }
 }
 
-if (copy('client')) {
-  fs.copySync('client', 'build', {
-    filter(src) {
-      if (fs.lstatSync(src).isFile()) console.log(' ', src)
-      return true
-    },
-  })
-}
+copy()

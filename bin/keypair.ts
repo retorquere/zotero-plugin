@@ -9,6 +9,8 @@ import crypto from 'crypto'
 import { stat, writeFile } from 'fs/promises'
 import { resolve } from 'path'
 import prompts from 'prompts'
+
+// @ts-expect-error TS2835
 import { encrypt } from './crypto'
 
 import { config as dotenvConfig } from 'dotenv'

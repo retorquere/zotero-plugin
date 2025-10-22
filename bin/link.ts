@@ -5,9 +5,8 @@
 import * as fs from 'fs'
 import * as path from 'path'
 
-import root from '../root'
-
-const pkg = { ...require(path.join(root, 'package.json')) }
+// @ts-expect-error TS2835
+import { pkg, root } from '../root'
 
 if (!pkg.id) pkg.id = `${pkg.name}@${pkg.author.email.replace(/.*@/, '')}`.toLowerCase()
 if (pkg.xpi) Object.assign(pkg, pkg.xpi)

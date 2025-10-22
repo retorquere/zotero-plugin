@@ -1,26 +1,16 @@
-/* eslint-disable no-console */
+#!/usr/bin/env node
 
-import * as fs from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
 
+// @ts-expect-error TS2835
 import { ContinuousIntegration as CI } from './continuous-integration'
-import root from './root'
+// @ts-expect-error TS2835
+import { pkg, root } from './root'
 
-let version: string = null
-
-function load(vpath: string): string {
-  return JSON.parse(fs.readFileSync(vpath, 'utf-8')).version as string
-}
-
-const version_json = path.join(root, 'gen/version.json')
-if (fs.existsSync(version_json)) {
-  version = load(version_json)
-}
-else {
-  console.log('writing version')
-
-  version = load(path.join(root, 'package.json'))
+export function version(): string {
+  let version = pkg.version as string
 
   if (CI.service && !CI.tag) {
     const issue = CI.issue && process.env.VERSION_WITH_ISSUE !== 'false' ? `.${CI.issue}` : ''
@@ -30,8 +20,10 @@ else {
     version = `${version}.${os.userInfo().username}.${os.hostname()}`
   }
 
-  if (!fs.existsSync(path.dirname(version_json))) fs.mkdirSync(path.dirname(version_json))
-  fs.writeFileSync(version_json, JSON.stringify({ version }))
+  const version_module = path.join(root, 'gen', 'version.cjs')
+  if (!fs.existsSync(path.dirname(version_module))) fs.mkdirSync(path.dirname(version_module))
+  fs.writeFileSync(version_module, `module.exports = { version: ${JSON.stringify(version)} }`)
+  return version
 }
 
-export default version
+version()

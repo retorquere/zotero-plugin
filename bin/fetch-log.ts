@@ -11,7 +11,9 @@ import path from 'path'
 import { Entry as KeyRingEntry } from '@napi-rs/keyring'
 import prompts from 'prompts'
 
-import * as pkg from '../package.json'
+// @ts-expect-error TS2835
+import { pkg } from '../root'
+// @ts-expect-error TS2835
 import { decrypt } from './crypto'
 
 async function getPassphrase(service, account): Promise<string> {
@@ -82,7 +84,6 @@ async function main() {
 
     let privateKey
     if (options.encrypted) {
-      const pkg = JSON.parse(fs.readFileSync('package.json', 'utf-8'))
       const passphrase = await getPassphrase(`${pkg.name} Zotero plugin`, 'debug-log')
       privateKey = decrypt(JSON.parse(fs.readFileSync(options.private, 'utf-8')), passphrase)
     }

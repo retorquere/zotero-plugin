@@ -4,14 +4,14 @@ declare const Zotero: any
 
 declare const dump: (msg: string) => void
 
-function stringifyXPCOM(obj): string {
+function stringifyXPCOM(obj: any): string {
   if (!obj.QueryInterface) return ''
   if (obj.message) return `[XPCOM error ${obj.message}]`
   if (obj.name) return `[XPCOM object ${obj.name}]`
   return '[XPCOM object]'
 }
 
-function stringifyError(obj) {
+function stringifyError(obj: any): string {
   if (obj instanceof Error) return `[error: ${obj.message || '<unspecified error>'}\n${obj.stack}]`
   // guess it is an errorevent
   if (obj.error instanceof Error && obj.message) return `[errorevent: ${obj.message} ${stringifyError(obj.error)}]`
@@ -21,7 +21,7 @@ function stringifyError(obj) {
 
 function replacer() {
   const seen = new WeakSet()
-  return (key, value) => {
+  return (key: string, value: any): any => {
     if (typeof value === 'object' && value !== null) {
       if (seen.has(value)) return '[Circular]'
       seen.add(value)
@@ -58,15 +58,15 @@ export class Logger {
     return `{${error ? 'error: ' : ''}${this.phase}${this.id}} `
   }
 
-  public debug(...msg): void {
+  public debug(...msg: any[]): void {
     Zotero.debug(`${this.#prefix()}${this.format(...msg)}\n`)
   }
 
-  public info(...msg): void {
+  public info(...msg: any[]): void {
     Zotero.debug(`${this.#prefix()}${this.format(...msg)}\n`)
   }
 
-  public error(...msg): void {
+  public error(...msg: any[]): void {
     Zotero.debug(`${this.#prefix(true)}${this.format(...msg)}\n`)
   }
 
@@ -84,7 +84,7 @@ export class Logger {
     return JSON.stringify(obj, replacer(), this.indent)
   }
 
-  public format(...msg): string {
+  public format(...msg: any[]): string {
     return msg.map(m => this.to_s(m)).join(' ')
   }
 }

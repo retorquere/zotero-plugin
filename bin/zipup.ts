@@ -6,19 +6,21 @@ import archiver from 'archiver'
 import * as fs from 'fs'
 import * as path from 'path'
 
-import root from '../root'
-import version from '../version'
+// @ts-expect-error TS2835
+import { root } from '../root'
+// @ts-expect-error TS2835
+import { version } from '../version'
 
 const [, , source, target] = process.argv
 
-const xpi = path.join(root, 'xpi', `${target}-${version}.xpi`)
+const xpi = path.join(root, 'xpi', `${target}-${version()}.xpi`)
 console.log(`creating ${xpi}`) // eslint-disable-line no-console
 if (fs.existsSync(xpi)) fs.unlinkSync(xpi)
 if (!fs.existsSync(path.dirname(xpi))) fs.mkdirSync(path.dirname(xpi))
 
 async function main() {
   await new Promise<void>((resolve, reject) => {
-    const xpi = path.join(root, 'xpi', `${target}-${version}.xpi`)
+    const xpi = path.join(root, 'xpi', `${target}-${version()}.xpi`)
     const output = fs.createWriteStream(xpi)
     const archive = archiver('zip', { zlib: { level: 9 } })
 

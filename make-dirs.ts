@@ -4,7 +4,8 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { rimrafSync } from 'rimraf'
 
-import root from './root'
+// @ts-expect-error TS2835
+import { root } from './root'
 
 console.log('make build dirs')
 for (const dir of [path.join(root, 'build'), path.join(root, 'gen'), path.join(root, 'xpi')]) {

@@ -1,32 +1,35 @@
 /* eslint-disable no-console, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/restrict-template-expressions, no-magic-numbers */
 
+import * as FTL from '@fluent/syntax'
 import * as fs from 'fs'
 import { globSync as glob } from 'glob'
 import * as path from 'path'
-import * as pug from 'pug'
+import { parseTemplate } from 'url-template'
 
-import PropertiesReader from 'properties-reader'
-import uriTemplate from 'uri-templates'
-
-import root from './root'
-import version from './version'
-
-const pkg = { ...require(path.join(root, 'package.json')) }
+// @ts-expect-error TS2835
+import { pkg, root } from './root'
+// @ts-expect-error TS2835
+import { version } from './version'
 
 if (!pkg.id) (pkg.id as string) = `${pkg.name}@${pkg.author.email.replace(/.*@/, '')}`.toLowerCase()
 if (pkg.xpi) Object.assign(pkg, pkg.xpi)
 
-pkg.version = version
+pkg.version = version()
 
-if (pkg.updateLink) pkg.updateLink = uriTemplate(pkg.updateLink).fill({ version: pkg.version })
+if (pkg.updateLink) pkg.updateLink = parseTemplate(pkg.updateLink).expand({ version: pkg.version })
 pkg.updateURL = `${pkg.xpi.releaseURL}update.rdf`
 
-const translations = glob(path.join(root, 'locale/*/*.properties'))
+const translations = glob(path.join(root, 'locale/*/*.ftl'))
 for (const translation of translations) {
   const locale = path.basename(path.dirname(translation))
-  const properties = PropertiesReader(translation)
-  const description = properties.get('xpi.description')
 
+  const ftl: FTL.Resource = FTL.parse(fs.readFileSync(translation, 'utf-8'), {})
+  const body: FTL.Entry[] = ftl.body || []
+  const msg: FTL.Message = body.find((msg: FTL.Entry) => msg.type === 'Message' && msg.id.type === 'Identifier' && msg.id.name === 'xpi') as FTL.Message
+  if (!msg) continue
+  const attr: FTL.Attribute = msg.attributes.find((attr: FTL.Attribute) => attr.id.type === 'Identifier' && attr.id.name === 'description')
+  if (!attr) continue
+  const description = attr.value.elements.filter((e: FTL.PatternElement) => e.type === 'TextElement').map((e: FTL.PatternElement) => e.value as string).join('')
   if (!description) continue
 
   if (locale === 'en-US') {
@@ -42,7 +45,7 @@ const options_and_vars = { minVersion: '7.0.0', maxVersion: '8.*', ...pkg, prett
 try {
   Object.assign(options_and_vars, JSON.parse(fs.readFileSync(path.join(root, 'schema', 'supported.json'), 'utf8')))
 }
-catch (err) { // eslint-disable-line @typescript-eslint/no-unused-vars
+catch {
   // ignore
 }
 
@@ -60,7 +63,7 @@ fs.writeFileSync(
               applications: {
                 zotero: {
                   strict_min_version: options_and_vars.minVersion,
-                  strict_max_version: options_and_vars.maxVersion,
+                  trict_max_version: options_and_vars.maxVersion,
                 },
               },
             },
@@ -73,32 +76,25 @@ fs.writeFileSync(
   ),
 )
 
-const icons: { 48: string; 96?: string }[] = [
-  { 48: pkg.xpi?.iconURL?.replace(/^chrome:\/\/[^/]+\//, '') },
-].filter(i => i[48])
+let icons: { small: string; big?: string }[] = []
+if (typeof pkg.xpi?.iconURL === 'string') icons.push({ small: pkg.xpi.iconURL.replace(/^chrome:\/\/[^/]+\//, '') })
+
 const basename = pkg.id.replace(/@.*/, '')
-for (const i of [`content/skin/${basename}.png`, `skin/${basename}.png`, `${basename}.png`, 'icon.png']) {
-  icons.push({ 48: i })
-  icons.push({ 48: i.replace('/zotero-', '/') })
+for (const icon of [`content/skin/${basename}.png`, `skin/${basename}.png`, `${basename}.png`, 'icon.png']) {
+  icons.push({ small: icon })
+  icons.push({ small: icon.replace('/zotero-', '/') })
 }
-for (const i of [...icons]) {
-  icons.push({ 48: i[48].replace(/[.](svg|png)$/, ext => ({ '.svg': '.png', '.png': '.svg' }[ext])) })
-}
-for (const i of [...icons]) {
-  if (i[48].endsWith('.svg')) {
-    i[96] = i[48]
-  }
-  else {
-    i[96] = i[48].replace(/([.][^.]+)$/, '@2x$1')
-  }
-}
-const icon = icons.find(i => fs.existsSync(path.join(root, ...i[48].split('/'))))
-if (icon) {
+icons.push(...icons.map(icon => ({ small: icon.small.replace(/[.](svg|png)$/, ext => ({ '.svg': '.png', '.png': '.svg' }[ext] || ext)) })))
+icons = icons.filter(icon => fs.existsSync(path.join(root, ...icon.small.split('/'))))
+icons = icons.map(icon => ({ ...icon, big: icon.small.endsWith('.svg') ? icon.small : icon.small.replace(/([.][^.]+)$/, '@2x$1') }))
+if (icons.length) {
+  const { small, big } = icons[0]
   options_and_vars.icons = {
-    48: icon[48],
-    96: fs.existsSync(path.join(root, ...icon[96].split('/'))) ? icon[96] : icon[48],
+    48: small,
+    96: fs.existsSync(path.join(root, ...big!.split('/'))) ? big : small,
   }
 }
+
 console.log('generating manifest.json')
 fs.writeFileSync(
   path.join(root, 'build/manifest.json'),

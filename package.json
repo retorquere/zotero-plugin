@@ -12,12 +12,12 @@
       "require": "./dist/cjs/index.cjs"
     },
     "./debug-log": {
-      "import": "./dist/esm/utils/debug-log.js",
-      "require": "./dist/cjs/utils/debug-log.cjs"
+      "import": "./dist/esm/debug-log.js",
+      "require": "./dist/cjs/debug-log.cjs"
     },
     "./logger": {
-      "import": "./dist/esm/utils/logger.js",
-      "require": "./dist/cjs/utils/logger.cjs"
+      "import": "./dist/esm/ulogger.js",
+      "require": "./dist/cjs/logger.cjs"
     },
     "./copy-assets": {
       "import": "./dist/esm/bin/copy-assets.js",

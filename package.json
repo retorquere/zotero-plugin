@@ -19,6 +19,18 @@
       "import": "./dist/esm/ulogger.js",
       "require": "./dist/cjs/logger.cjs"
     },
+    ".loader/json": {
+      "import": "./dist/esm/loader/json.js",
+      "require": "./dist/cjs/loader/json.cjs"
+    },
+    ".loader/peggy": {
+      "import": "./dist/esm/loader/peggy.js",
+      "require": "./dist/cjs/loader/peggy.cjs"
+    },
+    ".loader/pem": {
+      "import": "./dist/esm/loader/pem.js",
+      "require": "./dist/cjs/loader/pem.cjs"
+    },
     "./copy-assets": {
       "import": "./dist/esm/bin/copy-assets.js",
       "require": "./dist/cjs/bin/copy-assets.cjs"

@@ -23,6 +23,7 @@ export function version(): string {
   const version_module = path.join(root, 'gen', 'version.cjs')
   if (!fs.existsSync(path.dirname(version_module))) fs.mkdirSync(path.dirname(version_module))
   fs.writeFileSync(version_module, `module.exports = { version: ${JSON.stringify($version)} }`)
+  console.log('written version', $version, 'to', version_module)
   return $version
 }
 

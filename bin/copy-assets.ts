@@ -30,7 +30,7 @@ function shouldCopy(dir) {
 }
 
 export function copy() {
-  for (const dir of ['defaults', 'content', 'skin', 'locale', 'resource', 'chrome.manifest', 'chrome'].map(_ => path.join(root, _))) {
+  for (const dir of ['defaults', 'content', 'skin', 'locale', 'resource', 'chrome.manifest', 'chrome']) {
     if (!shouldCopy(dir)) continue
 
     fs.copySync(dir, path.join('build', dir), {

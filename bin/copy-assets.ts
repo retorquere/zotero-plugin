@@ -3,7 +3,6 @@
 import fs from 'fs-extra'
 import path from 'path'
 
-// @ts-expect-error TS2835
 import { root } from './find-root'
 
 function allow(file) {

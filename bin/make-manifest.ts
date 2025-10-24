@@ -6,9 +6,7 @@ import { globSync as glob } from 'glob'
 import * as path from 'path'
 import { parseTemplate } from 'url-template'
 
-// @ts-expect-error TS2835
 import { pkg, root } from './find-root'
-// @ts-expect-error TS2835
 import { version } from './version'
 
 if (!pkg.id) (pkg.id as string) = `${pkg.name}@${pkg.author.email.replace(/.*@/, '')}`.toLowerCase()

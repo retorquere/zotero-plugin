@@ -14,12 +14,9 @@ import moment from 'moment'
 import * as path from 'path'
 import { parseTemplate } from 'url-template'
 
-// @ts-expect-error TS2835
 import { ContinuousIntegration as CI } from './continuous-integration'
 
-// @ts-expect-error TS2835
 import { pkg, root } from './find-root'
-// @ts-expect-error TS2835
 import { version } from './version'
 
 program

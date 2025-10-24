@@ -74,9 +74,9 @@ DebugLog.register('your plugin name', ['extensions.zotero.<your plugin extension
 
 the array is a list of either full names of preferences you want to know about, or a name ending in `.` which means "all keys directly under this".
 
-The Help menu will now have an entry "send debug log to bashupload.com"; when your user selects that, the error log and the selected settings will be sent to bashupload.com; if any items are selected, when that is clicked, a copy of those items will be included in RDF format.
+The Help menu will now have an entry "Send plugin debug log"; when your user selects that, the error log and the selected settings will be sent to 0x0.st.com; if any items are selected, when that is clicked, a copy of those items will be included in RDF format.
 
-The user will get an ID that looks like `C3WvhYgA8RDM-buc-2XZGa`; the last part is the bashupload ID, so you would go to `https://bashupload.com/2XZGa/C3WvhYgA8RDM.zip` to retrieve the download; the zipfile you get there will be `C3WvhYgA8RDM.zip`.
+The user will get an ID that looks like `V8XPP96B-0x0-K2mk.refs.enc`; the `K2mk` part is the 0x0 upload ID, so you would go to `https://0x0.st/K2mk/` to retrieve the download; the zipfile you get there will be `V8XPP96B.zip`. if the ID contains `.refs`, the user had items selected when the log was sent and those are included in RDF format. If the ID contains `.enc` the log is encrypted with your public key. It is not mandatory, but some users are skittish about what is in their log files, and downloads at 0x0 are public if you know the URL, and the user will usually make that information public in the github issue. With encryption on, the logs are still publicly downloaded, but you will need your private key to decrypt it.
 
 # Starting Zotero with your plugin loaded
 
@@ -165,3 +165,5 @@ DebugLog.register('<your plugin name>', ['your-plugin.', 'fileHandler.pdf'], req
 Logs are sent to/retrieved from 0x0.st
 
 The preferences you list will be included in the log; if a preference ends with a period (`.`), all preferences under it will be included
+
+The private key is password-protected so in principle you can check it into your repo. If you don't, and you lose your private key, you will not be able to read logs anymore, but you can of course generate a new keypair, put out a new release of your plugin with that new public key, and you're goog to go again.

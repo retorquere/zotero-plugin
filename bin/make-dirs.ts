@@ -4,7 +4,6 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { rimrafSync } from 'rimraf'
 
-// @ts-expect-error TS2835
 import { root } from './find-root'
 
 console.log('make build dirs')

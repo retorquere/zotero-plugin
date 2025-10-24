@@ -5,7 +5,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
 
-// @ts-expect-error TS2835
 import { pkg, root } from './find-root'
 
 if (!pkg.id) pkg.id = `${pkg.name}@${pkg.author.email.replace(/.*@/, '')}`.toLowerCase()

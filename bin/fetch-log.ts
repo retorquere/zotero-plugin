@@ -11,8 +11,8 @@ import path from 'path'
 import { Entry as KeyRingEntry } from '@napi-rs/keyring'
 import prompts from 'prompts'
 
-import { pkg } from './find-root'
 import { decrypt } from './crypto'
+import { pkg } from './find-root'
 
 async function getPassphrase(service, account): Promise<string> {
   const entry = new KeyRingEntry(service, account)

@@ -50,15 +50,7 @@ jobs:
     - name: install node
       uses: actions/setup-node@v1
       with:
-        node-version: 14.x
-    - name: Cache node dependencies
-      uses: actions/cache@v2
-      env:
-        cache-name: cache-dependencies
-      with:
-        path: |
-          ~/.npm
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('package-lock.json') }}
+        node-version: 20.x
     - name: install node dependencies
       run: npm install
     - name: build

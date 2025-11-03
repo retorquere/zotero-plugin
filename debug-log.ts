@@ -51,7 +51,7 @@ export class Bundler {
       if (!this.#symmetric) {
         this.#symmetric = await this.#subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt'])
 
-        const base64Pem = this.#pubkey.replace(/-----(BEGIN|END) PUBLIC KEY-----/g, '').trim()
+        const base64Pem = this.#pubkey.replace(/-----(BEGIN|END) PUBLIC KEY-----/g, '').replace(/\s/g, '')
         const binaryPem = atob(base64Pem)
         const keyBuffer = binaryPem.split('').reduce((bytes, char, index) => {
           bytes[index] = char.charCodeAt(0)

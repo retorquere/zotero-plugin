@@ -51,11 +51,12 @@ export class Bundler {
       if (!this.#symmetric) {
         this.#symmetric = await this.#subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt'])
 
-        const base64Pem = this.#pubkey
-          .replace('-----BEGIN PUBLIC KEY-----', '')
-          .replace('-----END PUBLIC KEY-----', '')
-          .replace(/\s/g, '')
-        const keyBuffer = Uint8Array.from(atob(base64Pem), c => c.charCodeAt(0)).buffer
+        const base64Pem = this.#pubkey.replace(/-----(BEGIN|END) PUBLIC KEY-----/, '').trim()
+        const binaryPem = atob(base64Pem)
+        const keyBuffer = binaryPem.split('').reduce((bytes, char, index) => {
+          bytes[index] = char.charCodeAt(0)
+          return bytes
+        }, new Uint8Array(binaryPem.length)).buffer
         const publicKey = await this.#subtle.importKey('spki', keyBuffer, { name: 'RSA-OAEP', hash: 'SHA-256' }, true, ['encrypt'])
         const exportedKey = await this.#subtle.exportKey('raw', this.#symmetric)
 

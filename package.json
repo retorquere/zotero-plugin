@@ -70,15 +70,15 @@
   "dependencies": {
     "@fluent/syntax": "^0.19.0",
     "@napi-rs/keyring": "^1.2.0",
-    "@octokit/rest": "^22.0.0",
+    "@octokit/rest": "^22.0.1",
     "@rgrove/parse-xml": "^4.2.0",
-    "@types/node": "^24.9.1",
+    "@types/node": "^24.10.0",
     "@xmldom/xmldom": "^0.9.8",
     "ajv": "^8.17.1",
     "ajv-keywords": "^5.1.0",
     "archiver": "^7.0.1",
     "clp": "^4.0.13",
-    "commander": "^14.0.1",
+    "commander": "^14.0.2",
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "fs-extra": "^11.3.2",
@@ -92,7 +92,7 @@
     "peggy": "^5.0.6",
     "prompts": "^2.4.2",
     "pug": "^3.0.3",
-    "rimraf": "^6.0.1",
+    "rimraf": "^6.1.0",
     "shell-quote": "^1.8.3",
     "shelljs": "^0.10.0",
     "string-to-arraybuffer": "^1.0.2",
@@ -132,10 +132,10 @@
     "url": "https://github.com/retorquere/zotero-plugin/issues"
   },
   "devDependencies": {
-    "@openpgp/web-stream-tools": "^0.2.0",
+    "@openpgp/web-stream-tools": "^0.2.1",
     "concurrently": "^9.2.1",
     "dprint": "^0.50.2",
-    "esbuild": "^0.25.11",
+    "esbuild": "^0.25.12",
     "tsup": "^8.5.0"
   }
 }

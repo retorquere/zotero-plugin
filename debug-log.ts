@@ -8,6 +8,8 @@ type ZoteroPane = {
 
 import pkg from './package.json'
 
+export const OAEP = new TextEncoder().encode(`ZoteroPlugin${pkg.version}`);
+
 import * as UZip from 'uzip'
 
 /*
@@ -60,7 +62,11 @@ export class Bundler {
         const publicKey = await this.#subtle.importKey('spki', keyBuffer, { name: 'RSA-OAEP', hash: 'SHA-256' }, true, ['encrypt'])
         const exportedKey = await this.#subtle.exportKey('raw', this.#symmetric)
 
-        this.#files[`${this.key}/${this.key}.key`] = new Uint8Array(await this.#subtle.encrypt({ name: 'RSA-OAEP' }, publicKey, exportedKey))
+        this.#files[`${this.key}/${this.key}.key`] = new Uint8Array(await this.#subtle.encrypt(
+          { name: 'RSA-OAEP', label: OAEP },
+          publicKey,
+          exportedKey
+        ))
       }
 
       const iv = this.#crypto.getRandomValues(new Uint8Array(this.IV_LENGTH))
@@ -159,17 +165,17 @@ class DebugLogSender {
   }
 
   public register(plugin: string, preferences: string[] = [], pubkey = ''): void {
-    const label = 'Send plugin debug log'
+    const menuLabel = 'Send plugin debug log'
 
     const doc = Zotero.getMainWindow()?.document
     if (doc) {
       let menupopup = doc.querySelector(`#${this.id.menupopup}`)
       if (menupopup) {
-        menupopup.setAttribute('label', label)
+        menupopup.setAttribute('label', menuLabel)
       }
       else {
         menupopup = doc.querySelector('menupopup#menu_HelpPopup')
-          .appendChild(this.element('menu', { id: this.id.menu, label }))
+          .appendChild(this.element('menu', { id: this.id.menu, label: menuLabel }))
           .appendChild(this.element('menupopup', { id: this.id.menupopup }))
       }
 

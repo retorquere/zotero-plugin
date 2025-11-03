@@ -13,6 +13,7 @@ import prompts from 'prompts'
 
 import { decrypt } from './crypto'
 import { pkg } from './find-root'
+import { OAEP } from '../debug-log'
 
 async function getPassphrase(service, account): Promise<string> {
   const entry = new KeyRingEntry(service, account)
@@ -103,7 +104,8 @@ async function main() {
           key: privateKey,
           padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
           oaepHash: 'sha256',
-        }, await zipfile.entryData(entry.name))
+          label: OAEP,
+        } as crypto.RsaPrivateKey, await zipfile.entryData(entry.name))
       }
       else {
         const key = filename.toLowerCase()

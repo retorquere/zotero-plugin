@@ -5,12 +5,13 @@
 // (e.g., `brew install gpg` on macOS, `sudo apt-get install gnupg` on Debian/Ubuntu).
 
 import { Command } from 'commander'
-import crypto from 'crypto'
 import { stat, writeFile } from 'fs/promises'
-import { resolve } from 'path'
+import { extname, resolve } from 'path'
 import prompts from 'prompts'
 
-import { encrypt } from './crypto'
+import { KeyObject, webcrypto as crypto } from 'crypto'
+import forge from 'node-forge'
+import { CIPHER_ALGORITHM, RSA_ALGORITHM, RSA_HASH } from '../crypto'
 
 import { config as dotenvConfig } from 'dotenv'
 dotenvConfig({ quiet: true, override: true })
@@ -18,8 +19,8 @@ dotenvConfig({ quiet: true, override: true })
 const program = new Command()
 program
   .description('A script to generate and store an RSA key pair in an encrypted file.')
-  .option('-p, --public <path>', 'Path for the public key .pem file', 'public.pem')
-  .option('--private <path>', 'Path for the encrypted private key .pem.json file', 'private.pem.json')
+  .option('-p, --public <path>', 'Path for the public key file', 'public.json')
+  .option('--private <path>', 'Path for the encrypted private key .pem', 'private.pem')
   .option('-r, --replace', 'Replace existing files', false)
   .parse(process.argv)
 const options = program.opts()
@@ -29,12 +30,12 @@ async function main() {
     const publicKeyPath = resolve(options.public)
     const encryptedKeyPath = resolve(options.private)
 
-    if (!publicKeyPath.endsWith('.pem')) {
-      console.error('Public key file must have a .pem extension.')
+    if (!extname(publicKeyPath).match(/^\.(cjs|mjs|ts|json)$/)) {
+      console.error('Public key file must have .json, .cjs, .mjs or .ts extension.')
       process.exit(1)
     }
-    if (!encryptedKeyPath.endsWith('.pem.json')) {
-      console.error('Encrypted key file must have a .pem.json extension.')
+    if (!encryptedKeyPath.endsWith('.pem')) {
+      console.error('Encrypted key file must have a .pem extension.')
       process.exit(1)
     }
 
@@ -60,17 +61,32 @@ async function main() {
       process.exit(1)
     }
 
-    const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-      modulusLength: 2048,
-      publicKeyEncoding: {
-        type: 'spki',
-        format: 'pem',
+    const { privateKey, publicKey } = await crypto.subtle.generateKey(
+      {
+        name: RSA_ALGORITHM,
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: RSA_HASH,
       },
-      privateKeyEncoding: {
-        type: 'pkcs8',
-        format: 'pem',
-      },
-    })
+      true, // extractable
+      ['encrypt', 'decrypt'],
+    )
+
+    const publicKeyJwk = await crypto.subtle.exportKey('jwk', publicKey)
+    switch (extname(options.public)) {
+      case '.json':
+        await writeFile(options.public, JSON.stringify(publicKeyJwk, null, 2))
+        break
+      case '.mjs':
+        await writeFile(options.public, `export const jwk = ${JSON.stringify(publicKeyJwk, null, 2)}`)
+        break
+      case '.mjs':
+        await writeFile(options.public, `module.exports.jwk = ${JSON.stringify(publicKeyJwk, null, 2)}`)
+        break
+      case '.ts':
+        await writeFile(options.public, `export const jwk: JsonWebKey = ${JSON.stringify(publicKeyJwk, null, 2)}`)
+        break
+    }
 
     const { passphrase } = await prompts({
       type: 'password',
@@ -78,20 +94,16 @@ async function main() {
       message: 'Enter a passphrase to encrypt your private key:',
     })
 
-    if (!passphrase) {
-      console.error('Passphrase is required for encryption.')
-      process.exit(1)
-    }
-
-    await writeFile(encryptedKeyPath, JSON.stringify(encrypt(privateKey, passphrase), null, 2))
-    console.log(`Encrypted private key saved to: ${encryptedKeyPath}`)
-
-    await writeFile(publicKeyPath, publicKey)
-    console.log(`Public key saved to: ${publicKeyPath}`)
+    const privateKeyObject = KeyObject.from(privateKey)
+    const encryptedPkcs8Pem = privateKeyObject.export({
+      format: 'pem',
+      type: 'pkcs8',
+      cipher: CIPHER_ALGORITHM,
+      passphrase,
+    })
+    await writeFile(options.private, encryptedPkcs8Pem)
   }
   catch (error) {
-    throw error
-    /*
     if (error instanceof Error) {
       console.error('An error occurred:', error.message)
     }
@@ -99,7 +111,6 @@ async function main() {
       console.error('An unknown error occurred:', error)
     }
     process.exit(1)
-    */
   }
 }
 

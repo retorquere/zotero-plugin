@@ -1,16 +1,15 @@
 /* eslint-disable no-magic-numbers */
 
 Components.utils.importGlobalProperties(['FormData'])
+import { CONTENT_ENCRYPTION_ALG, KEY_WRAPPING_ALG, KEYTYPE } from './crypto'
 
 type ZoteroPane = {
   getSelectedItems: () => any[]
 }
 
-import pkg from './package.json'
-
-export const OAEP = new TextEncoder().encode(`ZoteroPlugin${pkg.version}`);
-
+import * as jose from 'jose'
 import * as UZip from 'uzip'
+import pkg from './package.json'
 
 /*
 const path = new class {
@@ -27,9 +26,9 @@ export class Bundler {
 
   #refs = false
 
-  private IV_LENGTH = 12
-  #symmetric: CryptoKey
-  #pubkey: string
+  #symmetricKey: CryptoKey
+  #pk?: JsonWebKey
+  #pubKey?: CryptoKey
 
   #crypto: Crypto
   #subtle: SubtleCrypto
@@ -37,9 +36,10 @@ export class Bundler {
 
   #encoder = new TextEncoder()
 
-  constructor(pubkey: string) {
+  constructor(pk?: JsonWebKey) {
     this.key = Zotero.Utilities.generateObjectKey()
-    this.#pubkey = pubkey
+
+    if (pk && pk.kty === KEYTYPE) this.#pk = pk
     this.#crypto = Zotero.getMainWindow().crypto
     this.#subtle = this.#crypto.subtle
   }
@@ -49,30 +49,16 @@ export class Bundler {
 
     const encoded = this.#encoder.encode(data)
 
-    if (this.#pubkey) {
-      if (!this.#symmetric) {
-        this.#symmetric = await this.#subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt'])
+    if (this.#pk) {
+      if (!this.#pubKey) this.#pubKey = (await jose.importJWK(this.#pk, KEY_WRAPPING_ALG)) as CryptoKey
+      const jwe = await (new jose.CompactEncrypt(encoded))
+        .setProtectedHeader({
+          alg: KEY_WRAPPING_ALG,
+          enc: CONTENT_ENCRYPTION_ALG,
+        })
+        .encrypt(this.#pubKey)
 
-        const base64Pem = this.#pubkey.replace(/-----(BEGIN|END) PUBLIC KEY-----/g, '').replace(/\s/g, '')
-        const binaryPem = atob(base64Pem)
-        const keyBuffer = binaryPem.split('').reduce((bytes, char, index) => {
-          bytes[index] = char.charCodeAt(0)
-          return bytes
-        }, new Uint8Array(binaryPem.length)).buffer
-        const publicKey = await this.#subtle.importKey('spki', keyBuffer, { name: 'RSA-OAEP', hash: 'SHA-256' }, true, ['encrypt'])
-        const exportedKey = await this.#subtle.exportKey('raw', this.#symmetric)
-
-        this.#files[`${this.key}/${this.key}.key`] = new Uint8Array(await this.#subtle.encrypt(
-          { name: 'RSA-OAEP', label: OAEP },
-          publicKey,
-          exportedKey
-        ))
-      }
-
-      const iv = this.#crypto.getRandomValues(new Uint8Array(this.IV_LENGTH))
-      const encryptedData = await this.#subtle.encrypt({ name: 'AES-GCM', iv: iv }, this.#symmetric, encoded)
-      this.#files[`${this.key}/${path}.iv`] = iv
-      this.#files[`${this.key}/${path}.enc`] = new Uint8Array(encryptedData)
+      this.#files[`${this.key}/${path}.jwe`] = this.#encoder.encode(jwe)
     }
     else {
       this.#files[`${this.key}/${path}`] = encoded
@@ -88,7 +74,7 @@ export class Bundler {
   }
 
   public id(remote: string): string {
-    return `${this.key}-${remote}${this.#refs ? '.refs' : ''}${this.#pubkey ? '.enc' : ''}`
+    return `${this.key}-${remote}${this.#refs ? '.refs' : ''}${this.#pubKey ? '.enc' : ''}`
   }
 
   public formData(expire = 30): FormData {
@@ -164,7 +150,7 @@ class DebugLogSender {
     return elt
   }
 
-  public register(plugin: string, preferences: string[] = [], pubkey = ''): void {
+  public register(plugin: string, preferences: string[] = [], pubKey?: JsonWebKey): void {
     const menuLabel = 'Send plugin debug log'
 
     const doc = Zotero.getMainWindow()?.document
@@ -184,7 +170,7 @@ class DebugLogSender {
         label: plugin,
         class: this.id.menuitem,
         'data-preferences': JSON.stringify(preferences || []),
-        'data-pubkey': pubkey,
+        'data-pubkey': JSON.stringify(pubKey),
       }))
       menuitem.addEventListener('command', event => this.send(event.currentTarget))
     }
@@ -213,7 +199,7 @@ class DebugLogSender {
   private async sendAsync(plugin: string, preferences: string[], pubkey = '') {
     await Zotero.Schema.schemaUpdatePromise
 
-    const bundler = new Bundler(pubkey)
+    const bundler = new Bundler(pubkey ? JSON.parse(pubkey) : undefined)
 
     let log = [
       await this.info(preferences),
@@ -322,6 +308,7 @@ class DebugLogSender {
     })
   }
 
+  /*
   private arrayBufferToBase64(buffer) {
     let binary = ''
     const bytes = new Uint8Array(buffer)
@@ -341,6 +328,7 @@ class DebugLogSender {
     }
     return bytes.buffer
   }
+  */
 }
 
 export const DebugLog = new DebugLogSender()

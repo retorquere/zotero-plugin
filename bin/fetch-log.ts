@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander'
-import crypto from 'crypto'
+import crypto, { webcrypto } from 'crypto'
 import fs from 'fs'
+import * as jose from 'jose'
 import StreamZip from 'node-stream-zip'
 import { Readable } from 'node:stream'
 import { finished } from 'node:stream/promises'
@@ -11,11 +12,12 @@ import path from 'path'
 import { Entry as KeyRingEntry } from '@napi-rs/keyring'
 import prompts from 'prompts'
 
-import { decrypt } from './crypto'
+import { KEY_WRAPPING_ALG } from '../crypto'
 import { pkg } from './find-root'
-import { OAEP } from '../debug-log'
 
-async function getPassphrase(service, account): Promise<string> {
+async function getPassphrase(): Promise<string> {
+  const service = `${pkg.name} Zotero plugin`
+  const account = `${pkg.name}-debug-log`
   const entry = new KeyRingEntry(service, account)
   let passphrase = entry.getPassword()
   if (!passphrase) {
@@ -36,8 +38,9 @@ const oops = (...args) => {
 
 const program = new Command()
 program
-  .description('A script to generate and store an RSA key pair in an encrypted file.')
-  .option('-p, --private <path>', 'Path for the encrypted private key .pem.json file', 'private.pem.json')
+  .description('A script to fetch debug logs.')
+  .option('-p, --private <path>', 'Path for the encrypted private key .pem file', 'private.pem')
+  .option('-k, --keep', 'Keep the downloaded zip', false)
   .argument('<debug log id>', 'debug log ID to fetch')
   .parse(process.argv)
 const options = program.opts()
@@ -66,6 +69,23 @@ if (!fs.existsSync(logs)) {
   fs.mkdirSync(logs, { recursive: true })
 }
 
+async function getPrivateKey(): Promise<webcrypto.CryptoKey> {
+  if (!options.encrypted) return undefined
+
+  const privateKeyObject = crypto.createPrivateKey({
+    key: fs.readFileSync(options.private, 'utf-8'),
+    format: 'pem',
+    passphrase: await getPassphrase(),
+  })
+  const unencryptedKeyPEM = privateKeyObject.export({
+    type: 'pkcs8',
+    format: 'pem',
+  }).toString()
+  return await jose.importPKCS8(
+    unencryptedKeyPEM,
+    KEY_WRAPPING_ALG,
+  )
+}
 async function main() {
   try {
     const response = await fetch(options.url, {
@@ -81,65 +101,37 @@ async function main() {
     const download = fs.createWriteStream(options.zip)
     await finished(readable.pipe(download))
 
-    let privateKey
-    if (options.encrypted) {
-      const passphrase = await getPassphrase(`${pkg.name} Zotero plugin`, 'debug-log')
-      privateKey = decrypt(JSON.parse(fs.readFileSync(options.private, 'utf-8')), passphrase)
-    }
-
     const zipfile = new StreamZip.async({ file: options.zip })
-    let decryptionKey: Buffer
-    const fileEntries: Record<string, { filename: string; contents?: string; iv?: string; encrypted?: boolean }> = {}
-    for (const entry of Object.values(await zipfile.entries())) {
-      if (entry.isDirectory) continue
+    const entries = Object.values(await zipfile.entries()).filter(entry => !entry.isDirectory)
 
-      const m = entry.name.match(/(?<filename>.+)\.(?<type>key|enc|iv)$/i)
-      let filename = m?.groups!.filename || entry.name
+    const privateKey = await getPrivateKey()
+
+    for (const entry of entries) {
+      const m = entry.name.match(/(?<filename>.+)\.(?<type>jwe)$/i)
+      const filename = m?.groups!.filename || entry.name
       const type = (m?.groups!.type || '').toLowerCase()
+      const target = path.join('logs', filename)
 
-      if (type && !options.encrypted) oops('unexpected', type, 'file in non-encrypted log')
+      switch (type) {
+        case '':
+          if (options.encrypted) oops('Unexpected unencrypted contents', entry.name)
 
-      if (type === 'key') {
-        decryptionKey = crypto.privateDecrypt({
-          key: privateKey,
-          padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
-          oaepHash: 'sha256',
-          label: OAEP,
-        } as crypto.RsaPrivateKey, await zipfile.entryData(entry.name))
-      }
-      else {
-        const key = filename.toLowerCase()
-        const f = fileEntries[key] = fileEntries[key] || { filename }
-        f[type === 'iv' ? 'iv' : 'contents'] = entry.name
-        if (type) f.encrypted = true
-      }
-    }
-
-    if (options.encrypted && !decryptionKey) oops('no key file found')
-
-    for (const entry of Object.values(fileEntries)) {
-      if (!entry.contents) oops('no contents for', entry.filename)
-      if (entry.encrypted && !entry.iv) oops('no iv for', entry.filename)
-
-      const data = await zipfile.entryData(entry.contents)
-      const target = path.join('logs', entry.filename)
-
-      if (entry.iv) {
-        const iv = await zipfile.entryData(entry.iv)
-        const tag = data.slice(-16)
-        const ciphertext = data.slice(0, -16)
-        const decipher = crypto.createDecipheriv('aes-256-gcm', decryptionKey, iv)
-        decipher.setAuthTag(tag)
-        const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()])
-        fs.writeFileSync(target, decrypted)
-      }
-      else {
-        fs.writeFileSync(target, data)
+          fs.writeFileSync(target, await zipfile.entryData(entry.name))
+          break
+        case 'jwe': {
+          if (!options.encrypted) oops('Unexpected encrypted contents', entry.name)
+          const { plaintext } = await jose.compactDecrypt((await zipfile.entryData(entry.name)).toString('utf8'), privateKey)
+          fs.writeFileSync(target, plaintext)
+          break
+        }
+        default:
+          oops('Unexpected log entry', entry.name)
+          break
       }
     }
   }
   finally {
-    if (fs.existsSync(options.zip)) fs.unlinkSync(options.zip)
+    if (!options.keep && fs.existsSync(options.zip)) fs.unlinkSync(options.zip)
   }
 }
 

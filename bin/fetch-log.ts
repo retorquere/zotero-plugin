@@ -112,14 +112,13 @@ async function main() {
       const type = (m?.groups!.type || '').toLowerCase()
       const target = path.join('logs', filename)
 
+      if (options.encrypted && !type) oops('Unexpected unencrypted contents', entry.name)
+      if (type && !options.encrypted) oops('Unexpected encrypted contents', entry.name)
       switch (type) {
         case '':
-          if (options.encrypted) oops('Unexpected unencrypted contents', entry.name)
-
           fs.writeFileSync(target, await zipfile.entryData(entry.name))
           break
         case 'jwe': {
-          if (!options.encrypted) oops('Unexpected encrypted contents', entry.name)
           const { plaintext } = await jose.compactDecrypt((await zipfile.entryData(entry.name)).toString('utf8'), privateKey)
           fs.writeFileSync(target, plaintext)
           break

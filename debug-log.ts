@@ -26,22 +26,16 @@ export class Bundler {
 
   #refs = false
 
-  #symmetricKey: CryptoKey
   #pk?: JsonWebKey
   #pubKey?: CryptoKey
 
-  #crypto: Crypto
-  #subtle: SubtleCrypto
   #files: Record<string, Uint8Array> = {}
-
   #encoder = new TextEncoder()
 
   constructor(pk?: JsonWebKey) {
     this.key = Zotero.Utilities.generateObjectKey()
 
     if (pk && pk.kty === KEYTYPE) this.#pk = pk
-    this.#crypto = Zotero.getMainWindow().crypto
-    this.#subtle = this.#crypto.subtle
   }
 
   async add(path: string, data: string, refs = false): Promise<void> {

@@ -10,7 +10,6 @@ import { extname, resolve } from 'path'
 import prompts from 'prompts'
 
 import { KeyObject, webcrypto as crypto } from 'crypto'
-import forge from 'node-forge'
 import { CIPHER_ALGORITHM, RSA_ALGORITHM, RSA_HASH } from '../crypto'
 
 import { config as dotenvConfig } from 'dotenv'

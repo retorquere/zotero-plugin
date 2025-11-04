@@ -15,33 +15,6 @@ const jsonToJsPlugin = (): Plugin => ({
   },
 })
 
-const bufferedWarningsPlugin = (): Plugin => ({
-  name: 'buffered-warnings',
-  setup(build) {
-    build.onEnd(result => {
-      const warnings = result.warnings
-      if (warnings.length) {
-        console.log('⚠️  Build warnings:')
-        for (const w of warnings) {
-          console.log('')
-          if (w.location) {
-            const loc = w.location
-            // include file path, line, column
-            console.log(`  ${loc.file}:${loc.line}:${loc.column} - ${w.text}`)
-          }
-          else {
-            console.log('  ' + w.text)
-          }
-          // include notes if any
-          if (w.notes?.length) {
-            for (const note of w.notes) console.log('    note: ' + note.text)
-          }
-        }
-      }
-    })
-  },
-})
-
 const baseConfig: Omit<Options, 'format' | 'outDir'> = {
   entry: ['*.ts', 'bin/*.ts', 'loader/*.ts'],
   bundle: true,

@@ -20,7 +20,7 @@ export class Elements {
   }
 
   private className: string
-  constructor(private prefix: string, private document: Document) {
+  constructor(prefix: string, private document: Document) {
     this.className = `${prefix}-${Math.random()}-${Date.now()}`.replace('.', '-')
     if ((this.document as any).createXULElement) Elements.all.push(new WeakRef(this))
   }

@@ -11,7 +11,11 @@
     "lib": [
       "dom",
       "es2022"
-    ]
+    ],
+
+    "allowUnreachableCode": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false
   },
   "include": [
     "bin",

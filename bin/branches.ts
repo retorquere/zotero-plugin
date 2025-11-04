@@ -7,12 +7,11 @@ process.on('unhandledRejection', up => {
 })
 
 import 'dotenv/config'
-import * as path from 'path'
 
 import { Octokit } from '@octokit/rest'
 const octokit = new Octokit({ auth: `token ${process.env.GITHUB_TOKEN}` })
 
-import { pkg, root } from './find-root'
+import { pkg } from './find-root'
 
 const [, owner, repo] = pkg.repository.url.match(/:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)
 

@@ -3,8 +3,6 @@
 import fs from 'fs-extra'
 import path from 'path'
 
-import { root } from './find-root'
-
 function allow(file) {
   switch (path.basename(file)) {
     case '.DS_Store':

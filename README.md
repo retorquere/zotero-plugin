@@ -144,22 +144,16 @@ sent with the old keypair cannot be decrypted, so if you forget your passphrase,
 
 add this to your esbuild script:
 
-```
-const { pem } = require('zotero-plugin/loader/pem')
-```
-
-and add `pem` to your plugins in the esbuild config:
+The public key can be generated as json, cjs, esm or ts. In the case of ts, you would do
 
 ```
-...
-plugins: [pem],
-...
+import { jwk } from './public'
 ```
 
 and in your code, register using
 
 ```
-DebugLog.register('<your plugin name>', ['your-plugin.', 'fileHandler.pdf'], require('./public.pem'))
+DebugLog.register('<your plugin name>', ['your-plugin.', 'fileHandler.pdf'], jwk)
 ```
 
 Logs are sent to/retrieved from 0x0.st

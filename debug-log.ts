@@ -78,6 +78,20 @@ export class Bundler {
     formData.append('expire', `${expire * 24}`)
     return formData
   }
+
+  public async send(useragent, expire=30): Promise<string> {
+    const response = await fetch('https://0x0.st', {
+      method: 'POST',
+      body: this.formData(expire),
+      headers: {
+        'User-Agent': useragent,
+      },
+    })
+    const body = await response.text()
+    const id = body.match(/https:\/\/0x0.st\/([A-Z0-9]+)\.zip/i)
+    if (!id) throw new Error(body)
+    return this.id(`0x0-${id[1]}`)
+  }
 }
 
 declare var Zotero: { // eslint-disable-line no-var
@@ -206,17 +220,8 @@ class DebugLogSender {
     if (rdf) await bundler.add('items.rdf', rdf, true)
 
     try {
-      const response = await fetch('https://0x0.st', {
-        method: 'POST',
-        body: bundler.formData(),
-        headers: {
-          'User-Agent': `Zotero-plugin/${pkg.version}`,
-        },
-      })
-      const body = await response.text()
-      const id = body.match(/https:\/\/0x0.st\/([A-Z0-9]+)\.zip/i)
-      if (!id) throw new Error(body)
-      Services.prompt.alert(null, `Debug log ID for ${plugin}`, bundler.id(`0x0-${id[1]}`))
+      const logid = await bundler.send(`Zotero-plugin/${pkg.version}`)
+      Services.prompt.alert(null, `Debug log ID for ${plugin}`, logid)
     }
     catch (err) {
       Services.prompt.alert(null, `Could not post debug log for ${plugin}`, err.message)

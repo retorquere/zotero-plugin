@@ -3,14 +3,20 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
 
 import archiver from 'archiver'
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 
 import { glob } from 'glob'
 import { root } from './find-root'
 import { version } from './version'
 
-const [, , source, target] = process.argv
+const [, , source, target, ...exclude] = process.argv
+const excludes = exclude.map(ext => ext.toLowerCase())
+
+if (!source) {
+  console.info('zipup <source> <target> ...<exclude patterns>')
+  process.exit(1)
+}
 
 const xpi = path.join(root, 'xpi', `${target}-${version()}.xpi`)
 console.log(`creating ${xpi}`) // eslint-disable-line no-console
@@ -23,7 +29,7 @@ async function main() {
     nodir: true,
     cwd: build,
   })
-  files = files.filter(file => !file.endsWith('.js.map'))
+  files = files.filter(file => !excludes.find(ext => file.toLowerCase().endsWith(ext)))
 
   await new Promise<void>((resolve, reject) => {
     const xpi = path.join(root, 'xpi', `${target}-${version()}.xpi`)

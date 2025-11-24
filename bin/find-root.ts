@@ -1,5 +1,5 @@
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 
 const folders = process.cwd().split(path.sep)
 const rootIndex = folders.findIndex((folder: string, i: number) => fs.existsSync(path.join(folders.slice(0, i + 1).join(path.sep), 'package.json')))

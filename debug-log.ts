@@ -79,7 +79,7 @@ export class Bundler {
     return formData
   }
 
-  public async send(useragent, expire=30): Promise<string> {
+  public async send(useragent, expire = 30): Promise<string> {
     const response = await fetch('https://0x0.st', {
       method: 'POST',
       body: this.formData(expire),

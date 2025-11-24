@@ -6,6 +6,7 @@ import archiver from 'archiver'
 import * as fs from 'fs'
 import * as path from 'path'
 
+import { glob } from 'glob'
 import { root } from './find-root'
 import { version } from './version'
 
@@ -17,6 +18,13 @@ if (fs.existsSync(xpi)) fs.unlinkSync(xpi)
 if (!fs.existsSync(path.dirname(xpi))) fs.mkdirSync(path.dirname(xpi))
 
 async function main() {
+  const build = path.join(root, source)
+  let files = await glob('**/*', {
+    nodir: true,
+    cwd: build,
+  })
+  files = files.filter(file => !file.endsWith('.js.map'))
+
   await new Promise<void>((resolve, reject) => {
     const xpi = path.join(root, 'xpi', `${target}-${version()}.xpi`)
     const output = fs.createWriteStream(xpi)
@@ -24,7 +32,6 @@ async function main() {
 
     output.on('close', () => {
       console.log(archive.pointer() + ' total bytes')
-      console.log('Archiver has been finalized and the output file descriptor has closed.')
       resolve()
     })
 
@@ -43,8 +50,9 @@ async function main() {
 
     archive.pipe(output)
 
-    // Add files to the archive
-    archive.directory(`${root}/${source}`, false)
+    for (const file of files) {
+      archive.file(path.join(build, file), { name: file })
+    }
 
     archive.finalize()
   })

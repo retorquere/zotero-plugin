@@ -16,7 +16,7 @@
       "require": "./dist/cjs/debug-log.cjs"
     },
     "./logger": {
-      "import": "./dist/esm/ulogger.js",
+      "import": "./dist/esm/logger.js",
       "require": "./dist/cjs/logger.cjs"
     },
     ".loader/json": {

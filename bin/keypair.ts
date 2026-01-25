@@ -79,7 +79,7 @@ async function main() {
       case '.mjs':
         await writeFile(options.public, `export const jwk = ${JSON.stringify(publicKeyJwk, null, 2)}`)
         break
-      case '.mjs':
+      case '.cjs':
         await writeFile(options.public, `module.exports.jwk = ${JSON.stringify(publicKeyJwk, null, 2)}`)
         break
       case '.ts':

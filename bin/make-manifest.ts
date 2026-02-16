@@ -39,7 +39,7 @@ for (const translation of translations) {
   }
 }
 
-const options_and_vars = { minVersion: '7.0.0', maxVersion: '8.*', ...pkg, pretty: true }
+const options_and_vars = { minVersion: '7.0.32', maxVersion: '9.*', ...pkg, pretty: true }
 try {
   Object.assign(options_and_vars, JSON.parse(fs.readFileSync(path.join(root, 'schema', 'supported.json'), 'utf8')))
 }
@@ -61,7 +61,7 @@ fs.writeFileSync(
               applications: {
                 zotero: {
                   strict_min_version: options_and_vars.minVersion,
-                  trict_max_version: options_and_vars.maxVersion,
+                  strict_max_version: options_and_vars.maxVersion,
                 },
               },
             },

@@ -101,7 +101,7 @@ async function announce(issue_number, release) {
     reason = ` (${JSON.stringify(CI.commit_message)})`
     reason += [
       '',
-      `Install in Zotero by downloading ${link}, opening the Zotero "Tools" menu, selecting "Add-ons", open the gear menu in the top right, and select "Install Add-on From File...".`,
+      `Install in Zotero by downloading ${link}, opening the Zotero "Tools" menu, selecting "Plugins", open the gear menu in the top right, and select "Install Plugin From File...".`,
       'Please test this build and report back whether it fixes the issue, and if not, what the remaining problem is. In the latter case, please also send a new log.',
     ].join('\n\n')
   }

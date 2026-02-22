@@ -137,6 +137,10 @@ class DebugLogSender {
     this.#plugins.push({ plugin, preferences, pubKey })
   }
 
+  public unregister(plugin: string) {
+    this.#plugins = this.#plugins.filter(p => p.plugin !== plugin)
+  }
+
   private async send({ plugin, preferences, pubKey }: Plugin): Promise<void> {
     try {
       await Zotero.Schema.schemaUpdatePromise
@@ -254,5 +258,5 @@ function upgrade(installed?: string) {
   return installed.localeCompare(pkg.version, undefined, { numeric: true }) < 0
 }
 
-if (upgrade(Zotero.DebugLogSender?.version)) Zotero.DebugLogSender = new DebugLogSender
+if (upgrade(Zotero.DebugLogSender?.version)) Zotero.DebugLogSender = new DebugLogSender()
 export const DebugLog = Zotero.DebugLogSender

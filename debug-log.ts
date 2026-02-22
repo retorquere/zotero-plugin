@@ -3,23 +3,9 @@
 Components.utils.importGlobalProperties(['FormData'])
 import { CONTENT_ENCRYPTION_ALG, KEY_WRAPPING_ALG, KEYTYPE } from './crypto'
 
-type ZoteroPane = {
-  getSelectedItems: () => any[]
-}
-
 import * as jose from 'jose'
 import * as UZip from 'uzip'
 import pkg from './package.json'
-
-/*
-const path = new class {
-  #home = ''
-
-  get home(): string {
-    return this.#home = (this.#home || FileUtils.getDir('Home', []).path)
-  }
-}
-*/
 
 export class Bundler {
   public key: string
@@ -94,36 +80,6 @@ export class Bundler {
   }
 }
 
-declare var Zotero: { // eslint-disable-line no-var
-  platformMajorVersion: number
-  debug: (msg: string) => void
-  DebugLogSender: {
-    plugins: Record<string, string[]>
-  }
-  Translate: any
-  Prefs: {
-    get: (name: string, global?: boolean) => string | number | boolean
-  }
-  getInstalledExtensions: () => Promise<string[]>
-  platform: string
-  oscpu: string
-  arch: string
-  locale: string
-  Utilities: {
-    generateObjectKey: () => string
-  }
-  Debug: {
-    enabled: boolean
-    getConsoleViewerOutput: () => string[]
-  }
-  getErrors: (something: boolean) => string[]
-  Schema: {
-    schemaUpdatePromise: Promise<void>
-  }
-  getActiveZoteroPane: () => ZoteroPane
-  getMainWindow(): Window
-}
-
 declare var Services: any // eslint-disable-line no-var
 declare const Components: any
 declare const ChromeUtils: any
@@ -137,89 +93,66 @@ type ExportTranslator = {
 
 const zotero_prefs_root = 'extensions.zotero.'
 
+type Plugin = {
+  plugin: string
+  preferences: string[]
+  pubKey?: JsonWebKey
+}
+
 class DebugLogSender {
-  public id = {
-    menu: 'debug-log-sender-menu',
-    menupopup: 'debug-log-sender-menupopup',
-    menuitem: 'debug-log-sender',
-  }
+  version = pkg.version
+  #menu: string | false
+  #plugins: Plugin[] = []
 
   public debugEnabledAtStart: boolean = typeof Zotero !== 'undefined'
     ? (Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled) as unknown as boolean
     : null
 
-  private element(name: string, attrs: Record<string, string> = {}): HTMLElement {
-    const doc = Zotero.getMainWindow().document
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const elt: HTMLElement = doc[Zotero.platformMajorVersion >= 102 ? 'createXULElement' : 'createElement'](name)
-    for (const [k, v] of Object.entries(attrs)) {
-      elt.setAttribute(k, v)
-    }
-    return elt
-  }
-
   public register(plugin: string, preferences: string[] = [], pubKey?: JsonWebKey): void {
-    const menuLabel = 'Send plugin debug log'
-
-    const doc = Zotero.getMainWindow()?.document
-    if (doc) {
-      let menupopup = doc.querySelector(`#${this.id.menupopup}`)
-      if (menupopup) {
-        menupopup.setAttribute('label', menuLabel)
-      }
-      else {
-        menupopup = doc.querySelector('menupopup#menu_HelpPopup')
-          .appendChild(this.element('menu', { id: this.id.menu, label: menuLabel }))
-          .appendChild(this.element('menupopup', { id: this.id.menupopup }))
-      }
-
-      doc.querySelector(`.${this.id.menuitem}[label=${JSON.stringify(plugin)}]`)?.remove()
-      const menuitem = menupopup.appendChild(this.element('menuitem', {
-        label: plugin,
-        class: this.id.menuitem,
-        'data-preferences': JSON.stringify(preferences || []),
-        'data-pubkey': JSON.stringify(pubKey),
-      }))
-      menuitem.addEventListener('command', event => this.send(event.currentTarget))
-    }
-  }
-
-  public unregister(plugin: string): void {
-    const doc = Zotero.getMainWindow()?.document
-    if (doc) {
-      doc.querySelector(`.debug-log-sender[label=${JSON.stringify(plugin)}]`)?.remove()
-      const menupopup = doc.querySelector('#debug-log-sender-menupopup')
-      if (menupopup && !menupopup.children.length) doc.querySelector('#debug-log-sender-menu')?.remove()
-    }
-  }
-
-  public send(target: EventTarget): void {
-    const elt: HTMLElement = target as unknown as HTMLElement
-    const plugin: string = elt.getAttribute('label')
-    const preferences: string[] = JSON.parse(elt.getAttribute('data-preferences')) as string[]
-    const pubkey: string = elt.getAttribute('data-pubkey')
-
-    this.sendAsync(plugin, preferences, pubkey).catch((err: Error) => {
-      Services.prompt.alert(null, 'Debug log submission error', `${err}`) // eslint-disable-line @typescript-eslint/restrict-template-expressions
+    this.#menu ??= Zotero.MenuManager.registerMenu({
+      menuID: 'debug-log-sender',
+      pluginID: 'debug-log-sender',
+      target: 'main/menubar/help',
+      menus: [
+        {
+          menuType: 'submenu',
+          onShowing: (event, context) => {
+            context.setVisible(!!this.#plugins.length)
+            context.menuElem?.setAttribute('label', 'Send plugin debug log')
+          },
+          menus: Array.from({ length: 20 }, (v, i) => ({
+            menuType: 'menuitem',
+            onShowing: (event: Event, context: _ZoteroTypes.MenuManager.MenuContext) => {
+              context.setVisible(this.#plugins.length > i)
+              context.menuElem?.setAttribute('label', this.#plugins[i]?.plugin || '')
+            },
+            onCommand: (event: Event, context: _ZoteroTypes.MenuManager.MenuContext) => {
+              void this.send(this.#plugins[i])
+            },
+          })),
+        },
+      ],
     })
+
+    this.#plugins.push({ plugin, preferences, pubKey })
   }
 
-  private async sendAsync(plugin: string, preferences: string[], pubkey = '') {
-    await Zotero.Schema.schemaUpdatePromise
-
-    const bundler = new Bundler(pubkey ? JSON.parse(pubkey) : undefined)
-
-    let log = [
-      await this.info(preferences),
-      Zotero.getErrors(true).join('\n\n'),
-      Zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line no-magic-numbers
-    ].filter((txt: string) => txt).join('\n\n').trim()
-    await bundler.add('debug.txt', log)
-
-    let rdf = await this.rdf()
-    if (rdf) await bundler.add('items.rdf', rdf, true)
-
+  private async send({ plugin, preferences, pubKey }: Plugin): Promise<void> {
     try {
+      await Zotero.Schema.schemaUpdatePromise
+
+      const bundler = new Bundler(pubKey || undefined)
+
+      let log = [
+        await this.info(preferences),
+        Zotero.getErrors(true).join('\n\n'),
+        Zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line no-magic-numbers
+      ].filter((txt: string) => txt).join('\n\n').trim()
+      await bundler.add('debug.txt', log)
+
+      let rdf = await this.rdf()
+      if (rdf) await bundler.add('items.rdf', rdf, true)
+
       const logid = await bundler.send(`Zotero-plugin/${pkg.version}`)
       Services.prompt.alert(null, `Debug log ID for ${plugin}`, logid)
     }
@@ -266,8 +199,7 @@ class DebugLogSender {
     info += `Application: ${appInfo.name} ${appInfo.version} ${Zotero.locale}\n`
 
     const platform = ['Win', 'Mac', 'Linux'].find(p => Zotero[`is${p}`]) || 'Unknown'
-    const arch = Zotero.oscpu || Zotero.arch
-    info += `Platform: ${platform} ${arch}\n`
+    info += `Platform: ${platform}\n`
 
     const addons: string[] = await Zotero.getInstalledExtensions()
     if (addons.length) {
@@ -306,28 +238,21 @@ class DebugLogSender {
       translation.translate() // eslint-disable-line @typescript-eslint/no-unsafe-call
     })
   }
-
-  /*
-  private arrayBufferToBase64(buffer) {
-    let binary = ''
-    const bytes = new Uint8Array(buffer)
-    const len = bytes.byteLength
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i])
-    }
-    return btoa(binary)
-  }
-
-  private base64ToArrayBuffer(base64) {
-    const binaryString = atob(base64)
-    const len = binaryString.length
-    const bytes = new Uint8Array(len)
-    for (let i = 0; i < len; i++) {
-      bytes[i] = binaryString.charCodeAt(i)
-    }
-    return bytes.buffer
-  }
-  */
 }
 
-export const DebugLog = new DebugLogSender()
+declare global {
+  interface Zotero {
+    DebugLogSender?: DebugLogSender
+  }
+  namespace Zotero {
+    var DebugLogSender: DebugLogSender | undefined
+  }
+}
+
+function upgrade(installed?: string) {
+  if (!installed) return true
+  return installed.localeCompare(pkg.version, undefined, { numeric: true }) < 0
+}
+
+if (upgrade(Zotero.DebugLogSender?.version)) Zotero.DebugLogSender = new DebugLogSender
+export const DebugLog = Zotero.DebugLogSender

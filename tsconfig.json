@@ -8,6 +8,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "types": ["zotero-types"],
     "lib": [
       "dom",
       "es2022"

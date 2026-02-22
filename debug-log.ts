@@ -61,9 +61,9 @@ export class Bundler {
     const response = await fetch(`https://filebin.net/${this.key}/${this.name}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/zip'
+        'Content-Type': 'application/zip',
       },
-      body: new Blob([this.zip], { type: "application/zip" }),
+      body: new Blob([this.zip], { type: 'application/zip' }),
     })
 
     if (response.ok) return this.id('fbin')

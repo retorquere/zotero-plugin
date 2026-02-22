@@ -53,30 +53,21 @@ export class Bundler {
     return `${this.key}.zip`
   }
 
-  public id(remote: string): string {
-    return `${this.key}-${remote}${this.#refs ? '.refs' : ''}${this.#pubKey ? '.enc' : ''}`
+  public id(host: string): string {
+    return `${this.key}-${host}${this.#refs ? '.refs' : ''}${this.#pubKey ? '.enc' : ''}`
   }
 
-  public formData(expire = 30): FormData {
-    const blob = new Blob([this.zip], { type: 'application/zip' })
-    const formData = new FormData()
-    formData.append('file', blob, this.name)
-    formData.append('expire', `${expire * 24}`)
-    return formData
-  }
-
-  public async send(useragent, expire = 30): Promise<string> {
-    const response = await fetch('https://0x0.st', {
+  public async send(): Promise<string> {
+    const response = await fetch(`https://filebin.net/${this.key}/${this.name}`, {
       method: 'POST',
-      body: this.formData(expire),
       headers: {
-        'User-Agent': useragent,
+        'Content-Type': 'application/zip'
       },
+      body: new Blob([this.zip], { type: "application/zip" }),
     })
-    const body = await response.text()
-    const id = body.match(/https:\/\/0x0.st\/([A-Z0-9]+)\.zip/i)
-    if (!id) throw new Error(body)
-    return this.id(`0x0-${id[1]}`)
+
+    if (response.ok) return this.id('fbin')
+    throw new Error(await response.text())
   }
 }
 
@@ -157,7 +148,7 @@ class DebugLogSender {
       let rdf = await this.rdf()
       if (rdf) await bundler.add('items.rdf', rdf, true)
 
-      const logid = await bundler.send(`Zotero-plugin/${pkg.version}`)
+      const logid = await bundler.send()
       Services.prompt.alert(null, `Debug log ID for ${plugin}`, logid)
     }
     catch (err) {

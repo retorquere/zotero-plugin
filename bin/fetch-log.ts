@@ -48,14 +48,15 @@ const args = program.args
 
 if (!args.length) oops('No log ID')
 
-let m = args[0].match(/^(?<key>[a-z0-9]+)-(?<host>[^-]+)-(?<remote>[^.]+)(?<tags>.*)$/i)
+let m = args[0].match(/^(?<key>[a-z0-9]+)-(?<host>[^-]+)(?<tags>.*)$/i)
 if (!m) oops(args[0], 'is not a valid log ID')
 
-if (m.groups.host !== '0x0') oops('Unexpected debug log host', m.groups.host)
+const { host, key, tags } = m.groups
+if (host !== 'fbin') oops('Unexpected debug log host', host)
 
-options.encrypted = m.groups.tags.split('.').includes('enc')
-options.zip = path.join('logs', `${m.groups.key}.zip`)
-options.url = `https://0x0.st/${m.groups.remote}.zip`
+options.encrypted = tags.split('.').includes('enc')
+options.zip = path.join('logs', `${key}.zip`)
+options.url = `https://filebin.net/${key}/${key}.zip`
 
 if (options.encrypted) {
   if (!options.private) oops('No private key provided')
@@ -63,7 +64,7 @@ if (options.encrypted) {
   if (!fs.existsSync('package.json')) oops('package.json does not exist in the current directory')
 }
 
-const logs = path.join('logs', m.groups!.key)
+const logs = path.join('logs', key)
 console.log(options.url, '=>', logs)
 if (!fs.existsSync(logs)) {
   fs.mkdirSync(logs, { recursive: true })

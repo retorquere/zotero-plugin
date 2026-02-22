@@ -92,15 +92,15 @@ async function main() {
     const response = await fetch(options.url, {
       method: 'GET',
       headers: {
-        'User-Agent': `Zotero plugin log fetcher ${pkg.version}`,
+        'User-Agent': 'curl/7.81.0', // filebin does not seem to accept custom user agents
+        'Accept-Encoding': 'identity',
         Accept: '*/*',
       },
     })
     if (!response.ok) oops(`Failed to download: ${response.statusText}`)
 
-    const readable = Readable.fromWeb(response.body as any)
     const download = fs.createWriteStream(options.zip)
-    await finished(readable.pipe(download))
+    await finished(Readable.fromWeb(response.body as any).pipe(download))
 
     const zipfile = new StreamZip.async({ file: options.zip })
     const entries = Object.values(await zipfile.entries()).filter(entry => !entry.isDirectory)

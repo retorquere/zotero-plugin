@@ -125,6 +125,7 @@ class DebugLogSender {
       ],
     })
 
+    this.unregister(plugin.plugin)
     this.#plugins.push({ plugin, preferences, pubKey })
   }
 

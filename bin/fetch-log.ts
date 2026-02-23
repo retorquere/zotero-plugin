@@ -48,7 +48,7 @@ const args = program.args
 
 if (!args.length) oops('No log ID')
 
-let m = args[0].match(/^(?<key>[a-z0-9]+)-(?<host>[^-]+)(?<tags>.*)$/i)
+let m = args[0].match(/^(?<key>[a-z0-9]+)-(?<host>[^.-]+)(?<tags>([.][^.]+)*)$/i)
 if (!m) oops(args[0], 'is not a valid log ID')
 
 const { host, key, tags } = m.groups

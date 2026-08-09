@@ -92,10 +92,10 @@ type Plugin = {
 
 class DebugLogSender {
   version = pkg.version
-  #menu: string | false
+  #menu: string | false = false
   #plugins: Plugin[] = []
 
-  public debugEnabledAtStart: boolean = typeof Zotero !== 'undefined'
+  public debugEnabledAtStart: boolean | null = typeof Zotero !== 'undefined'
     ? (Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled) as unknown as boolean
     : null
 
@@ -153,7 +153,8 @@ class DebugLogSender {
       Services.prompt.alert(null, `Debug log ID for ${plugin}`, logid)
     }
     catch (err) {
-      Services.prompt.alert(null, `Could not post debug log for ${plugin}`, err.message)
+      const message = err instanceof Error ? err.message : String(err)
+      Services.prompt.alert(null, `Could not post debug log for ${plugin}`, message)
     }
   }
 
@@ -180,7 +181,8 @@ class DebugLogSender {
     }
 
     for (const pref of names.sort()) {
-      prefs[pref] = Zotero.Prefs.get(pref, true)
+      const value = Zotero.Prefs.get(pref, true) as string | number | boolean | undefined
+      if (typeof value !== 'undefined') prefs[pref] = value
     }
 
     return prefs
@@ -194,7 +196,8 @@ class DebugLogSender {
     const appInfo: { name: string; version: string } = Components.classes['@mozilla.org/xre/app-info;1'].getService(Components.interfaces.nsIXULAppInfo)
     info += `Application: ${appInfo.name} ${appInfo.version} ${Zotero.locale}\n`
 
-    const platform = ['Win', 'Mac', 'Linux'].find(p => Zotero[`is${p}`]) || 'Unknown'
+    const platformFlags = Zotero as unknown as Record<string, unknown>
+    const platform = ['Win', 'Mac', 'Linux'].find(p => Boolean(platformFlags[`is${p}`])) || 'Unknown'
     info += `Platform: ${platform}\n`
 
     const addons: string[] = await Zotero.getInstalledExtensions()
@@ -214,7 +217,9 @@ class DebugLogSender {
   private rdf(): Promise<string> {
     return new Promise((resolve, reject) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-      const items: any[] = Zotero.getActiveZoteroPane().getSelectedItems()
+      const pane = Zotero.getActiveZoteroPane()
+      if (!pane) return resolve('')
+      const items: any[] = pane.getSelectedItems()
       if (items.length === 0) return resolve('')
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
@@ -224,7 +229,7 @@ class DebugLogSender {
 
       translation.setHandler('done', (obj, success) => {
         if (success) {
-          resolve(obj ? obj.string : undefined)
+          resolve(obj?.string || '')
         }
         else {
           reject(new Error('translation failed'))

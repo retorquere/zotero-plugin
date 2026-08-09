@@ -15,23 +15,39 @@ import prompts from 'prompts'
 import { KEY_WRAPPING_ALG } from '../crypto'
 import { pkg } from './find-root'
 
+type FetchLogOptions = {
+  private: string
+  keep: boolean
+  encrypted: boolean
+  zip: string
+  url: string
+}
+
+type LogIdGroups = {
+  host: string
+  key: string
+  tags: string
+}
+
 async function getPassphrase(): Promise<string> {
   const service = `${pkg.name} Zotero plugin`
   const account = `${pkg.name}-debug-log`
   const entry = new KeyRingEntry(service, account)
-  let passphrase = entry.getPassword()
-  if (!passphrase) {
-    const response = await prompts({
-      type: 'password',
-      name: 'passphrase',
-      message: `Enter a passphrase to decrypt your private key for ${service} ${account}:`,
-    })
-    entry.setPassword(passphrase = response.passphrase)
-  }
-  return passphrase
+  const storedPassphrase = entry.getPassword()
+  if (storedPassphrase) return storedPassphrase
+
+  const response = await prompts({
+    type: 'password',
+    name: 'passphrase',
+    message: `Enter a passphrase to decrypt your private key for ${service} ${account}:`,
+  }) as { passphrase?: string }
+  const providedPassphrase = response.passphrase || oops('No passphrase entered')
+
+  entry.setPassword(providedPassphrase)
+  return providedPassphrase
 }
 
-const oops = (...args) => {
+const oops = (...args: unknown[]): never => {
   console.error(...args)
   process.exit(1)
 }
@@ -43,20 +59,23 @@ program
   .option('-k, --keep', 'Keep the downloaded zip', false)
   .argument('<debug log id>', 'debug log ID to fetch')
   .parse(process.argv)
-const options = program.opts()
-const args = program.args
+const args = program.args as string[]
 
 if (!args.length) oops('No log ID')
 
-let m = args[0].match(/^(?<key>[a-z0-9]+)-(?<host>[^.-]+)(?<tags>([.][^.]+)*)$/i)
-if (!m) oops(args[0], 'is not a valid log ID')
+const m = args[0].match(/^(?<key>[a-z0-9]+)-(?<host>[^.-]+)(?<tags>([.][^.]+)*)$/i)
+const groups = m?.groups as Partial<LogIdGroups> | undefined
+if (!groups?.host || !groups.key || typeof groups.tags !== 'string') oops(args[0], 'is not a valid log ID')
 
-const { host, key, tags } = m.groups
+const { host, key, tags } = groups as LogIdGroups
 if (host !== 'fbin') oops('Unexpected debug log host', host)
 
-options.encrypted = tags.split('.').includes('enc')
-options.zip = path.join('logs', `${key}.zip`)
-options.url = `https://filebin.net/${key}/${key}.zip`
+const options: FetchLogOptions = {
+  ...(program.opts() as Pick<FetchLogOptions, 'private' | 'keep'>),
+  encrypted: tags.split('.').includes('enc'),
+  zip: path.join('logs', `${key}.zip`),
+  url: `https://filebin.net/${key}/${key}.zip`,
+}
 
 if (options.encrypted) {
   if (!options.private) oops('No private key provided')
@@ -70,7 +89,7 @@ if (!fs.existsSync(logs)) {
   fs.mkdirSync(logs, { recursive: true })
 }
 
-async function getPrivateKey(): Promise<webcrypto.CryptoKey> {
+async function getPrivateKey(): Promise<webcrypto.CryptoKey | undefined> {
   if (!options.encrypted) return undefined
 
   const privateKeyObject = crypto.createPrivateKey({
@@ -120,6 +139,7 @@ async function main() {
           fs.writeFileSync(target, await zipfile.entryData(entry.name))
           break
         case 'jwe': {
+          if (!privateKey) oops('Missing private key for encrypted log entry', entry.name)
           const { plaintext } = await jose.compactDecrypt((await zipfile.entryData(entry.name)).toString('utf8'), privateKey)
           fs.writeFileSync(target, plaintext)
           break

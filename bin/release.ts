@@ -19,6 +19,14 @@ import { ContinuousIntegration as CI } from './continuous-integration'
 import { pkg, root } from './find-root'
 import { version } from './version'
 
+type ReleaseOptions = {
+  releaseMessage?: string
+  xpi: string
+  dryRun: boolean
+  preRelease?: boolean
+  tag?: string
+}
+
 program
   .option('-r, --release-message <value>', 'add message to github release')
   .option('-x, --xpi <value>', 'xpi filename template', '{name}-{version}.xpi')
@@ -26,7 +34,7 @@ program
   .option('-p, --pre-release', 'release is a pre-release')
   .option('-t, --tag <value>', 'tag for release', CI.tag)
   .parse(process.argv)
-const options = program.opts()
+const options = program.opts() as ReleaseOptions
 
 if (options.tag && options.tag !== CI.tag) {
   console.log('dry-run: tag specified manually, switching to dry-run mode')
@@ -37,15 +45,30 @@ if (options.releaseMessage?.startsWith('@')) options.releaseMessage = fs.readFil
 
 import { Octokit } from '@octokit/rest'
 const octokit = new Octokit({ auth: `token ${process.env.GITHUB_TOKEN}` })
+type ReleaseResponse = {
+  data: {
+    id: number
+    tag_name: string
+    html_url: string
+    upload_url: string
+    assets?: Array<{
+      id: number
+      name: string
+      created_at: string
+    }>
+  }
+}
 
-const [, owner, repo] = pkg.repository.url.match(/:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)
+const repositoryMatch = pkg.repository.url.match(/:\/\/github.com\/([^/]+)\/([^.]+)\.git$/)
+if (!repositoryMatch) throw new Error(`Could not parse GitHub repository URL: ${pkg.repository.url}`)
+const [, owner, repo] = repositoryMatch
 
 const xpi = parseTemplate(options.xpi).expand({ ...pkg, version: version() })
 
 // eslint-disable-next-line no-magic-numbers
 const EXPIRE_BUILDS = moment().subtract(7, 'days').toDate().toISOString()
 
-function bail(msg, status = 1) {
+function bail(msg: string, status = 1): never {
   console.log(msg) // eslint-disable-line no-console
   process.exit(status)
 }
@@ -55,7 +78,7 @@ if (options.dryRun) {
   CI.branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim()
 }
 
-function report(msg) {
+function report(msg: string): void {
   console.log(`${options.dryRun ? 'dry-run: ' : ''}${msg}`) // eslint-disable-line no-console
 }
 
@@ -68,19 +91,25 @@ if (options.tag) {
   if (CI.branch && !releaseBranches.includes(CI.branch)) bail(`Building tag ${options.tag}, but branch is ${CI.branch}`)
 }
 
-const tags = new Set()
+const tags = new Set<string>()
 for (let regex = /(?:^|\s)(?:#)([a-zA-Z\d]+)/gm, tag; tag = regex.exec(CI.commit_message);) {
   tags.add(tag[1])
 }
 
 if (tags.has('norelease')) bail(`Not releasing on ${CI.branch || 'default branch'} because of 'norelease' tag`, 0)
 
-const issues: Set<number> = new Set(Array.from(tags).map(parseInt).filter(tag => !isNaN(tag)))
+const issues: Set<number> = new Set(Array.from(tags, tag => Number.parseInt(tag, 10)).filter(tag => !Number.isNaN(tag)))
 if ((/^((issue|gh)-)?[0-9]+(-[a-z]+)?$/i).exec(CI.branch)) {
-  issues.add(parseInt(CI.branch.replace(/[^0-9]/g, '')))
+  issues.add(Number.parseInt(CI.branch.replace(/[^0-9]/g, ''), 10))
 }
 
-async function announce(issue_number, release) {
+function releaseTagName(release?: ReleaseResponse): string {
+  if (release?.data.tag_name) return release.data.tag_name
+  if (options.tag) return options.tag
+  bail('Cannot determine release tag name for announcement')
+}
+
+async function announce(issue_number: number, release?: ReleaseResponse): Promise<void> {
   if (tags.has('noannounce')) return
 
   const issue = (await octokit.issues.get({ owner, repo, issue_number })).data
@@ -95,7 +124,7 @@ async function announce(issue_number, release) {
   else {
     build = `test build ${version()}`
   }
-  const link = `[${build}](https://github.com/${owner}/${repo}/releases/download/${release.data.tag_name}/${pkg.name}-${version()}.xpi)`
+  const link = `[${build}](https://github.com/${owner}/${repo}/releases/download/${releaseTagName(release)}/${pkg.name}-${version()}.xpi)`
 
   if (!options.tag) {
     reason = ` (${JSON.stringify(CI.commit_message)})`
@@ -114,14 +143,14 @@ async function announce(issue_number, release) {
   try {
     await octokit.issues.createComment({ owner, repo, issue_number, body })
   }
-  catch (error) {
+  catch {
     report(`Failed to announce '${build}: ${reason}' on ${issue_number}`)
   }
 
   if (process.env.GITHUB_ENV) fs.appendFileSync(process.env.GITHUB_ENV, `XPI_RELEASED=${issue_number}\n`)
 }
 
-async function uploadAsset(release, asset, contentType) {
+async function uploadAsset(release: ReleaseResponse, asset: string, contentType: string): Promise<void> {
   report(`uploading ${path.basename(asset)} to ${release.data.tag_name}`)
   if (options.dryRun) return
 
@@ -155,7 +184,7 @@ async function uploadAsset(release, asset, contentType) {
   }
 }
 
-async function getRelease(tag, prerelease) {
+async function getRelease(tag: string, prerelease: boolean): Promise<ReleaseResponse> {
   try {
     return await octokit.repos.getReleaseByTag({ owner, repo, tag })
   }
@@ -165,7 +194,6 @@ async function getRelease(tag, prerelease) {
     }
     catch (err) {
       bail(`Could not get release ${tag}: ${err}`)
-      return null
     }
   }
 }
@@ -175,7 +203,7 @@ async function update_rdf(releases_tag: string) {
 
   const assets = (await octokit.repos.listReleaseAssets({ owner, repo, release_id: release.data.id })).data
 
-  const updates = {
+  const updates: Record<string, string> = {
     'updates.json': 'application/json',
   }
 
@@ -205,7 +233,7 @@ async function main(): Promise<void> {
     }
   }
 
-  let release
+  let release: ReleaseResponse | undefined
   if (options.tag) {
     // upload XPI
 
@@ -223,8 +251,9 @@ async function main(): Promise<void> {
     }
     else {
       report(`uploading ${xpi} to new release ${CI.tag}`)
-      release = await octokit.repos.createRelease({ owner, repo, tag_name: CI.tag, prerelease: !!options.preRelease, body: options.releaseMessage || '' })
-      await uploadAsset(release, path.join(root, `xpi/${xpi}`), 'application/vnd.zotero.plugin')
+      const createdRelease = await octokit.repos.createRelease({ owner, repo, tag_name: CI.tag, prerelease: !!options.preRelease, body: options.releaseMessage || '' })
+      release = createdRelease
+      await uploadAsset(createdRelease, path.join(root, `xpi/${xpi}`), 'application/vnd.zotero.plugin')
     }
 
     // RDF update pointer(s)

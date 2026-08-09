@@ -25,7 +25,7 @@ for (const translation of translations) {
   const body: FTL.Entry[] = ftl.body || []
   const msg: FTL.Message = body.find((msg: FTL.Entry) => msg.type === 'Message' && msg.id.type === 'Identifier' && msg.id.name === 'xpi') as FTL.Message
   if (!msg) continue
-  const attr: FTL.Attribute = msg.attributes.find((attr: FTL.Attribute) => attr.id.type === 'Identifier' && attr.id.name === 'description')
+  const attr = msg.attributes.find((candidate: FTL.Attribute) => candidate.id.type === 'Identifier' && candidate.id.name === 'description')
   if (!attr) continue
   const description = attr.value.elements.filter((e: FTL.PatternElement) => e.type === 'TextElement').map((e: FTL.PatternElement) => e.value as string).join('')
   if (!description) continue

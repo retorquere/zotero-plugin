@@ -3,7 +3,7 @@
 import fs from 'fs-extra'
 import path from 'path'
 
-function allow(file) {
+function allow(file: string): boolean {
   switch (path.basename(file)) {
     case '.DS_Store':
       return false
@@ -22,7 +22,7 @@ function allow(file) {
 
 console.log('copying assets')
 
-function shouldCopy(dir) {
+function shouldCopy(dir: string): boolean {
   return fs.existsSync(dir) && !fs.existsSync(path.join(dir, '.nomedia'))
 }
 
@@ -31,7 +31,7 @@ export function copy() {
     if (!shouldCopy(dir)) continue
 
     fs.copySync(dir, path.join('build', dir), {
-      filter(src) {
+      filter(src: string) {
         if (dir !== 'chrome.manifest' && dir !== 'resource' && !allow(src)) return false
         if (fs.lstatSync(src).isFile()) console.log(' ', src)
         return true
@@ -41,7 +41,7 @@ export function copy() {
 
   if (shouldCopy('client')) {
     fs.copySync('client', 'build', {
-      filter(src) {
+      filter(src: string) {
         if (fs.lstatSync(src).isFile()) console.log(' ', src)
         return true
       },

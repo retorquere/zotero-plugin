@@ -14,11 +14,11 @@ const options = program.opts()
 
 type ProfileConfig = {
   path: string
-  name?: string
+  name: string
 }
 
 type ZoteroConfig = {
-  path?: string
+  path: string
   log?: string
   db?: string
 }
@@ -48,13 +48,14 @@ class Config {
     // Initialize profile configuration
     this.profile = {
       path: this.expandUserPath(config.profile?.path || ''),
-      name: config.profile?.name,
+      name: config.profile?.name || '',
     }
 
     if (!this.profile.path) throw new Error('no profile path')
+    if (!this.profile.name) throw new Error('no profile name')
 
     this.zotero = {
-      path: config.zotero?.[options.beta ? 'beta' : 'path'],
+      path: config.zotero?.[options.beta ? 'beta' : 'path'] || '',
       log: config.zotero?.log,
       db: config.zotero?.db,
     }

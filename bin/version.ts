@@ -7,11 +7,12 @@ import path from 'node:path'
 import { ContinuousIntegration as CI } from './continuous-integration'
 import { pkg, root } from './find-root'
 
-export function version(): string {
+export function version(n = 3): string {
   let $version = pkg.version as string
 
   if (CI.service && !CI.tag) {
-    $version = `${$version}.${CI.build_number}`
+    const build_number = `${CI.build_number % (10 ** n)}`.padStart(n, '0') // assuming you are not outputting thousands of builds a week
+    $version = `${$version}.${build_number}`
   }
   else if (!CI.service) {
     $version = `${$version}.${os.userInfo().username}.${os.hostname()}`

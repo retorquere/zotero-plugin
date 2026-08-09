@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
 
 import archiver from 'archiver'
+import type { ArchiverError } from 'archiver'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
@@ -41,7 +42,7 @@ async function main() {
       resolve()
     })
 
-    archive.on('warning', err => {
+    archive.on('warning', (err: ArchiverError) => {
       if (err.code === 'ENOENT') {
         console.warn(err.message)
       }
@@ -50,7 +51,7 @@ async function main() {
       }
     })
 
-    archive.on('error', err => {
+    archive.on('error', (err: Error) => {
       reject(err)
     })
 

@@ -2,8 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
 
-import archiver from 'archiver'
-import type { ArchiverError } from 'archiver'
+import { ZipArchive, type ArchiverError } from 'archiver'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
@@ -35,7 +34,7 @@ async function main() {
   await new Promise<void>((resolve, reject) => {
     const xpi = path.join(root, 'xpi', `${target}-${version()}.xpi`)
     const output = fs.createWriteStream(xpi)
-    const archive = archiver('zip', { zlib: { level: 9 } })
+    const archive = new ZipArchive({ zlib: { level: 9 } })
 
     output.on('close', () => {
       console.log(archive.pointer() + ' total bytes')

@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
 
-import { ZipArchive, type ArchiverError } from 'archiver'
+import { type ArchiverError, ZipArchive } from 'archiver'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 

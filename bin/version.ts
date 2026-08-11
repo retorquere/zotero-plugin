@@ -7,7 +7,7 @@ import path from 'node:path'
 import { ContinuousIntegration as CI } from './continuous-integration'
 import { pkg, root } from './find-root'
 
-export function version(n = 3): string {
+export function version(n = 4): string {
   let $version = pkg.version as string
 
   if (CI.service && !CI.tag) {

@@ -246,7 +246,7 @@ declare global {
     DebugLogSender?: DebugLogSender
   }
   namespace Zotero {
-    var DebugLogSender: DebugLogSender | undefined
+    var DebugLogSender: DebugLogSender
   }
 }
 

@@ -255,5 +255,7 @@ function upgrade(installed?: string) {
   return installed.localeCompare(pkg.version, undefined, { numeric: true }) < 0
 }
 
-if (upgrade(Zotero.DebugLogSender?.version)) Zotero.DebugLogSender = new DebugLogSender()
+if (Components.utils.isDeadWrapper(Zotero.DebugLogSender) || upgrade(Zotero.DebugLogSender?.version)) {
+  Zotero.DebugLogSender = new DebugLogSender()
+}
 export const DebugLog = Zotero.DebugLogSender

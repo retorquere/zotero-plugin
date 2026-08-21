@@ -255,7 +255,17 @@ function upgrade(installed?: string) {
   return installed.localeCompare(pkg.version, undefined, { numeric: true }) < 0
 }
 
-if (Components.utils.isDeadWrapper(Zotero.DebugLogSender) || upgrade(Zotero.DebugLogSender?.version)) {
+function isDead(obj: any): boolean {
+  if (!obj || (typeof obj !== 'object' && typeof obj !== 'function')) return false
+  try {
+    Object.keys(obj) // Attempting to reflect or read a key on a dead JS proxy ALWAYS throws
+    return false
+  }
+  catch {
+    return true
+  }
+}
+if (isDead(Zotero.DebugLogSender) || upgrade(Zotero.DebugLogSender?.version)) {
   Zotero.DebugLogSender = new DebugLogSender()
 }
 export const DebugLog = Zotero.DebugLogSender

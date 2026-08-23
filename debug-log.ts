@@ -100,13 +100,14 @@ export class DebugLogSender {
         {
           menuType: 'menuitem',
           onShowing: (event: Event, context: _ZoteroTypes.MenuManager.MenuContext) => {
-          context.setVisible(this.enabled)
-          context.menuElem?.setAttribute('label', this.label)
+            context.setVisible(this.enabled)
+            context.menuElem?.setAttribute('label', this.label)
+          },
+          onCommand: (event: Event, context: _ZoteroTypes.MenuManager.MenuContext) => {
+            void this.send()
+          },
         },
-        onCommand: (event: Event, context: _ZoteroTypes.MenuManager.MenuContext) => {
-          void this.send()
-        },
-      }],
+      ],
     })
   }
 

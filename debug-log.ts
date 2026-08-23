@@ -5,7 +5,6 @@ import { CONTENT_ENCRYPTION_ALG, KEY_WRAPPING_ALG, KEYTYPE } from './crypto'
 
 import * as jose from 'jose'
 import * as UZip from 'uzip'
-import pkg from './package.json'
 
 export class Bundler {
   public key: string
@@ -84,63 +83,41 @@ type ExportTranslator = {
 
 const zotero_prefs_root = 'extensions.zotero.'
 
-type Plugin = {
-  plugin: string
-  preferences: string[]
-  pubKey?: JsonWebKey
-}
+export class DebugLogSender {
+  // #menu: string | false = false
+  #preferences: string[]
 
-class DebugLogSender {
-  version = pkg.version
-  #menu: string | false = false
-  #plugins: Plugin[] = []
+  public enabled = false
+  public debugEnabledAtStart: boolean = (Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled) as unknown as boolean
 
-  public debugEnabledAtStart: boolean | null = typeof Zotero !== 'undefined'
-    ? (Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled) as unknown as boolean
-    : null
-
-  public register(plugin: string, preferences: string[] = [], pubKey?: JsonWebKey): void {
-    this.#menu ??= Zotero.MenuManager.registerMenu({
-      menuID: 'debug-log-sender',
-      pluginID: 'debug-log-sender',
+  constructor(public pluginID: string, public label: string, preferences: string[] = [], private pubKey?: JsonWebKey) {
+    this.#preferences = preferences
+    Zotero.MenuManager.registerMenu({
+      menuID: `debug-log-sender-${pluginID}`,
+      pluginID,
       target: 'main/menubar/help',
       menus: [
         {
-          menuType: 'submenu',
-          onShowing: (event, context) => {
-            context.setVisible(!!this.#plugins.length)
-            context.menuElem?.setAttribute('label', 'Send plugin debug log')
-          },
-          menus: Array.from({ length: 20 }, (v, i) => ({
-            menuType: 'menuitem',
-            onShowing: (event: Event, context: _ZoteroTypes.MenuManager.MenuContext) => {
-              context.setVisible(this.#plugins.length > i)
-              context.menuElem?.setAttribute('label', this.#plugins[i]?.plugin || '')
-            },
-            onCommand: (event: Event, context: _ZoteroTypes.MenuManager.MenuContext) => {
-              void this.send(this.#plugins[i])
-            },
-          })),
+          menuType: 'menuitem',
+          onShowing: (event: Event, context: _ZoteroTypes.MenuManager.MenuContext) => {
+          context.setVisible(this.enabled)
+          context.menuElem?.setAttribute('label', this.label)
         },
-      ],
+        onCommand: (event: Event, context: _ZoteroTypes.MenuManager.MenuContext) => {
+          void this.send()
+        },
+      }],
     })
-
-    this.unregister(plugin)
-    this.#plugins.push({ plugin, preferences, pubKey })
   }
 
-  public unregister(plugin: string) {
-    this.#plugins = this.#plugins.filter(p => p.plugin !== plugin)
-  }
-
-  private async send({ plugin, preferences, pubKey }: Plugin): Promise<void> {
+  private async send(): Promise<void> {
     try {
       await Zotero.Schema.schemaUpdatePromise
 
-      const bundler = new Bundler(pubKey || undefined)
+      const bundler = new Bundler(this.pubKey || undefined)
 
       let log = [
-        await this.info(preferences),
+        await this.info(),
         Zotero.getErrors(true).join('\n\n'),
         Zotero.Debug.getConsoleViewerOutput().slice(-250000).join('\n'), // eslint-disable-line no-magic-numbers
       ].filter((txt: string) => txt).join('\n\n').trim()
@@ -150,19 +127,19 @@ class DebugLogSender {
       if (rdf) await bundler.add('items.rdf', rdf, true)
 
       const logid = await bundler.send()
-      Services.prompt.alert(null, `Debug log ID for ${plugin}`, logid)
+      Services.prompt.alert(null, `Debug log ID for ${this.label}`, logid)
     }
     catch (err) {
       const message = err instanceof Error ? err.message : String(err)
-      Services.prompt.alert(null, `Could not post debug log for ${plugin}`, message)
+      Services.prompt.alert(null, `Could not post debug log for ${this.label}`, message)
     }
   }
 
-  private preferences(preferences: string[]): Record<string, string | number | boolean> {
+  private preferences(): Record<string, string | number | boolean> {
     const prefs: Record<string, string | number | boolean> = {}
 
     const names: string[] = []
-    for (let pref of preferences) {
+    for (let pref of this.#preferences) {
       if (pref[0] === ':') {
         pref = pref.substring(1)
       }
@@ -189,7 +166,7 @@ class DebugLogSender {
   }
 
   // general state of Zotero
-  private async info(preferences: string[]): Promise<string> {
+  private async info(): Promise<string> {
     let info = ''
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
@@ -207,7 +184,7 @@ class DebugLogSender {
     info += `Debug logging on at Zotero start: ${this.debugEnabledAtStart}\n`
     info += `Debug logging on at log submit: ${Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled}\n`
 
-    for (const [pref, value] of Object.entries(this.preferences(preferences))) {
+    for (const [pref, value] of Object.entries(this.preferences())) {
       info += `${pref} = ${JSON.stringify(value)}\n`
     }
 
@@ -240,32 +217,3 @@ class DebugLogSender {
     })
   }
 }
-
-declare global {
-  interface Zotero {
-    DebugLogSender?: DebugLogSender
-  }
-  namespace Zotero {
-    var DebugLogSender: DebugLogSender
-  }
-}
-
-function upgrade(installed?: string) {
-  if (!installed) return true
-  return installed.localeCompare(pkg.version, undefined, { numeric: true }) < 0
-}
-
-function isDead(obj: any): boolean {
-  if (!obj || (typeof obj !== 'object' && typeof obj !== 'function')) return false
-  try {
-    Object.keys(obj) // Attempting to reflect or read a key on a dead JS proxy ALWAYS throws
-    return false
-  }
-  catch {
-    return true
-  }
-}
-if (isDead(Zotero.DebugLogSender) || upgrade(Zotero.DebugLogSender?.version)) {
-  Zotero.DebugLogSender = new DebugLogSender()
-}
-export const DebugLog = Zotero.DebugLogSender

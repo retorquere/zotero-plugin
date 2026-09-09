@@ -11,6 +11,10 @@
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.cjs"
     },
+    "./build": {
+      "import": "./dist/esm/build.js",
+      "require": "./dist/cjs/build.cjs"
+    },
     "./debug-log": {
       "import": "./dist/esm/debug-log.js",
       "require": "./dist/cjs/debug-log.cjs"

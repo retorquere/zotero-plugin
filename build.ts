@@ -2,8 +2,8 @@
 
 import os from 'node:os'
 
-import { ContinuousIntegration as CI } from './continuous-integration'
-import { pkg } from './find-root'
+import { ContinuousIntegration as CI } from './bin/continuous-integration'
+import { pkg } from './bin/find-root'
 
 export let version = ''
 export let release = Boolean(CI.tag)

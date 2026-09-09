@@ -7,12 +7,12 @@ import * as path from 'path'
 import { parseTemplate } from 'url-template'
 
 import { pkg, root } from './find-root'
-import { version } from './version'
+import { version } from '../build'
 
 if (!pkg.id) (pkg.id as string) = `${pkg.name}@${pkg.author.email.replace(/.*@/, '')}`.toLowerCase()
 if (pkg.xpi) Object.assign(pkg, pkg.xpi)
 
-pkg.version = version()
+pkg.version = version
 
 if (pkg.updateLink) pkg.updateLink = parseTemplate(pkg.updateLink).expand({ version: pkg.version })
 pkg.updateURL = `${pkg.xpi.releaseURL}update.rdf`

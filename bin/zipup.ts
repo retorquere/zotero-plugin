@@ -8,7 +8,7 @@ import * as path from 'node:path'
 
 import { glob } from 'glob'
 import { root } from './find-root'
-import { version } from './version'
+import { version } from '../build'
 
 const [, , source, target, ...exclude] = process.argv
 const excludes = exclude.map(ext => ext.toLowerCase())
@@ -18,7 +18,7 @@ if (!source) {
   process.exit(1)
 }
 
-const xpi = path.join(root, 'xpi', `${target}-${version()}.xpi`)
+const xpi = path.join(root, 'xpi', `${target}-${version}.xpi`)
 console.log(`creating ${xpi}`) // eslint-disable-line no-console
 if (fs.existsSync(xpi)) fs.unlinkSync(xpi)
 if (!fs.existsSync(path.dirname(xpi))) fs.mkdirSync(path.dirname(xpi))
@@ -32,7 +32,7 @@ async function main() {
   files = files.filter(file => !excludes.find(ext => file.toLowerCase().endsWith(ext)))
 
   await new Promise<void>((resolve, reject) => {
-    const xpi = path.join(root, 'xpi', `${target}-${version()}.xpi`)
+    const xpi = path.join(root, 'xpi', `${target}-${version}.xpi`)
     const output = fs.createWriteStream(xpi)
     const archive = new ZipArchive({ zlib: { level: 9 } })
 

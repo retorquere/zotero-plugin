@@ -17,7 +17,7 @@ import { parseTemplate } from 'url-template'
 import { ContinuousIntegration as CI } from './continuous-integration'
 
 import { pkg, root } from './find-root'
-import { version } from './version'
+import { version } from '../build'
 
 type ReleaseOptions = {
   releaseMessage?: string
@@ -63,7 +63,7 @@ const repositoryMatch = pkg.repository.url.match(/:\/\/github.com\/([^/]+)\/([^.
 if (!repositoryMatch) throw new Error(`Could not parse GitHub repository URL: ${pkg.repository.url}`)
 const [, owner, repo] = repositoryMatch
 
-const xpi = parseTemplate(options.xpi).expand({ ...pkg, version: version() })
+const xpi = parseTemplate(options.xpi).expand({ ...pkg, version })
 
 // eslint-disable-next-line no-magic-numbers
 const EXPIRE_BUILDS = moment().subtract(7, 'days').toDate().toISOString()
@@ -122,9 +122,9 @@ async function announce(issue_number: number, release?: ReleaseResponse): Promis
     build = `${options.preRelease ? 'pre-' : ''}release ${CI.tag}`
   }
   else {
-    build = `test build ${version()}`
+    build = `test build ${version}`
   }
-  const link = `[${build}](https://github.com/${owner}/${repo}/releases/download/${releaseTagName(release)}/${pkg.name}-${version()}.xpi)`
+  const link = `[${build}](https://github.com/${owner}/${repo}/releases/download/${releaseTagName(release)}/${pkg.name}-${version}.xpi)`
 
   if (!options.tag) {
     reason = ` (${JSON.stringify(CI.commit_message)})`

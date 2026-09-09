@@ -134,7 +134,6 @@
     "url": "https://github.com/retorquere/zotero-plugin/issues"
   },
   "devDependencies": {
-    "typescript": "^7.0.2",
     "@openpgp/web-stream-tools": "^0.3.1",
     "@types/archiver": "^8.0.0",
     "@types/fs-extra": "^11.0.4",
@@ -142,6 +141,12 @@
     "@types/prompts": "^2.4.9",
     "concurrently": "^10.0.5",
     "dprint": "^0.56.1",
-    "esbuild": "^0.28.2"
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  },
+  "allowScripts": {
+    "dprint@0.56.1": true,
+    "es5-ext@0.10.64": true,
+    "esbuild@0.28.2": true
   }
 }

@@ -7,8 +7,8 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 
 import { glob } from 'glob'
-import { root } from './find-root'
 import { version } from '../build'
+import { root } from './find-root'
 
 const [, , source, target, ...exclude] = process.argv
 const excludes = exclude.map(ext => ext.toLowerCase())

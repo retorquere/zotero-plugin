@@ -16,8 +16,8 @@ import { parseTemplate } from 'url-template'
 
 import { ContinuousIntegration as CI } from './continuous-integration'
 
-import { pkg, root } from './find-root'
 import { version } from '../build'
+import { pkg, root } from './find-root'
 
 type ReleaseOptions = {
   releaseMessage?: string

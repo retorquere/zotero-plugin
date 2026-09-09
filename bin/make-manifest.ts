@@ -6,8 +6,8 @@ import { globSync as glob } from 'glob'
 import * as path from 'path'
 import { parseTemplate } from 'url-template'
 
-import { pkg, root } from './find-root'
 import { version } from '../build'
+import { pkg, root } from './find-root'
 
 if (!pkg.id) (pkg.id as string) = `${pkg.name}@${pkg.author.email.replace(/.*@/, '')}`.toLowerCase()
 if (pkg.xpi) Object.assign(pkg, pkg.xpi)

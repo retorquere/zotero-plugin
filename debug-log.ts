@@ -135,7 +135,7 @@ export class DebugLogSender {
   public enabled = false
   public debugEnabledAtStart: boolean = (Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled) as unknown as boolean
 
-  constructor(public pluginID: string, public label: string, preferences: string[] = [], private pubKey?: JsonWebKey, private encryption?: Encryption) {
+  constructor(public pluginID: string, public label: string, preferences: string[] = [], private pubKey?: JsonWebKey) {
     this.#preferences = preferences
     Zotero.MenuManager.registerMenu({
       menuID: `debug-log-sender-${pluginID}`,
@@ -161,7 +161,7 @@ export class DebugLogSender {
       await Zotero.Schema.schemaUpdatePromise
 
       const bundler = this.pubKey
-        ? new Bundler(this.pubKey, this.encryption || getEncryption())
+        ? new Bundler(this.pubKey, getEncryption())
         : new Bundler()
 
       let log = [

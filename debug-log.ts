@@ -4,6 +4,11 @@ Components.utils.importGlobalProperties(['FormData'])
 import { CONTENT_ENCRYPTION_ALG, KEY_WRAPPING_ALG, KEYTYPE } from './crypto'
 
 import * as jose from 'jose'
+type Encryption = typeof jose
+
+export function getEncryption(): Encryption {
+  return jose
+}
 export class Bundler {
   public key: string
 
@@ -11,13 +16,18 @@ export class Bundler {
 
   #pk?: JsonWebKey
   #pubKey?: CryptoKey
+  #jose?: Encryption
 
   #files: Record<string, Uint8Array> = {}
   #encoder = new TextEncoder()
 
-  constructor(pk?: JsonWebKey) {
+  constructor()
+  constructor(pk: JsonWebKey, encryption: Encryption)
+  constructor(pk?: JsonWebKey, encryption?: Encryption) {
+    this.#jose = encryption
     this.key = Zotero.Utilities.generateObjectKey()
 
+    if (pk && !encryption) throw new Error('Encryption is required when a public key is provided')
     if (pk && pk.kty === KEYTYPE) this.#pk = pk
   }
 
@@ -27,8 +37,9 @@ export class Bundler {
     const encoded = this.#encoder.encode(data)
 
     if (this.#pk) {
-      if (!this.#pubKey) this.#pubKey = (await jose.importJWK(this.#pk, KEY_WRAPPING_ALG)) as CryptoKey
-      const jwe = await (new jose.CompactEncrypt(encoded))
+      if (!this.#jose) throw new Error('Encryption is required to encrypt a bundle')
+      if (!this.#pubKey) this.#pubKey = (await this.#jose.importJWK(this.#pk, KEY_WRAPPING_ALG)) as CryptoKey
+      const jwe = await (new this.#jose.CompactEncrypt(encoded))
         .setProtectedHeader({
           alg: KEY_WRAPPING_ALG,
           enc: CONTENT_ENCRYPTION_ALG,
@@ -124,7 +135,7 @@ export class DebugLogSender {
   public enabled = false
   public debugEnabledAtStart: boolean = (Zotero.Prefs.get('debug.store') || Zotero.Debug.enabled) as unknown as boolean
 
-  constructor(public pluginID: string, public label: string, preferences: string[] = [], private pubKey?: JsonWebKey) {
+  constructor(public pluginID: string, public label: string, preferences: string[] = [], private pubKey?: JsonWebKey, private encryption?: Encryption) {
     this.#preferences = preferences
     Zotero.MenuManager.registerMenu({
       menuID: `debug-log-sender-${pluginID}`,
@@ -149,7 +160,9 @@ export class DebugLogSender {
     try {
       await Zotero.Schema.schemaUpdatePromise
 
-      const bundler = new Bundler(this.pubKey || undefined)
+      const bundler = this.pubKey
+        ? new Bundler(this.pubKey, this.encryption || getEncryption())
+        : new Bundler()
 
       let log = [
         await this.info(),

@@ -4,8 +4,6 @@ Components.utils.importGlobalProperties(['FormData'])
 import { CONTENT_ENCRYPTION_ALG, KEY_WRAPPING_ALG, KEYTYPE } from './crypto'
 
 import * as jose from 'jose'
-import * as UZip from 'uzip'
-
 export class Bundler {
   public key: string
 
@@ -44,8 +42,40 @@ export class Bundler {
     }
   }
 
-  public get zip(): ArrayBuffer {
-    return UZip.encode(this.#files) as ArrayBuffer
+  public zip(): Promise<Uint8Array>
+  public zip(saveTo: string): Promise<undefined>
+  public async zip(saveTo?: string): Promise<Uint8Array | undefined> {
+    const temporary = !saveTo
+    const zipFile = saveTo ? Zotero.File.pathToFile(saveTo) : Zotero.getTempDirectory().clone()
+    if (temporary) {
+      zipFile.append('debug-log.zip')
+      zipFile.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE!, 0o600)
+    }
+
+    try {
+      const zipWriter = Components.classes['@mozilla.org/zipwriter;1'].createInstance(Components.interfaces.nsIZipWriter)
+      zipWriter.open(zipFile, 0x04 + 0x08 + 0x20)
+
+      for (const [path, data] of Object.entries(this.#files)) {
+        const stringInputStream = Components.classes['@mozilla.org/io/string-input-stream;1'].createInstance(Components.interfaces.nsIStringInputStream)
+
+        let rawString = ''
+        const chunkSize = 8192
+        for (let i = 0; i < data.length; i += chunkSize) {
+          rawString += String.fromCharCode(...Array.from(data.subarray(i, i + chunkSize)))
+        }
+
+        stringInputStream.setByteStringData(rawString)
+        zipWriter.addEntryStream(path, Date.now() * 1000, Components.interfaces.nsIZipWriter.COMPRESSION_DEFAULT!, stringInputStream, false)
+      }
+
+      zipWriter.close()
+      if (saveTo) return undefined
+      return new Uint8Array(await IOUtils.read(zipFile.path))
+    }
+    finally {
+      if (temporary && zipFile.exists()) zipFile.remove(false)
+    }
   }
 
   public get name(): string {
@@ -57,12 +87,16 @@ export class Bundler {
   }
 
   public async send(): Promise<string> {
+    const zip = await this.zip()
+    const archive = new ArrayBuffer(zip.byteLength)
+    new Uint8Array(archive).set(zip)
+
     const response = await fetch(`https://filebin.net/${this.key}/${this.name}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/zip',
       },
-      body: new Blob([this.zip], { type: 'application/zip' }),
+      body: new Blob([archive], { type: 'application/zip' }),
     })
 
     if (response.ok) return this.id('fbin')

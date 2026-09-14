@@ -158,7 +158,7 @@ export class DebugLogSender {
     try {
       await Zotero.Schema.schemaUpdatePromise
 
-      let bundler = new Bundler
+      let bundler = new Bundler()
       if (this.pubKey) bundler.encrypt(getEncryption(), this.pubKey)
 
       let log = [

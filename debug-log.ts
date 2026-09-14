@@ -10,7 +10,7 @@ export function getEncryption(): Encryption {
   return jose
 }
 export class Bundler {
-  public key: string
+  public name: string
 
   #refs = false
 
@@ -21,35 +21,33 @@ export class Bundler {
   #files: Record<string, Uint8Array> = {}
   #encoder = new TextEncoder()
 
-  constructor()
-  constructor(pk: JsonWebKey, encryption: Encryption)
-  constructor(pk?: JsonWebKey, encryption?: Encryption) {
-    this.#jose = encryption
-    this.key = Zotero.Utilities.generateObjectKey()
-
-    if (pk && !encryption) throw new Error('Encryption is required when a public key is provided')
-    if (pk && pk.kty === KEYTYPE) this.#pk = pk
+  constructor(name?: string) {
+    this.name = name ?? Zotero.Utilities.generateObjectKey()
   }
 
-  async add(path: string, data: string, refs = false): Promise<void> {
+  public encrypt(encryption: Encryption, pk: JsonWebKey): this {
+    this.#jose = encryption
+    if (pk.kty !== KEYTYPE) throw new Error(`Expected key type ${KEYTYPE}, got ${pk.kty}`)
+    this.#pk = pk
+
+    return this
+  }
+
+  public async add(path: string, data: string, refs = false): Promise<void> {
     this.#refs = this.#refs || refs
 
     const encoded = this.#encoder.encode(data)
 
     if (this.#pk) {
-      if (!this.#jose) throw new Error('Encryption is required to encrypt a bundle')
-      if (!this.#pubKey) this.#pubKey = (await this.#jose.importJWK(this.#pk, KEY_WRAPPING_ALG)) as CryptoKey
-      const jwe = await (new this.#jose.CompactEncrypt(encoded))
-        .setProtectedHeader({
-          alg: KEY_WRAPPING_ALG,
-          enc: CONTENT_ENCRYPTION_ALG,
-        })
+      this.#pubKey ??= (await this.#jose!.importJWK(this.#pk, KEY_WRAPPING_ALG)) as CryptoKey
+      const jwe = await (new this.#jose!.CompactEncrypt(encoded))
+        .setProtectedHeader({ alg: KEY_WRAPPING_ALG, enc: CONTENT_ENCRYPTION_ALG })
         .encrypt(this.#pubKey)
 
-      this.#files[`${this.key}/${path}.jwe`] = this.#encoder.encode(jwe)
+      this.#files[`${this.name}/${path}.jwe`] = this.#encoder.encode(jwe)
     }
     else {
-      this.#files[`${this.key}/${path}`] = encoded
+      this.#files[`${this.name}/${path}`] = encoded
     }
   }
 
@@ -89,12 +87,12 @@ export class Bundler {
     }
   }
 
-  public get name(): string {
-    return `${this.key}.zip`
+  public get filename(): string {
+    return `${this.name}.zip`
   }
 
   public id(host: string): string {
-    return `${this.key}-${host}${this.#refs ? '.refs' : ''}${this.#pubKey ? '.enc' : ''}`
+    return `${this.name}-${host}${this.#refs ? '.refs' : ''}${this.#pubKey ? '.enc' : ''}`
   }
 
   public async send(): Promise<string> {
@@ -102,7 +100,7 @@ export class Bundler {
     const archive = new ArrayBuffer(zip.byteLength)
     new Uint8Array(archive).set(zip)
 
-    const response = await fetch(`https://filebin.net/${this.key}/${this.name}`, {
+    const response = await fetch(`https://filebin.net/${this.name}/${this.filename}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/zip',
@@ -160,9 +158,8 @@ export class DebugLogSender {
     try {
       await Zotero.Schema.schemaUpdatePromise
 
-      const bundler = this.pubKey
-        ? new Bundler(this.pubKey, getEncryption())
-        : new Bundler()
+      let bundler = new Bundler
+      if (this.pubKey) bundler.encrypt(getEncryption(), this.pubKey)
 
       let log = [
         await this.info(),

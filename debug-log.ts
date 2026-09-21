@@ -75,10 +75,28 @@ export class Bundler {
         }
 
         stringInputStream.setByteStringData(rawString)
-        zipWriter.addEntryStream(path, Date.now() * 1000, Components.interfaces.nsIZipWriter.COMPRESSION_DEFAULT!, stringInputStream, false)
+        zipWriter.addEntryStream(path, Date.now() * 1000, Components.interfaces.nsIZipWriter.COMPRESSION_DEFAULT!, stringInputStream, true)
       }
 
-      zipWriter.close()
+      await new Promise<void>((resolve, reject) => {
+        zipWriter.processQueue({
+          onStartRequest: () => {},
+          onStopRequest: (_request: unknown, status: number) => {
+            if (status) {
+              reject(new Error(`Could not compress debug log: ${status}`))
+              return
+            }
+            try {
+              zipWriter.close()
+              resolve()
+            }
+            catch (err) {
+              reject(err)
+            }
+          },
+        }, null)
+      })
+
       if (saveTo) return undefined
       return new Uint8Array(await IOUtils.read(zipFile.path))
     }

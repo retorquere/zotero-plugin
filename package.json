@@ -106,7 +106,6 @@
     "tslib": "^2.8.1",
     "uri-templates": "^0.2.0",
     "url-template": "^3.1.1",
-    "uzip": "^0.20201231.0",
     "xml-parser": "^1.2.1",
     "xpath": "^0.0.34",
     "zotero-types": "^4.1.3"
